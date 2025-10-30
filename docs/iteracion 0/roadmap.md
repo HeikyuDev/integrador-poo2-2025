@@ -1,37 +1,74 @@
-# 📑 Propuestas de Historias de Usuario
+# Roadmap de desarrollo
+El presente *roadmap* toma como base el ya establecido documento de especificaciones de requisitos (`erp.md`) y adopta una estructura en dos fases (una por cada iteración). Priorizando los módulos esenciales para que el sistema sea funcional y entregue valor básico rápidamente.
 
-Las siguientes propuestas de historias de usuario están separadas en dos categorías: *Iteraciones futuras* (aquellas con funcionalidades consideradas avanzadas, más apropiadas para futuras iteraciones) y *Próximas iteraciones* (historias de usuario con funcionalidades consideradas básicas o mínimas para permitir el funcionamiento del sistema).
+---
+## Backlog de iteración
+## Fase 1: Mínimo Producto Viable (MVP)
+
+**Objetivo:** Establecer la base del sistema, incluyendo la gestión de usuarios, clientes, servicios y la funcionalidad de facturación individual y pagos. El sistema debe ser mínimamente funcional para emitir y cobrar una factura.
+
+### 1. Gestión de clientes
+- **Como** empleado
+- **Quiero** registrar, consultar, editar y dar de baja clientes que estén registrados en el sistema
+- **Para** mantener el registro de clientes actualizado, emitir facturas solo a clientes activos y disponer de su información fiscal y de contacto para las operaciones.
+
+### 2. Gestión de servicios
+- **Como** empleado
+- **Quiero** registrar, consultar, editar y dar de baja servicios que estén registrados en el sistema
+- **Para** contar con un catálogo de servicios actualizado con sus costos y alícuotas de IVA correctas, permitiendo la facturación precisa de los mismos.
+
+### 3. Gestión de empleados
+- **Como** adminsitrador
+- **Quiero** registrar, consultar, editar y dar de baja empleados que estén registrados en el sistema
+- **Para** identificar a la persona que realiza cada operación crítica (trazabilidad) y mantener el control sobre el personal autorizado para gestionar el sistema.
+
+### 4. Gestión de cuentas
+- **Como** empleado
+- **Quiero** registrar, consultar, suspender y dar de baja las cuentas de los clientes
+- **Para** vincular los servicios contratados al cliente, controlar el estado de servicio (activo, suspendido, baja) e impedir que las cuentas dadas de baja sean incluidas en facturación masiva.
+
+### 5. Facturación individual
+- **Como** empleado
+- **Quiero** emitir una factura individual y que el sistema calcule el IVA según la alícuota del servicio y la condición fiscal del cliente
+- **Para** documentar la venta de un servicio específico fuera del ciclo masivo de facturación, cumpliendo con la legislación fiscal.
+
+### 6. Registro de pago total
+- **Como** empleado 
+- **Quiero** registrar el pago total de una determinada factura 
+- **Para** reflejar correctamente la cuenta corriente del cliente en cuestión.
 
 ---
 
-## 🚀 Próximas Iteraciones (Funcionalidad Mínima Viable)
+## Fase 2: Funciones avanzadas, Refactoring y Testeo
 
-### Historias de Usuario enfocadas en el rol de: Administrador de Cuentas
+**Objetivo:** Incorporar funcionalidades extra más avanzadas, como la Facturación Masiva, visualización de registros de pago, entre otras. Junto al refactoring de las funciones implementadas y finalmente el testeo del sistema, previo al empaquetamiento.
 
-| ID | Título | Historia de Usuario |
-| :--- | :--- | :--- |
-| *H.U. 01* | *Alta de clientes* | **Como** Administrador de Cuentas, **quiero** dar de alta un nuevo cliente ingresando sus datos fiscales (CUIT, Razón Social) **para** registrarlo oficialmente en el sistema y poder facturarle sus respectivos servicios. |
-| *H.U. 02* | *Modificación de clientes* | Como *Administrador de Cuentas, quiero modificar los datos personales de un cliente ya registrado **para* corregir posibles equivocaciones, o mantener actualizados los datos de un cliente a lo largo del tiempo. |
-| *H.U. 03* | *Baja de clientes* | Como *Administrador de Cuentas, quiero dar de baja un cliente **para* realizar facturaciones únicamente de aquellos clientes que sean activos. |
-| *H.U. 04* | *Asignar condiciones fiscales a clientes* | Como *Administrador de Cuentas, quiero poder asignar y modificar la condición fiscal (Responsable Inscripto, Monotributista, Exento, Consumidor Final, etc.) de cada cliente **para* que el sistema calcule correctamente el IVA según la condición del cliente. |
+### 1. Facturación Masiva
+- **Como** empleado 
+- **Quiero** quiero presionar el botón **“FACTURAR MASIVO”** y que el sistema genere facturas de todos los servicios correspondientes a **clientes activos**, registrando la fecha de emisión, vencimiento y cantidad de facturas generadas
+- **Para** automatizar el proceso de emisión de facturas periódicas y generar todos los comprobantes de clientes activos en un solo proceso eficiente.
 
-### Historias de Usuario enfocadas en el rol de: Operador de Facturación
+### 2. Anulación de facturas
+- **Como** empleado 
+- **Quiero** anular una factura errónea generando automáticamente una nota de crédito del mismo importe, vinculada a la factura original
+- **Para** corregir errores en comprobantes ya emitidos, manteniendo la coherencia contable y la trazabilidad de la operación mediante la nota de crédito.
 
-| ID | Título | Historia de Usuario |
-| :--- | :--- | :--- |
-| *H.U. 05* | *Generar facturas (Individual)* | Como *Operador de Facturación, quiero generar una factura individual seleccionando un cliente y los servicios prestados con sus montos **para* documentar la venta de un servicio específico fuera del ciclo masivo de facturación. |
-| *H.U. 06* | *Anular facturas* | Como *Operador de Facturación, quiero poder anular una factura emitida ingresando el motivo de la anulación **para* corregir un error o deshacer una operación contable de forma legal. |
+### 3. Registro de pagos por adelantado
+- **Como** empleado 
+- **Quiero** registrar pagos anticipados
+- **Para** reflejar el dinero recibido como saldo a favor del cliente y que pueda ser aplicado a futuras facturas.
 
----
+### 4. Registro de pago parcial
+- **Como** empleado 
+- **Quiero** registrar pagos parciales de una determinada factura
+- **Para** registrar el abono de una parte del monto total y que el sistema la considere al momento de realizar otro pago parcial, o el pago total.
 
-## ✨ Iteraciones Futuras (Funcionalidad Avanzada)
+### 5. Consultar reportes y estado de cuenta
+- **Como** empleado
+- **Quiero** visualizar los procesos de facturación masiva, pagos registrados y el estado de cuenta de cada cliente (con su historial de facturación)
+- **Para** auditar las operaciones masivas, controlar la actividad de los empleados y conocer rápidamente el saldo pendiente de cada cliente.
 
-### Historias de Usuario para futuras mejoras
-
-| ID | Título | Rol | Historia de Usuario |
-| :--- | :--- | :--- | :--- |
-| *H.U. F01* | *Ver estado de cuenta* | Operador de Cobranzas | Como *Operador de Cobranzas, quiero ver el estado de cuenta de un cliente con el detalle de facturas emitidas, pagos recibidos y saldo pendiente **para* saber rápidamente qué facturas están pendientes de pago y el monto correspondiente. |
-| *H.U. F02* | *Previsualizar facturas* | Operador de Facturación | Como *Operador de Facturación, quiero poder previsualizar el borrador de la factura con el cálculo del IVA incluido **para* asegurar que los montos, impuestos e información del cliente sean correctos antes de la emisión final. |
-| *H.U. F03* | *Modificar estado de facturas* | Operador de Facturación | Como *Operador de Facturación, quiero modificar el estado de una factura (activa, anulada, pendiente, etc.) **para* mantener un estado actualizado de cada factura, según la condición que posea en ese momento. |
-| *H.U. F04* | *Buscar clientes por identificador* | Administrador de Cuentas | Como *Administrador de Cuentas, quiero buscar clientes por CUIT o Razón Social **para* gestionar rápidamente la información de cuentas específicas. |
-
+### 6. Actualizar condición ante el IVA de un Cliente
+- **Como** empleado
+- **Quiero** modificar la condición fiscal de un cliente
+- **Para** asegurar que el sistema considere la condición fiscal actualizada al momento de emitir nuevas facturas y calcular el IVA correctamente.
