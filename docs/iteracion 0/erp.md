@@ -36,196 +36,284 @@ La aplicación facilitará el control administrativo, mantendrá la coherencia c
 ### Módulo Clientes
 
 **HU-001 — Alta de cliente**  
-Como *empleado*, quiero registrar un nuevo cliente con sus datos personales, fiscales y de contacto, para poder emitirle facturas.  
+Como *Administrador*, quiero poder registrar un nuevo cliente con su nombre, tipo, direccion y datos de contacto, para poder  gestionarlo en el sistema y asociarle cuentas posteriormente.  
 
 **Criterios de aceptación:**
-- Se debe validar que el CUIT/DNI no esté ya registrado.  
-- Todos los campos obligatorios (nombre, razón social, CUIT, condición IVA, dirección, teléfono o email) deben estar completos.  
-- Al confirmar, el cliente aparece en el listado general con estado *Activo*.  
+- Todos los campos obligatorios (nombre, tipo, dirección, teléfono, correo) deben estar completos; si falta alguno, el sistema muestra un mensaje de error y no permite guardar.
+- El cliente queda registrado con estado Activo. 
 
 ---
 
 **HU-002 — Consulta de clientes**  
-Como *empleado*, quiero visualizar el listado de clientes con su razón social, CUIT/DNI, condición frente al IVA y estado, para poder seleccionar uno al momento de facturar.  
+Como *Administrador*, quiero visualizar el listado de clientes registrados, para poder visualizar su nombre, dirección e información de contacto dentro del sistema.  
 
 **Criterios de aceptación:**
-- La consulta debe listar todos los clientes activos.  
-- Debe permitir filtrar por nombre, CUIT o estado.  
-- Al seleccionar un cliente, se muestran sus datos detallados.  
+- El listado muestra todos los clientes activos.
+- Cada cliente en el listado muestra:
+    - Nombre → nombre completo si es persona física, o denominación comercial si es persona jurídica.
+    - Dirección → domicilio o ubicación física principal del cliente..
+    - Teléfono → número de contacto.
+    - Correo electrónico → email de contacto.
+    - Tipo → Persona Fisica/Juridica
+- El sistema permite buscar clientes por nombre, mostrando todos los que coincidan parcial o totalmente con el texto ingresado; si no hay coincidencias, se muestra un mensaje indicando “No se encontraron clientes”.
+- Se debe poder filtrar por tipo
 
 ---
 
 **HU-003 — Modificación de clientes**  
-Como *empleado*, quiero modificar la información de contacto de un cliente ya registrado, para mantener su información actualizada.  
+Como *Administrador*, quiero poder modificar los datos de un cliente registrado, para mantener actualizada su información dentro del sistema.  
 
 **Criterios de aceptación:**
-- Solo pueden modificarse los datos de contacto.
-- El sistema debe registrar la fecha y empleado que realizó la modificación.  
+- Solo se pueden modificar los siguientes campos:
+    - Nombre → completo si es persona física, denominación comercial si es persona jurídica.
+    - Tipo → Persona Física / Persona Jurídica.
+    - Dirección → domicilio o ubicación física principal del cliente..
+    - Teléfono → número de contacto.
+    - Correo electrónico → email de contacto.
+- El sistema valida que los campos obligatorios no queden vacíos; si falta alguno, muestra un mensaje de error y no guarda los cambios.
+- Los cambios se reflejan inmediatamente en los listados de clientes.  
 
 ---
 
 **HU-004 — Baja de cliente**  
-Como *empleado*, quiero dar de baja un cliente para que no se le generen nuevas facturas, manteniendo su historial de operaciones.  
+Como *Administrador*, quiero dar de baja un cliente registrado, para que no se generen nuevas cuentas ni se pueda facturar a su nombre
 
 **Criterios de aceptación:**
 - Al dar de baja, el cliente cambia su estado a *Inactivo*.  
-- El cliente no debe aparecer en los listados de facturación.  
-- No se elimina la información ni el historial de facturas.  
+- La información del cliente (nombre, tipo, dirección postal, teléfono, correo) permanece registrada.
+- Las cuentas y facturas existentes asociadas al cliente permanecen en el sistema y pueden consultarse, pero no se pueden crear nuevas operaciones mientras el cliente esté Inactivo.
 
 ---
 
 ### Módulo Servicios
 
 **HU-010 — Alta de servicio**  
-Como *empleado*, quiero registrar un servicio indicando su concepto, monto fijo y alícuota de IVA, para poder facturarlo.  
+Como *Administrador*, quiero registrar un servicio indicando su nombre, descripción, monto fijo y alícuota de IVA, para poder facturarlo correctamente.  
 
 **Criterios de aceptación:**
-- Los campos “concepto”, “monto” y “alícuota” son obligatorios.  
-- No puede haber dos servicios con el mismo concepto activo.  
-- Al guardarse, el servicio se muestra como *Activo*.  
+- Los campos obligatorios son:
+    - Nombre → Nombre del Servicio
+    - Monto → precio fijo del servicio.
+    - Alícuota de IVA → porcentaje de impuesto aplicable.
+- La descripción es opcional y permite detallar características del servicio.
+- No puede haber dos servicios activos con el mismo nombre. 
+- Al guardar, el servicio queda registrado con estado *Activo* y disponible para asociar a cuentas y generar facturas.  
 
 ---
 
 **HU-011 — Consulta de servicios**  
-Como *empleado*, quiero visualizar todos los servicios disponibles con su monto y alícuota de IVA, para asociarlos a los clientes.  
+Como *Administrador*, quiero visualizar todos los servicios registrados y activos, mostrando su nombre, descripción, monto y alícuota de IVA, para poder consultar los servicios disponibles en el sistema.
 
 **Criterios de aceptación:**
-- Se listan solo los servicios activos.  
-- Debe permitir filtrar por nombre o alícuota.  
+- Solo se muestran los servicios con estado Activo.
+- Cada servicio en el listado incluye:
+    - Nombre → identificador corto del servicio.
+    - Descripción → detalles adicionales (si los hay).
+    - Monto → precio del servicio.
+    - Alícuota de IVA → porcentaje de impuesto aplicable.
+- El sistema permite buscar servicios por nombre, mostrando todos los que coincidan parcial o totalmente; si no hay coincidencias, se muestra el mensaje “No se encontraron servicios”.
 
 ---
 
 **HU-012 — Modificación de servicios**  
-Como *empleado*, quiero modificar el concepto y/o costos de un servicio ya registrado, para mantenerlo actualizado.  
+Como *Administrador*, quiero poder modificar los datos de un servicio ya registrado, para mantener su información actualizada y correcta en el sistema.  
 
 **Criterios de aceptación:**
-- Solo puede modificarse si el servicio está activo.  
-- El sistema debe registrar el empleado y la fecha de la modificación.  
+- Solo se pueden modificar los siguientes campos de servicios activos:
+    - Nombre → identificador corto del servicio.
+    - Descripción → detalles adicionales (si los hay).
+    - Monto → precio del servicio.
+    - Alícuota de IVA → porcentaje de impuesto aplicable.
+- El sistema valida que los campos obligatorios no queden vacíos; si falta alguno, muestra un mensaje de error y no guarda los cambios.
+- No se permite que existan dos servicios activos con el mismo nombre.
+- Los cambios se reflejan inmediatamente en los listados y consultas de servicios.
 
 ---
 
 **HU-013 — Baja de servicio**  
-Como *empleado*, quiero dar de baja un servicio que ya no se ofrece, sin afectar las facturas previas.  
+Como *Administrador*, quiero dar de baja un servicio registrado, para que no se pueda asociar a nuevas cuentas ni generar facturas. 
 
 **Criterios de aceptación:**
-- El servicio pasa a estado *Inactivo*.  
-- No puede seleccionarse para facturas nuevas.  
+- Al dar de baja, el servicio cambia su estado a *Inactivo*.  
+- La información del servicio (nombre, descripción, monto, alícuota de IVA) permanece registrada.
+- No se pueden generar nuevas facturas ni asociar el servicio a nuevas cuentas mientras esté Inactivo.  
 
 ---
 
 ### Módulo Empleados
 
 **HU-020 — Alta de empleado**  
-Como *administrador*, quiero registrar empleados con su nombre, apellido, legajo y rol, para identificar quién realiza cada operación.  
+Como *Administrador*, quiero registrar un nuevo empleado con su nombre, apellido, legajo y rol, para que pueda operar en el sistema y su actividad quede registrada para trazabilidad.  
 
 **Criterios de aceptación:**
-- Los campos legajo y rol son obligatorios.  
+- Todos los campos obligatorios (nombre, apellido, legajo, rol) deben completarse; si falta alguno, el sistema muestra un mensaje de error y no guarda.
+- Se permite que un empleado desempeñe varios roles.
+- Al registrarse, el empleado queda con estado Activo.
 - No se permite duplicar legajos.  
 
 ---
 
 **HU-021 — Consulta de empleados**  
-Como *administrador*, quiero visualizar la lista de empleados y sus roles, para gestionar las tareas internas.  
+Como *Administrador*, quiero visualizar la lista de empleados registrados, para gestionar al personal y asegurar la trazabilidad de sus operaciones dentro del sistema.
 
 **Criterios de aceptación:**
-- Debe permitir filtrar por nombre o rol.  
-- Muestra solo empleados activos.  
+- La lista muestra todos los empleados activos.
+- Cada empleado en el listado incluye:
+    - Nombre y apellido → Datos personales del empleado.
+    - Legajo → identificador único dentro del sistema.
+    - Rol → Rol/Roles que desempeña el empleado
+- El sistema permite buscar empleados por nombre y apellido si no hay coincidencias, muestra “No se encontraron empleados”.  
 
 ---
 
 **HU-022 — Modificación de empleados**  
-Como *administrador*, quiero modificar el rol de un empleado ya registrado, para asignarle nuevas funciones.  
+Como *Administrador*, quiero modificar los datos de un empleado registrado, para mantener actualizada su información y rol dentro del sistema.
 
 **Criterios de aceptación:**
-- El sistema registra fecha y usuario que realizó el cambio.  
-- El cambio impacta de inmediato en los permisos del empleado.  
+- ESe pueden modificar los campos nombre, apellido y rol.
+- El legajo del empleado no puede modificarse, ya que actúa como identificador único.
+- El sistema valida que el empleado tenga al menos un rol asignado antes de guardar los cambios.
+
 
 ---
 
 **HU-023 — Baja de empleado**  
-Como *administrador*, quiero dar de baja un empleado, para mantener la trazabilidad de las operaciones que haya realizado.  
+Como *Administrador*, quiero dar de baja un empleado registrado, para que no pueda realizar operaciones dentro del sistema.  
 
 **Criterios de aceptación:**
-- El empleado pasa a estado *Inactivo* y no puede iniciar sesión.  
-- Sus acciones pasadas permanecen registradas.  
+- Al dar de baja, el empleado cambia su estado a Inactivo. 
+- Un empleado inactivo no puede iniciar sesión ni realizar operaciones en el sistema.
+- La información del empleado no se elimina, solo deja de mostrarse en los listados activos.  
 
 ---
 
 ### Módulo Cuentas
 
 **HU-030 — Alta de cuenta**  
-Como *empleado*, quiero crear una cuenta vinculada a un cliente, donde se asocien los servicios contratados.  
+Como *Administrador*, quiero crear una cuenta vinculada a un cliente, para registrar sus datos fiscales y permitir su utilización en procesos de facturación.
 
 **Criterios de aceptación:**
-- No puede haber más de una cuenta activa por cliente.  
-- Se deben poder asociar uno o más servicios.  
-- La cuenta queda en estado *Activa*.  
+- La cuenta debe estar asociada a un cliente existente.  
+- Se deben ingresar los siguientes datos obligatorios:
+    - CUIT
+    - Razón social
+    - Condición frente al IVA 
+    - Domicilio fiscal
+- El sistema valida que el CUIT no esté ya registrado en otra cuenta activa.
+- Al confirmar, la cuenta se registra con estado Activo y queda disponible para operaciones de facturación. 
 
 ---
 
 **HU-031 — Consulta de cuentas**  
-Como *empleado*, quiero ver las cuentas existentes con su estado y servicios asociados.  
+Como *Administrador*, quiero visualizar todas las cuentas activas registradas en el sistema, para consultar su información fiscal y el cliente al que pertenecen.
 
 **Criterios de aceptación:**
-- Debe mostrar el nombre del cliente, los servicios y el estado de la cuenta.  
-- Permite filtrar por estado o cliente.  
+- El listado muestra todas las cuentas activas.
+- Cada cuenta en el listado incluye:
+    - CUIT
+    - Razón social
+    - Condición frente al IVA
+    - Domicilio fiscal
+    - Cliente asociado (nombre del cliente titular de la cuenta)
+- Permite filtrar por cliente. (visualizar todas las cuentas correspondientes a un determinado cliente)
 
 ---
 
 **HU-032 — Suspender cuenta**  
-Como *empleado*, quiero suspender la cuenta de un cliente a pedido del mismo, para que no se generen nuevas facturas.  
+Como *Administrador*, quiero poder suspender la cuenta de un cliente a pedido del mismo, para detener temporalmente la generación de facturas sin perder la información fiscal asociada. 
 
 **Criterios de aceptación:**
-- La cuenta pasa a estado *Suspendida*.  
-- No se permite incluirla en facturación masiva.  
+- Al suspender la cuenta, su estado cambia a *Suspendida*.  
+- Las cuentas suspendidas no pueden incluirse en la facturación masiva ni individual.
+- La cuenta suspendida permanece visible solo en la sección de “Cuentas suspendidas” del sistema. 
 
 ---
 
-**HU-033 — Baja de cuenta**  
-Como *empleado*, quiero dar de baja una cuenta para impedir que sea incluida en facturación.  
+**HU-033 — Modificacion de Cuenta**
+
+Como *Administrador*, quiero poder modificar los datos fiscales de una cuenta registrada, para mantener actualizada su información y asegurar que las futuras facturas se emitan correctamente.
 
 **Criterios de aceptación:**
-- La cuenta pasa a *Inactiva*.
-- No se permite incluirla en facturación masiva.
+
+- Solo se pueden modificar los siguientes campos:
+    - Razón social
+    - Condición frente al IVA
+    - Domicilio fiscal
+- El CUIT no puede modificarse, ya que identifica de forma única la cuenta.
+- El sistema valida que los campos obligatorios no queden vacíos.
+
+---
+
+**HU-034 — Baja de cuenta**  
+Como *Administrador*, quiero dar de baja una cuenta registrada, para que no pueda ser utilizada en procesos de facturación futuros. 
+
+**Criterios de aceptación:**
+- Al dar de baja, la cuenta cambia su estado a *Inactiva*.
+- Las cuentas inactivas no pueden incluirse en facturación individual ni masiva.
+- La información de la cuenta no se elimina, permitiendo consultar su historial de facturación y pagos asociados.
 
 ---
 
 ### Módulo Facturación
 
 **HU-040 — Emisión de factura individual**  
-Como *empleado*, quiero emitir una factura individual para una cuenta.  
+Como *Administrador*, quiero emitir una factura individual para una cuenta, para registrar los servicios contratados y pendientes de pago, asegurando el cálculo correcto de impuestos.
 
 **Criterios de aceptación:**
-- Se debe calcular automáticamente el IVA según el servicio y la condición fiscal del cliente.  
+- Al ingresar a la sección, el sistema muestra todos los servicios asignados a todas las cuentas, ordenados por cuenta.
+- La pantalla permite filtrar los servicios por cuenta, mostrando únicamente los servicios asociados a la cuenta seleccionada.
+- Cada servicio listado incluye:
+    - Nombre del servicio
+    - Descripción
+    - Monto
+    - Estado de pago (pagado/impago/ ParcialmentePagado)
+- Se pueden aplicar filtros adicionales:
+    - Estado de pago
+    - Fecha de asignación
+    - Nombre del servicio
+- Al seleccionar los servicios y confirmar, el sistema:
+    - Calcula automáticamente el IVA según el servicio y la condición fiscal de la cuenta.
+    - Genera la factura digitalmente dentro del sistema, asignándole número único, fecha de emisión y fecha de vencimiento.
+    - La factura no se emite en papel, solo queda registrada para consultas y trazabilidad.
 - La factura se genera con número único y fecha de emisión.  
 
 ---
 
 **HU-041 — Anulación de factura (nota de crédito)**  
-Como *empleado*, quiero anular una factura errónea generando una nota de crédito asociada.  
+Como *Administrador*, quiero generar una nota de crédito para corregir una factura errónea, de manera que el monto de la factura quede ajustado correctamente dentro del sistema.
 
 **Criterios de aceptación:**
-- Solo pueden anularse facturas activas.  
-- Se crea una nota de crédito del mismo importe con vínculo a la factura original.  
+- Solo pueden anularse facturas activas.
+- Al anular una factura, el sistema genera automáticamente una nota de crédito por el valor total de la factura, vinculada a la factura original.
 
 ---
 
 **HU-042 — Facturación masiva**  
-Como *empleado*, quiero presionar el botón “FACTURAR MASIVO” para generar facturas de todos los clientes activos.  
+Como *Administrador*, quiero generar facturas de manera masiva para todas las cuentas activas, para registrar automáticamente los servicios pendientes de pago dentro del sistema.
 
 **Criterios de aceptación:**
-- Solo incluye cuentas *Activas*.  
-- Genera facturas con fecha y vencimiento.  
-- Registra cantidad total emitida y empleado responsable.  
+- La facturación masiva solo incluye cuentas en estado *Activo*..  
+- Para cada cuenta, se incluyen los servicios pendientes de pago, calculando automáticamente el IVA según la condición fiscal de la cuenta.
+- El sistema registra:
+    - Cantidad total de facturas generadas
+    - Monto total facturado
+    - Empleado responsable del proceso
 
 ---
 
 **HU-043 — Consulta de facturas**  
-Como *empleado*, quiero visualizar todas las facturas emitidas y su estado.  
+Como *empleado*, quiero visualizar todas las facturas emitidas, para poder consultar los servicios incluidos, los montos y los pagos realizados dentro del sistema.
 
 **Criterios de aceptación:**
-- Permite filtrar por fecha o cliente.  
-- Muestra pagos y notas de crédito asociadas.  
+- Permite filtrar por cliente, cuenta o fecha de emisión.  
+- Muestra, para cada factura:
+    - Número de factura
+    - Cuenta y cliente asociado
+    - Servicios incluidos
+    - Monto total
+    - Pagos registrados y método de pago
+    - Empleado que la emitió
+- Permite acceder al detalle completo de cada factura.
 
 ---
 
