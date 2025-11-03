@@ -305,7 +305,7 @@ Como *Administrador*, quiero generar facturas de manera masiva para todas las cu
 Como *empleado*, quiero visualizar todas las facturas emitidas, para poder consultar los servicios incluidos, los montos y los pagos realizados dentro del sistema.
 
 **Criterios de aceptación:**
-- Permite filtrar por cliente, cuenta o fecha de emisión.  
+- Permite filtrar por cliente, cuenta, estado del pago y fecha de emisión.  
 - Muestra, para cada factura:
     - Número de factura
     - Cuenta y cliente asociado
@@ -320,52 +320,66 @@ Como *empleado*, quiero visualizar todas las facturas emitidas, para poder consu
 ### Módulo Pagos
 
 **HU-050 — Registro de pago total**  
-Como *empleado*, quiero registrar pagos totales para evitar que una factura pagada se venza.
+Como *Administrador*, quiero registrar pagos totales de facturas, para reflejar correctamente las operaciones canceladas y evitar que facturas pagadas se consideren vencidas.
+
 
 **Criterios de aceptación:**
-- Solo puede realizarse sobre facturas impagas.   
+- Solo pueden registrarse pagos sobre facturas con saldo pendiente.
+- Al registrar el pago total:
+    - El sistema toma automáticamente el monto restante de la factura como monto del pago.
+    - Registra la fecha del pago y el medio utilizado.
+- Si el pago se realiza después del vencimiento, el sistema conserva la fecha real de pago.
+- No se permite modificar ni eliminar el pago una vez confirmado.
 
 ---
 
 **HU-051 — Registro de pago parcial**  
-Como *empleado*, quiero registrar pagos parciales de una factura.  
+Como *Administrador*, quiero registrar pagos parciales de una factura, para poder reflejar en el sistema los abonos realizados por un cliente antes de saldar el total.
 
 **Criterios de aceptación:**
-- El sistema recalcula el saldo restante.  
-- Permite registrar pagos sucesivos hasta el monto total.  
+- El sistema recalcula automáticamente el saldo restante de la factura.
+- Permite registrar pagos sucesivos hasta cubrir el monto total.
+- Cada pago queda registrado con su fecha, monto y método de pago.
+- La factura se considera pagada cuando el saldo pendiente calculado (total de la factura menos la suma de los pagos registrados) es igual a cero.
 
 ---
 
 **HU-052 — Registro de pago adelantado**  
-Como *empleado*, quiero registrar pagos anticipados como saldo a favor.  
+Como *Administrador*, quiero registrar pagos anticipados para un cliente, para que puedan aplicarse automáticamente a futuras facturas. 
 
 **Criterios de aceptación:**
-- El saldo queda disponible para futuras facturas.  
-- Se asocia automáticamente al cliente.  
+- El pago registrado queda disponible como saldo a favor del cliente.  
+- El sistema asocia automáticamente el saldo al cliente correspondiente.
+- Al generar futuras facturas, el saldo a favor se puede aplicar para reducir el monto a pagar.
 
 ---
 
 **HU-053 — Consulta de pagos**  
-Como *empleado*, quiero visualizar los pagos realizados con su monto, fecha y método.  
+Como *Administrador*, quiero visualizar todos los pagos realizados en el sistema, para poder consultar el historial de cobros de cada cliente y factura.
 
 **Criterios de aceptación:**
-- Debe permitir filtrar por cliente, factura o fecha.  
-- Muestra el método de pago y empleado que lo registró.  
+- El listado muestra, para cada pago:
+    - Monto abonado
+    - Fecha
+    - Método de pago (efectivo, tarjeta, transferencia, etc.)
+    - Cliente asociado
+    - Factura asociada 
+- Permite filtrar por cliente, factura o rango de fechas.
+- Permite ordenar los pagos por fecha o monto.
+- No se permite modificar ni eliminar los registros de pago desde esta sección (solo consulta).
 
 ---
 
 ### Módulo Reportes
 
 **HU-060 — Reporte de facturación masiva**  
-Como *administrador*, quiero consultar los procesos de facturación masiva con su fecha, vencimiento, cantidad de facturas y empleado responsable, para auditar los procesos del sistema.  
+Como *Administrador*, quiero visualizar un listado de los procesos de facturación masiva realizados, para consultar sus resultados y verificar los montos y cantidad de facturas generadas.
 
 **Criterios de aceptación:**
-- El reporte muestra fecha, total de facturas y monto total.  
-
+- El listado muestra, para cada proceso:
+    - Fecha del proceso
+    - Cantidad de facturas generadas
+    - Monto total facturado
+    - Empleado responsable del proceso
 ---
 
-**HU-061 — Actualización de condición frente al IVA**  
-Como *empleado*, quiero modificar la condición fiscal del cliente y que el sistema la considere en futuras facturas, para asegurar el correcto cálculo de impuestos.  
-
-**Criterios de aceptación:**
-- Solo se aplica a facturas nuevas.   
