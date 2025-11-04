@@ -1,0 +1,59 @@
+/* === NAVBAR === */
+.navbar-dark {
+  background: linear-gradient(90deg, #1a1a1a 0%, #2a003d 100%);
+}
+
+.navbar-brand img {
+  background-color: transparent;
+}
+
+.nav-link {
+  color: #e0e0e0 !important;
+  transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #ba68c8 !important;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+}
+
+.navbar .dropdown-menu {
+  background-color: #2b1b35;
+  border: none;
+}
+
+.navbar .dropdown-item {
+  color: #ddd;
+}
+
+.navbar .dropdown-item:hover {
+  background-color: #4a235a;
+  color: #fff;
+}
+
+/* === FOOTER === */
+footer {
+  background: linear-gradient(180deg, #2a003d 0%, #000000 100%);
+  color: #e0e0e0;
+}
+
+footer h5 i {
+  color: #ba68c8;
+}
+
+footer a:hover {
+  color: #ba68c8 !important;
+}
+
+/* === ICONOS DE NAVBAR DERECHA === */
+.navbar .fa-bell,
+.navbar .fa-user-circle {
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.navbar .fa-bell:hover,
+.navbar .fa-user-circle:hover {
+  color: #ba68c8;
+  transform: scale(1.1);
+}

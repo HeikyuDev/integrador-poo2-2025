@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head th:fragment="head">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ServiSoft</title>
+
+    <!-- MDB CSS -->
+    <link rel="stylesheet" th:href="@{/css/mdb.min.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <!-- Tu CSS personalizado -->
+    <link rel="stylesheet" th:href="@{/css/template.css}">
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+    <!-- Navbar -->
+    <header th:fragment="navbar">
+        <nav class="navbar navbar-expand-lg navbar-dark shadow-3-strong">
+            <div class="container-fluid">
+
+                <!-- Brand -->
+                <a class="navbar-brand d-flex align-items-center" href="#">
+                    <img th:src="@{/img/logo.png}" alt="ServiSoft" width="40" height="40"
+                        class="me-2 rounded-circle shadow-1-strong">
+                    <span class="fw-bold text-light">ServiSoft</span>
+                </a>
+
+                <!-- Toggle button -->
+                <button class="navbar-toggler" type="button" data-mdb-collapse-init data-mdb-target="#navbarMain"
+                    aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+                    <i class="fas fa-bars text-light"></i>
+                </button>
+
+                <!-- Collapsible content -->
+                <div class="collapse navbar-collapse justify-content-between" id="navbarMain">
+                    <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+
+                        <li class="nav-item mx-1">
+                            <a class="nav-link" th:href="@{/clientes}" data-mdb-ripple-init>
+                                <i class="fas fa-users me-2"></i>Clientes
+                            </a>
+                        </li>
+
+                        <li class="nav-item mx-1">
+                            <a class="nav-link" th:href="@{/cuentas}" data-mdb-ripple-init>
+                                <i class="fas fa-wallet me-2"></i>Cuentas
+                            </a>
+                        </li>
+
+                        <li class="nav-item mx-1">
+                            <a class="nav-link" th:href="@{/servicios}" data-mdb-ripple-init>
+                                <i class="fas fa-cogs me-2"></i>Servicios
+                            </a>
+                        </li>
+
+                        <li class="nav-item dropdown mx-1">
+                            <a class="nav-link dropdown-toggle" href="#" id="facturacionDropdown" role="button"
+                                data-mdb-dropdown-init aria-expanded="false">
+                                <i class="fas fa-file-invoice me-2"></i>Facturación
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="facturacionDropdown">
+                                <li><a class="dropdown-item" th:href="@{/facturacion/nueva}"
+                                        data-mdb-ripple-init>Facturar</a></li>
+                                <li><a class="dropdown-item" th:href="@{/facturacion/consulta}"
+                                        data-mdb-ripple-init>Consulta de facturación</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item mx-1">
+                            <a class="nav-link" th:href="@{/pagos}" data-mdb-ripple-init>
+                                <i class="fas fa-credit-card me-2"></i>Pagos
+                            </a>
+                        </li>
+
+                        <li class="nav-item mx-1">
+                            <a class="nav-link" th:href="@{/reportes}" data-mdb-ripple-init>
+                                <i class="fas fa-chart-bar me-2"></i>Reportes
+                            </a>
+                        </li>
+                    </ul>
+
+                    <!-- ICONOS DERECHA -->
+                    <div class="d-flex align-items-center">
+                        <a class="text-reset me-3" href="#" data-mdb-ripple-init>
+                            <i class="fas fa-bell text-light"></i>
+                        </a>
+                        <a class="text-reset" href="#" data-mdb-ripple-init>
+                            <i class="fas fa-user-circle text-light fs-4"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- CONTENIDO -->
+    <main class="flex-fill">
+        <div class="container my-5">
+            <!-- Aquí va el contenido dinámico -->
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer th:fragment="footer" class="text-center text-lg-start text-white mt-auto">
+        <div class="container p-4">
+            <div class="row mt-4">
+                <div class="col-lg-4 col-md-6 mb-4 mb-md-0">
+                    <h5 class="text-uppercase fw-bold mb-3">
+                        <i class="fas fa-laptop-code me-2 text-light"></i>Sistema de Gestión
+                    </h5>
+                    <p class="text-white-50">Plataforma integral para la administración del sistema ServiSoft.</p>
+                </div>
+
+                <div class="col-lg-4 col-md-6 mb-4 mb-md-0">
+                    <h5 class="text-uppercase fw-bold mb-3">
+                        <i class="fas fa-link me-2 text-light"></i>Enlaces
+                    </h5>
+                    <ul class="list-unstyled">
+                        <li><a th:href="@{/home}" class="text-white-50 text-decoration-none"
+                                data-mdb-ripple-init>Inicio</a></li>
+                        <li><a th:href="@{/clientes}" class="text-white-50 text-decoration-none"
+                                data-mdb-ripple-init>Clientes</a></li>
+                        <li><a th:href="@{/cuentas}" class="text-white-50 text-decoration-none"
+                                data-mdb-ripple-init>Cuentas</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-4 col-md-6 mb-4 mb-md-0">
+                    <h5 class="text-uppercase fw-bold mb-3">
+                        <i class="fas fa-envelope me-2 text-light"></i>Contacto
+                    </h5>
+                    <p class="text-white-50 mb-1"><i class="fas fa-map-marker-alt me-2"></i>Calle Principal 123</p>
+                    <p class="text-white-50 mb-1"><i class="fas fa-envelope me-2"></i>info@sistema.com</p>
+                    <p class="text-white-50"><i class="fas fa-phone me-2"></i>+54 3764 123456</p>
+                </div>
+            </div>
+
+            <hr class="my-4 opacity-25 bg-light">
+
+            <div class="text-center text-white-50">
+                &copy; <span th:text="${#dates.year(#dates.createNow())}">2025</span>
+                <strong>ServiSoft</strong>. Todos los derechos reservados.
+            </div>
+        </div>
+    </footer>
+
+    <th:block th:fragment="scripts">
+        <script type="text/javascript" th:src="@{/js/mdb.umd.min.js}"></script>
+    </th:block>
+</body>
+
+</html>
