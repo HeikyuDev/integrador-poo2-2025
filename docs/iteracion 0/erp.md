@@ -17,7 +17,7 @@ Con este sistema, la empresa podrá controlar de manera más eficiente los servi
 ## Solución propuesta
 Se desarrollará una **aplicación web** que automatice la gestión de facturación y cobros.  
 El sistema permitirá:
-- Registrar clientes, empleados, servicios y cuentas asociadas.  
+- Registrar clientes, servicios y cuentas asociadas.  
 - Emitir facturas individuales o masivas con cálculo automático de IVA.  
 - Generar notas de crédito ante anulaciones.  
 - Registrar pagos totales, parciales o adelantados.  
@@ -140,53 +140,6 @@ Como *Administrador*, quiero dar de baja un servicio registrado, para que no se 
 
 ---
 
-### Módulo Empleados
-
-**HU-020 — Alta de empleado**  
-Como *Administrador*, quiero registrar un nuevo empleado con su nombre, apellido, legajo y rol, para que pueda operar en el sistema y su actividad quede registrada para trazabilidad.  
-
-**Criterios de aceptación:**
-- Todos los campos obligatorios (nombre, apellido, legajo, rol) deben completarse; si falta alguno, el sistema muestra un mensaje de error y no guarda.
-- Se permite que un empleado desempeñe varios roles.
-- Al registrarse, el empleado queda con estado Activo.
-- No se permite duplicar legajos.  
-
----
-
-**HU-021 — Consulta de empleados**  
-Como *Administrador*, quiero visualizar la lista de empleados registrados, para gestionar al personal y asegurar la trazabilidad de sus operaciones dentro del sistema.
-
-**Criterios de aceptación:**
-- La lista muestra todos los empleados activos.
-- Cada empleado en el listado incluye:
-    - Nombre y apellido → Datos personales del empleado.
-    - Legajo → identificador único dentro del sistema.
-    - Rol → Rol/Roles que desempeña el empleado
-- El sistema permite buscar empleados por nombre y apellido si no hay coincidencias, muestra “No se encontraron empleados”.  
-
----
-
-**HU-022 — Modificación de empleados**  
-Como *Administrador*, quiero modificar los datos de un empleado registrado, para mantener actualizada su información y rol dentro del sistema.
-
-**Criterios de aceptación:**
-- ESe pueden modificar los campos nombre, apellido y rol.
-- El legajo del empleado no puede modificarse, ya que actúa como identificador único.
-- El sistema valida que el empleado tenga al menos un rol asignado antes de guardar los cambios.
-
-
----
-
-**HU-023 — Baja de empleado**  
-Como *Administrador*, quiero dar de baja un empleado registrado, para que no pueda realizar operaciones dentro del sistema.  
-
-**Criterios de aceptación:**
-- Al dar de baja, el empleado cambia su estado a Inactivo. 
-- Un empleado inactivo no puede iniciar sesión ni realizar operaciones en el sistema.
-- La información del empleado no se elimina, solo deja de mostrarse en los listados activos.  
-
----
-
 ### Módulo Cuentas
 
 **HU-030 — Alta de cuenta**  
@@ -297,12 +250,11 @@ Como *Administrador*, quiero generar facturas de manera masiva para todas las cu
 - El sistema registra:
     - Cantidad total de facturas generadas
     - Monto total facturado
-    - Empleado responsable del proceso
 
 ---
 
 **HU-043 — Consulta de facturas**  
-Como *empleado*, quiero visualizar todas las facturas emitidas, para poder consultar los servicios incluidos, los montos y los pagos realizados dentro del sistema.
+Como *Administrador*, quiero visualizar todas las facturas emitidas, para poder consultar los servicios incluidos, los montos y los pagos realizados dentro del sistema.
 
 **Criterios de aceptación:**
 - Permite filtrar por cliente, cuenta, estado del pago y fecha de emisión.  
@@ -312,7 +264,6 @@ Como *empleado*, quiero visualizar todas las facturas emitidas, para poder consu
     - Servicios incluidos
     - Monto total
     - Pagos registrados y método de pago
-    - Empleado que la emitió
 - Permite acceder al detalle completo de cada factura.
 
 ---
