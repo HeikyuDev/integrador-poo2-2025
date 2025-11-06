@@ -1,0 +1,109 @@
+package com.gpp.servisoft.model.entities;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+/**
+ * Entidad que representa una factura en el sistema.
+ *
+ * Contiene el identificador, el monto total y las fechas relevantes
+ * (emisión y vencimiento). 
+ */
+@Entity
+@Data
+@Table(name = "factura")
+@NoArgsConstructor
+public class Factura {
+    /**
+     * Identificador único de la factura. Se genera automáticamente.
+     */
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Setter(AccessLevel.NONE)
+    private int idFactura;
+
+    /**
+     * Monto total de la factura. Debe ser un valor mayor o igual a 0.0.
+     * Se permite 0.0 para facturas sin cargo.
+     */
+    @DecimalMin(value = "0.0", inclusive = true, message = "El monto total no puede ser negativo")
+    private Double montoTotal;
+
+    /**
+     * Fecha de emisión de la factura. No puede ser nula y no puede estar en el futuro.
+     */
+    @NotNull(message = "La fecha de emisión es obligatoria")
+    @PastOrPresent(message = "La fecha de emisión no puede ser en el futuro")
+    private LocalDate fechaEmision;
+
+    /**
+     * Fecha de vencimiento de la factura. No puede ser nula y debe ser hoy o en el futuro.
+     */
+    @NotNull(message = "La fecha de vencimiento es obligatoria")
+    @FutureOrPresent(message = "La fecha de vencimiento debe ser hoy o una fecha futura")
+    private LocalDate fechaVencimiento;
+
+    /**
+     * Una Factura involucra muchos detalles de Facturas
+     */
+    @OneToMany(mappedBy="factura", cascade=CascadeType.ALL, orphanRemoval=true) // Si un detalle de factura se elimina y no tiene un padre relacion abz
+    @Valid // Valida internamente cada detalleDeFactura
+    private List<DetalleFactura> detallesFacturas;
+
+    /**
+     * Una factura Almacena de forma Historica los datos Fiscales del Cliente
+     * Para una Futura Refacturacion/ Gestion Historica
+     */
+    @Embedded
+    private DatosClienteFactura datosClienteFactura;
+
+    /**
+     * Una factura Almacena de forma Historica los datos de un Servicio
+     * Para una Futura Refacturacion/ Gestion Historica
+     */
+
+    @Embedded
+    private DatosServicioFactura datosServicioFactura;
+
+    /** 
+     * Para la cancelacion de una factura es necesario la creacion de 
+     * una nota de credito
+     */
+
+    @OneToOne(mappedBy = "factura", cascade = CascadeType.ALL, orphanRemoval = true)
+    private NotaDeCredito notaDeCredito;
+
+    /**
+     * muchas Facturas pueden estar involucradas en el proceso de facturacion masiva
+     */
+
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="id_facturacion_masiva", nullable= true)
+    private FacturacionMasiva facturacionMasiva;
+
+    @OneToMany(mappedBy="factura", cascade=CascadeType.ALL, orphanRemoval=true)
+    @Valid
+    private List<Pago> pagos;
+}
