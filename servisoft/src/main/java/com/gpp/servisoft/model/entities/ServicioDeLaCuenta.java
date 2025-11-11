@@ -1,6 +1,5 @@
 package com.gpp.servisoft.model.entities;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -10,7 +9,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -28,10 +26,6 @@ public class ServicioDeLaCuenta {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Setter(AccessLevel.NONE)
     private int idServicioDeLaCuenta;
-
-    @PositiveOrZero(message = "El precio actual no puede ser negativo")
-    @Column(nullable = false)
-    private Double precioActual;
 
     // Relación con Cuenta (muchos servicios pertenecen a una cuenta)
     @ManyToOne(fetch = FetchType.LAZY)

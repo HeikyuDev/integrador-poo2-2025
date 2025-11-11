@@ -1,7 +1,6 @@
 package com.gpp.servisoft.model.entities;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -15,7 +14,7 @@ import lombok.NoArgsConstructor;
  * Incluye nombre, descripción y el precio actual del servicio. Se
  * usa como {@code @Embeddable} en la entidad principal de factura.
  */
-@Embeddable
+
 @Data
 @NoArgsConstructor
 public class DatosServicioFactura {

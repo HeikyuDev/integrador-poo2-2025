@@ -3,7 +3,6 @@ package com.gpp.servisoft.model.entities;
 import com.gpp.servisoft.model.enums.CondicionFrenteIVA;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotBlank;
@@ -19,7 +18,7 @@ import lombok.NoArgsConstructor;
  * la entidad `Factura` para almacenar domicilio, condición frente
  * al IVA, CUIT y razón social.
  */
-@Embeddable
+
 @Data
 @NoArgsConstructor
 public class DatosClienteFactura {
