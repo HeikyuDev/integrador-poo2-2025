@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{template :: head}"></head>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<body class="d-flex flex-column min-vh-100">
+    <header th:replace="~{template :: navbar}"></header>
+
+    <main class="flex-fill">
+        <div class="container my-5">
+            <!-- Encabezado -->
+            <div class="mb-4">
+                <h2 class="fw-bold">
+                    <i class="fas fa-wallet me-2 text-primary"></i>Detalle de Cuenta
+                </h2>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a th:href="@{/cuentas}">Cuentas</a></li>
+                        <li class="breadcrumb-item active">Detalle</li>
+                    </ol>
+                </nav>
+            </div>
+
+            <div class="row">
+                <!-- Información Principal -->
+                <div class="col-lg-8">
+                    <div class="card shadow-4 mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-info-circle me-2"></i>Información de la Cuenta
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <p class="text-muted mb-1">ID de Cuenta</p>
+                                    <p class="fw-bold" th:text="${cuenta.idCuenta}"></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="text-muted mb-1">Estado</p>
+                                    <p>
+                                        <span class="badge" 
+                                              th:classappend="${cuenta.estado.name() == 'ACTIVO' ? 'bg-success' : 'bg-danger'}"
+                                              th:text="${cuenta.estado}">
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <div class="row mb-3">
+                                <div class="col-md-12">
+                                    <p class="text-muted mb-1">
+                                        <i class="fas fa-building me-2"></i>Razón Social
+                                    </p>
+                                    <p class="fw-bold" th:text="${cuenta.razonSocial}"></p>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <p class="text-muted mb-1">
+                                        <i class="fas fa-id-card me-2"></i>CUIT
+                                    </p>
+                                    <p class="fw-bold" th:text="${cuenta.cuit}"></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="text-muted mb-1">
+                                        <i class="fas fa-file-invoice me-2"></i>Condición Frente al IVA
+                                    </p>
+                                    <p>
+                                        <span class="badge bg-info" th:text="${cuenta.condicionFrenteIVA}"></span>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <p class="text-muted mb-1">
+                                        <i class="fas fa-map-marker-alt me-2"></i>Domicilio Fiscal
+                                    </p>
+                                    <p class="fw-bold" th:text="${cuenta.domicilioFiscal}"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Servicios Asociados -->
+                    <div class="card shadow-4">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-cogs me-2"></i>Servicios Asociados
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div th:if="${cuenta.serviciosDeLaCuenta != null && !#lists.isEmpty(cuenta.serviciosDeLaCuenta)}">
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Servicio</th>
+                                                <th>Precio Actual</th>
+                                                <th>Estado</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr th:each="servicioCuenta : ${cuenta.serviciosDeLaCuenta}">
+                                                <td th:if="${servicioCuenta.servicio != null}" 
+                                                    th:text="${servicioCuenta.servicio.nombreServicio}"></td>
+                                                <td th:text="${'$' + servicioCuenta.precioActual}"></td>
+                                                <td>
+                                                    <span class="badge bg-success">Activo</span>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div th:if="${cuenta.serviciosDeLaCuenta == null || #lists.isEmpty(cuenta.serviciosDeLaCuenta)}" 
+                                 class="text-center py-4">
+                                <i class="fas fa-inbox fa-2x text-muted mb-2"></i>
+                                <p class="text-muted">No hay servicios asociados a esta cuenta</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel Lateral -->
+                <div class="col-lg-4">
+                    <!-- Información del Cliente -->
+                    <div class="card shadow-4 mb-4" th:if="${cuenta.cliente != null}">
+                        <div class="card-header bg-secondary text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-user me-2"></i>Cliente Asociado
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted mb-1">Nombre</p>
+                            <p class="fw-bold" th:text="${cuenta.cliente.nombre}"></p>
+                            
+                            <hr>
+                            
+                            <p class="text-muted mb-1">Tipo de Cliente</p>
+                            <p>
+                                <span class="badge bg-primary" th:text="${cuenta.cliente.tipoCliente}"></span>
+                            </p>
+                            
+                            <p class="text-muted mb-1 mt-3">Dirección</p>
+                            <p th:text="${cuenta.cliente.direccion}"></p>
+                            
+                            <p class="text-muted mb-1 mt-3">Correo Electrónico</p>
+                            <p th:text="${cuenta.cliente.correoElectronico}"></p>
+                            
+                            <p class="text-muted mb-1 mt-3">Teléfono</p>
+                            <p th:text="${cuenta.cliente.telefono}"></p>
+                        </div>
+                    </div>
+
+                    <!-- Acciones -->
+                    <div class="card shadow-4">
+                        <div class="card-header bg-dark text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-tools me-2"></i>Acciones
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <a th:href="@{/cuentas/editar/{id}(id=${cuenta.idCuenta})}" 
+                                   class="btn btn-warning" 
+                                   data-mdb-ripple-init>
+                                    <i class="fas fa-edit me-2"></i>Editar Cuenta
+                                </a>
+                                
+                                <button class="btn btn-danger btn-baja" 
+                                        data-mdb-ripple-init
+                                        th:data-id="${cuenta.idCuenta}"
+                                        th:data-razon-social="${cuenta.razonSocial}">
+                                    <i class="fas fa-trash me-2"></i>Dar de Baja
+                                </button>
+                                
+                                <hr>
+                                
+                                <a th:href="@{/cuentas}" 
+                                   class="btn btn-secondary" 
+                                   data-mdb-ripple-init>
+                                    <i class="fas fa-arrow-left me-2"></i>Volver al Listado
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer th:replace="~{template :: footer}"></footer>
+
+    <th:block th:replace="~{template :: scripts}"></th:block>
+
+    <!-- Modal para mensajes de confirmación y respuestas -->
+    <div class="modal fade" id="modalMensaje" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold" id="modalTitulo">
+                        <i class="fas fa-info-circle me-2 text-info"></i>Información
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="modalCuerpo">¿Desea continuar?</p>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+                    <button type="button" class="btn btn-primary" id="btnModalAceptar">
+                        Aceptar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Función para mostrar modal de confirmación
+        function mostrarModalConfirmacion(mensaje, callback) {
+            const modal = document.getElementById('modalMensaje');
+            document.getElementById('modalTitulo').innerHTML = '<i class="fas fa-question-circle me-2 text-warning"></i>Confirmación';
+            document.getElementById('modalCuerpo').textContent = mensaje;
+            
+            const btnAceptar = document.getElementById('btnModalAceptar');
+            btnAceptar.onclick = function() {
+                bootstrap.Modal.getInstance(modal).hide();
+                callback();
+            };
+            
+            const bsModal = new bootstrap.Modal(modal);
+            bsModal.show();
+        }
+
+        // Función para mostrar modal de éxito
+        function mostrarModalExito(mensaje) {
+            const modal = document.getElementById('modalMensaje');
+            document.getElementById('modalTitulo').innerHTML = '<i class="fas fa-check-circle me-2 text-success"></i>Éxito';
+            document.getElementById('modalCuerpo').textContent = mensaje;
+            document.getElementById('btnModalAceptar').textContent = 'Aceptar';
+            
+            const btnAceptar = document.getElementById('btnModalAceptar');
+            btnAceptar.onclick = function() {
+                window.location.href = '/cuentas';
+            };
+            
+            const bsModal = new bootstrap.Modal(modal);
+            bsModal.show();
+        }
+
+        // Función para mostrar modal de error
+        function mostrarModalError(mensaje) {
+            const modal = document.getElementById('modalMensaje');
+            document.getElementById('modalTitulo').innerHTML = '<i class="fas fa-exclamation-circle me-2 text-danger"></i>Error';
+            document.getElementById('modalCuerpo').textContent = mensaje;
+            
+            const bsModal = new bootstrap.Modal(modal);
+            bsModal.show();
+        }
+
+        // Inicializar event listeners para botones de baja
+        document.addEventListener('DOMContentLoaded', function() {
+            const botonesBaja = document.querySelectorAll('.btn-baja');
+            
+            botonesBaja.forEach(function(boton) {
+                boton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const id = this.getAttribute('data-id');
+                    const razonSocial = this.getAttribute('data-razon-social');
+                    
+                    console.log('ID:', id, 'Razón Social:', razonSocial);
+                    
+                    mostrarModalConfirmacion(
+                        `¿Está seguro de dar de baja la cuenta "${razonSocial}"?\n\nEsta acción cambiará el estado a INACTIVO.`,
+                        function() {
+                            fetch('/cuentas/baja/' + id, {
+                                method: 'POST'
+                            })
+                            .then(response => {
+                                console.log('Response status:', response.status);
+                                if (response.ok) {
+                                    mostrarModalExito('Cuenta dada de baja exitosamente');
+                                } else {
+                                    mostrarModalError('Error al dar de baja la cuenta');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                mostrarModalError('Error al procesar la solicitud: ' + error.message);
+                            });
+                        }
+                    );
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>
