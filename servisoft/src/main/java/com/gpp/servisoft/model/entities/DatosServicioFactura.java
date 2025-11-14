@@ -1,23 +1,42 @@
 package com.gpp.servisoft.model.entities;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
- * Datos embebidos que describen un servicio ligado a una factura.
- *
- * Incluye nombre, descripción y el precio actual del servicio. Se
- * usa como {@code @Embeddable} en la entidad principal de factura.
+ * Entidad que almacena los datos históricos de un servicio en una factura.
+ * Se usa para mantener un registro de los servicios tal como estaban
+ * al momento de la facturación, permitiendo refacturación y gestión histórica.
  */
 
+@Entity
+@Table(name = "datos_servicio_factura")
 @Data
 @NoArgsConstructor
 public class DatosServicioFactura {
+
+
+    /**
+     * Identificador unico de los servicios que intervinieron
+     * en el proceso de facturacion
+     */
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Setter(AccessLevel.NONE)
+    private int idDatosServicioFactura;
+
 
     /**
      * Nombre del servicio. Obligatorio y hasta 50 caracteres.

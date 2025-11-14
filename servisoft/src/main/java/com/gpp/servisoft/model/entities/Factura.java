@@ -8,6 +8,7 @@ import com.gpp.servisoft.model.enums.TipoComprobante;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -110,7 +111,8 @@ public class Factura {
      * Una factura Almacena de forma Historica los datos Fiscales del Cliente
      * Para una Futura Refacturacion/ Gestion Historica
      */
-    @OneToOne(mappedBy = "factura", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Embedded
+    @Valid
     private DatosClienteFactura datosClienteFactura;
 
     /**

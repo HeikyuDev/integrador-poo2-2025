@@ -57,3 +57,23 @@ footer a:hover {
   color: #ba68c8;
   transform: scale(1.1);
 }
+
+/* === ESTILOS DE COMPONENTES === */
+
+/* Botón Morado Personalizado */
+.btn-purple {
+  background-color: #2a003d !important; /* Morado oscuro de tu navbar */
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+.btn-purple:hover {
+  background-color: #4a235a !important; /* Morado más claro (de tu dropdown) */
+  color: white;
+}
+
+/* Acentos de color para texto y fondos */
+.text-purple-dark {
+  color: #2a003d;
+}
+

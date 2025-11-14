@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/template :: head}">
+    <meta charset="UTF-8">
+    <title>Facturacion Individual</title>
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+
+    <header th:replace="~{fragments/template :: navbar}"></header>
+
+    <main class="flex-fill">
+        <div class="container my-5">
+
+            <h2 class="mb-4 text-purple-dark">Facturacion Individual</h2>
+
+            <div class="card shadow-2-strong">
+                <div class="card-body p-4 p-md-5">
+
+                    <!-- Form para cargar servicios -->
+                    <form th:action="@{/facturacion/individual}" method="get" id="formCuenta">
+                        <input type="hidden" name="cuentaId" id="hiddenCuentaId">
+                    </form>
+
+                    <!-- Form para procesar facturación -->
+                    <form th:action="@{/facturacion/procesar}" th:object="${facturaForm}" method="post">
+
+                        <input type="hidden" th:field="*{cuentaId}">
+
+                        <div class="row mb-4">
+                            <div class="col-12 col-md-6 mb-3 mb-md-0">
+                                <label for="selectCuenta" class="form-label">seleccione la cuenta*</label>
+
+                                <select class="form-select" name="cuentaId" id="selectCuenta"
+                                    onchange="document.getElementById('hiddenCuentaId').value = this.value; document.getElementById('formCuenta').submit();">
+                                    <option value="">-- Elija una cuenta --</option>
+                                    <option th:each="cuenta : ${cuentas}" th:value="${cuenta.idCuenta}"
+                                        th:text="${cuenta.razonSocial}"
+                                        th:selected="${cuentaSeleccionada != null && cuentaSeleccionada == cuenta.idCuenta}">
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label for="selectPeriodo" class="form-label">seleccione el periodo*</label>
+
+                                <select class="form-select" th:field="*{periodo}" id="selectPeriodo">
+                                    <option th:each="p : ${Periodicidad}" th:value="${p}" th:text="${p}">
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div id="tabla-servicios-container">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col" style="width: 8%;" class="text-center">Facturar</th>
+                                            <th scope="col" style="width: 47%;">Servicio</th>
+                                            <th scope="col" style="width: 15%;" class="text-center">Cantidad</th>
+                                            <th scope="col" style="width: 30%;" class="text-end">Monto (Unitario)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!--Casilla de Verificacion de la Facturacion-->
+                                        <tr th:each="item, stat : *{items}" th:id="'row-' + ${stat.index}">
+
+                                            <td class="text-center">
+                                                <div class="form-check d-flex justify-content-center">
+                                                    <input class="form-check-input" type="checkbox"
+                                                        th:field="*{items[__${stat.index}__].seleccionado}" />
+                                                </div>
+                                            </td>
+                                        <!-- Muestro el Nombre, del servicio a Facturar-->
+                                            <td th:text="${item.nombreServicio}">Agua</td>
+                                        <!-- Cuadro numerico, para que ingrese la cantidad-->
+                                            <td class="text-center">
+                                                <input type="number" class="form-control form-control-sm mx-auto"
+                                                    th:field="*{items[__${stat.index}__].cantidad}" min="1"
+                                                    style="width: 90px;" 
+                                                    th:readonly="${!item.tieneCantidad}"
+                                                    />
+                                            </td>
+                                        
+                                        <!--Etiqueta que muestra el Monto del servicio-->
+                                            <td class="text-end"
+                                                th:text="'$' + ${#numbers.formatDecimal(item.montoUnitario, 1, 'POINT', 2, 'COMMA')}">
+                                                $1500.00
+                                            </td>
+                                        <!--Campo oculto, el cual toma como nombre y valor el id del servicio de la cta-->
+                                        <!--Cada servicio que tenga la cuenta, va a estar su id aca abz-->
+                                            <input type="hidden" th:field="*{items[__${stat.index}__].idServicio}" />
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-purple btn-lg" data-mdb-ripple-init>
+                                <i class="fas fa-file-invoice me-2"></i>
+                                FACTURAR
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/template :: footer}"></footer>
+
+    <div th:replace="~{fragments/template :: scripts}"></div>
+
+</body>
+
+</html>
