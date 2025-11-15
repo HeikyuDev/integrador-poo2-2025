@@ -1,7 +1,8 @@
-package com.gpp.servisoft.services;
+package com.gpp.servisoft.service;
 
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -13,12 +14,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.gpp.servisoft.mapper.Mapper;
 import com.gpp.servisoft.model.dto.FacturacionDTO;
+import com.gpp.servisoft.model.dto.FacturacionMasivaDto;
 import com.gpp.servisoft.model.dto.ServicioSeleccionadoDto;
 import com.gpp.servisoft.model.entities.Cuenta;
 import com.gpp.servisoft.model.entities.DatosClienteFactura;
 import com.gpp.servisoft.model.entities.DatosServicioFactura;
 import com.gpp.servisoft.model.entities.DetalleFactura;
 import com.gpp.servisoft.model.entities.Factura;
+import com.gpp.servisoft.model.entities.FacturacionMasiva;
 import com.gpp.servisoft.model.entities.Servicio;
 import com.gpp.servisoft.model.entities.ServicioDeLaCuenta;
 import com.gpp.servisoft.model.enums.CondicionFrenteIVA;
@@ -27,6 +30,7 @@ import com.gpp.servisoft.model.enums.EstadoServicio;
 import com.gpp.servisoft.model.enums.Periodicidad;
 import com.gpp.servisoft.model.enums.TipoComprobante;
 import com.gpp.servisoft.repository.CuentaRepository;
+import com.gpp.servisoft.repository.FacturacionMasivaRepository;
 import com.gpp.servisoft.repository.FacturacionRepository;
 import com.gpp.servisoft.repository.ServicioDeLaCuentaRepository;
 
@@ -44,6 +48,9 @@ public class FacturacionService {
 
     @Autowired
     public CuentaRepository cuentaRepository;
+
+    @Autowired
+    public FacturacionMasivaRepository facturacionMasivaRepository;
 
     /**
      * Obtiene una lista paginada de facturas, permitiendo filtrar por el ID de la cuenta
@@ -63,6 +70,18 @@ public class FacturacionService {
 
         // 2. Mapea la página de Entidades a una página de DTOs
         //    Esto aplica "Mapper::toDto" a cada ítem Y MANTIENE la paginación.
+        return paginaDeEntidades.map(Mapper::toDto);
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public Page<FacturacionMasivaDto> obtenerFacturacionesMasivas(Pageable pageable)
+    {
+        // Llamo al repositorio y obtengo la pagina de Entidades (Facturaciones Masivas)
+        Page<FacturacionMasiva> paginaDeEntidades = facturacionMasivaRepository.findAll(pageable);
+        // 2. Mapea la página de Entidades a una página de DTOs
         return paginaDeEntidades.map(Mapper::toDto);
     }
 
@@ -120,6 +139,15 @@ public class FacturacionService {
      */
     @Transactional
     public void facturacionMasiva(Periodicidad periodicidad) {
+
+        // Creamos una instancia Vacia de la Facturacion Masiva
+        FacturacionMasiva facturacionMasiva = new FacturacionMasiva();
+
+        // Creamos una lista donde la cual vamos a obtener todas las facturas generadas en el proceso
+
+        List<Factura> facturas = new ArrayList<>();
+
+
         List<Cuenta> cuentasActivas = cuentaRepository.findByEstado(Estado.ACTIVO);
 
         if (cuentasActivas.isEmpty()) {
@@ -130,10 +158,19 @@ public class FacturacionService {
             if (cuenta.getServiciosDeLaCuenta() != null && !cuenta.getServiciosDeLaCuenta().isEmpty()) {
                 List<DetalleFactura> detalles = crearDetallesFacturaDesdeServicios(cuenta.getServiciosDeLaCuenta());
                 if (!detalles.isEmpty()) {
-                    procesarFacturacion(detalles, periodicidad);
+                    facturas.add(procesarFacturacion(detalles, periodicidad));
                 }
             }
         }
+
+        // Seteamos los atributos de la facturacion
+        facturacionMasiva.setFacturas(facturas);
+        facturacionMasiva.setCantidadDeFacturas(facturas.size());
+        facturacionMasiva.setFechaEmision(LocalDate.now());
+        facturacionMasiva.setMontoTotal(facturas.stream()
+                .mapToDouble(factura -> factura.getMontoTotal() != null ? factura.getMontoTotal() : 0.0)
+                .sum());
+        facturacionMasivaRepository.save(facturacionMasiva);
     }
 
     /**
@@ -144,7 +181,7 @@ public class FacturacionService {
      * @param detallesFacturas Lista de detalles a facturar
      * @param periodicidad     Período de vigencia de la factura
      */
-    private void procesarFacturacion(List<DetalleFactura> detallesFacturas, Periodicidad periodicidad) {
+    private Factura procesarFacturacion(List<DetalleFactura> detallesFacturas, Periodicidad periodicidad) {
         validarDetallesNoVacios(detallesFacturas);
 
         // Crear la factura con todos sus datos
@@ -155,6 +192,9 @@ public class FacturacionService {
 
         // Actualizar estados de servicios a FACTURADO
         actualizarEstadoServiciosAFacturado(detallesFacturas);
+
+        // Retornamos la Factura
+        return factura;
     }
 
     /**
@@ -267,9 +307,11 @@ public class FacturacionService {
      * Crea detalles de factura a partir de servicios de cuenta (facturación
      * masiva).
      * Se asume cantidad = 1.
+     * Filtra solo los servicios en estado PENDIENTE.
      */
     private List<DetalleFactura> crearDetallesFacturaDesdeServicios(List<ServicioDeLaCuenta> servicios) {
         return servicios.stream()
+                .filter(servicio -> servicio.getEstadoServicio() == EstadoServicio.PENDIENTE)
                 .map(this::crearDetalleFacturaConCantidadUnitaria)
                 .collect(Collectors.toList());
     }
@@ -324,17 +366,14 @@ public class FacturacionService {
      * Se utiliza en facturación masiva donde se asume cantidad = 1.
      * El servicio se factura una sola vez por período.
      * 
+     * NOTA: El llamador debe garantizar que el servicio está en estado PENDIENTE.
+     * 
      * @param servicio ServicioDeLaCuenta a facturar con cantidad = 1
      * @return DetalleFactura creado en memoria (sin persistir)
      */
     private DetalleFactura crearDetalleFacturaConCantidadUnitaria(ServicioDeLaCuenta servicio) {
         if (servicio == null) {
             throw new IllegalArgumentException("servicio no puede ser nulo");
-        }
-
-        // Validar que el servicio esté en estado PENDIENTE
-        if (servicio.getEstadoServicio() != EstadoServicio.PENDIENTE) {
-            throw new IllegalArgumentException("No se puede facturar un Servicio que ya está facturado!!");
         }
 
         return construirDetalleFactura(servicio, 1);
@@ -433,6 +472,18 @@ public class FacturacionService {
                 return TipoComprobante.B;
         }
 
+    }
+
+    /**
+     * Obtiene una FacturacionMasiva por su ID convertida a DTO
+     * 
+     * @param idFacturacionMasiva ID de la facturación masiva
+     * @return FacturacionMasivaDto con todas sus facturas
+     */
+    public FacturacionMasivaDto obtenerFacturacionMasivaPorId(Integer idFacturacionMasiva) {
+        return facturacionMasivaRepository.findById(idFacturacionMasiva)
+                .map(Mapper::toDto)
+                .orElse(null);
     }
 
 }

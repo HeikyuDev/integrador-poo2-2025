@@ -21,12 +21,13 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.gpp.servisoft.model.dto.FacturacionDTO;
 import com.gpp.servisoft.model.dto.FacturacionFormDto;
+import com.gpp.servisoft.model.dto.FacturacionMasivaDto;
 import com.gpp.servisoft.model.dto.ServicioDeLaCuentaDto;
 import com.gpp.servisoft.model.dto.ServicioSeleccionadoDto;
 import com.gpp.servisoft.model.enums.Periodicidad;
-import com.gpp.servisoft.services.CuentaServicio;
-import com.gpp.servisoft.services.FacturacionService;
-import com.gpp.servisoft.services.ServicioDeLaCuentaService;
+import com.gpp.servisoft.service.CuentaServicio;
+import com.gpp.servisoft.service.FacturacionService;
+import com.gpp.servisoft.service.ServicioDeLaCuentaService;
 
 /**
  * Controlador ligero para servir páginas Thymeleaf.
@@ -95,40 +96,43 @@ public class FacturacionController {
             @ModelAttribute("facturaForm") FacturacionFormDto facturaForm,
             RedirectAttributes redirectAttributes) {
 
-        // Validamos que haya elegido una cuenta
-        if (facturaForm.getCuentaId() == null) {
-            // Tu ControllerAdvice atrapará esto
-            throw new IllegalArgumentException("Debe seleccionar una Cuenta para Facturar");
-        }
-
-        // 1. Filtrar
-        List<ServicioSeleccionadoDto> serviciosSeleccionados = facturaForm.getItems()
-                .stream()
-                .filter(ServicioSeleccionadoDto::isSeleccionado)
-                .collect(Collectors.toList());
-
-        // 2. Validar
-        if (serviciosSeleccionados.isEmpty()) {
-            // Tu ControllerAdvice atrapará esto
-            throw new IllegalArgumentException("Debe seleccionar al menos un servicio para facturar");
-        }
-
-        if (facturaForm.getPeriodo() == null) {
-            // Tu ControllerAdvice atrapará esto
-            throw new IllegalArgumentException("Debe seleccionar un periodo");
-        }
-
-        // 3. Si todo está bien, procesar:
         try {
-            facturacionService.facturacionIndividual(serviciosSeleccionados, facturaForm.getPeriodo());
-        } catch (Exception e) {
-            // Si el servicio falla, también lo lanzamos al ControllerAdvice
-            throw new RuntimeException("Error al procesar la facturación: " + e.getMessage());
-        }
+            // Validamos que haya elegido una cuenta
+            if (facturaForm.getCuentaId() == null) {
+                redirectAttributes.addFlashAttribute("error", "Debe seleccionar una cuenta para facturar");
+                return "redirect:/facturacion/individual";
+            }
 
-        // 4. Mensaje de éxito
-        redirectAttributes.addFlashAttribute("success", "Facturación procesada correctamente");
-        return "redirect:/facturacion/individual";
+            // 1. Filtrar servicios seleccionados
+            List<ServicioSeleccionadoDto> serviciosSeleccionados = facturaForm.getItems()
+                    .stream()
+                    .filter(ServicioSeleccionadoDto::isSeleccionado)
+                    .collect(Collectors.toList());
+
+            // 2. Validar que haya servicios seleccionados
+            if (serviciosSeleccionados.isEmpty()) {
+                redirectAttributes.addFlashAttribute("error", "Debe seleccionar al menos un servicio para facturar");
+                return "redirect:/facturacion/individual?cuentaId=" + facturaForm.getCuentaId();
+            }
+
+            // 3. Validar período
+            if (facturaForm.getPeriodo() == null) {
+                redirectAttributes.addFlashAttribute("error", "Debe seleccionar un período");
+                return "redirect:/facturacion/individual?cuentaId=" + facturaForm.getCuentaId();
+            }
+
+            // 4. Procesar facturación individual
+            facturacionService.facturacionIndividual(serviciosSeleccionados, facturaForm.getPeriodo());
+
+            // 5. Mensaje de éxito
+            redirectAttributes.addFlashAttribute("success", "Facturación procesada correctamente");
+            return "redirect:/facturacion/individual";
+            
+        } catch (Exception e) {
+            // Capturar cualquier excepción y mostrar mensaje de error
+            redirectAttributes.addFlashAttribute("error", "Error al procesar la facturación: " + e.getMessage());
+            return "redirect:/facturacion/individual";
+        }
     }
 
     @GetMapping("/consulta")
@@ -167,4 +171,67 @@ public class FacturacionController {
         return "facturacion-detalle";
     }
 
+    // ================= FACTURACION MASIVA =====================
+
+    @GetMapping("/masiva")
+    public String facturacionMasiva(Model model,
+    @PageableDefault(size = 10, sort = "fechaEmision", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        // 1. Crea el objeto contenedor
+        FacturacionFormDto facturaForm = new FacturacionFormDto();
+
+        // 2. Obtengo todos las Facturaciones Masivas Existenetes
+        Page<FacturacionMasivaDto> facturacionesMasivasDto = facturacionService.obtenerFacturacionesMasivas(pageable);
+
+        // 3. Pasa el objeto al modelo
+        model.addAttribute("facturaForm", facturaForm);
+        model.addAttribute("paginaDeFacturasMasivas", facturacionesMasivasDto);
+        model.addAttribute("Periodicidad", Periodicidad.values());
+
+        // Atributos para mantener Seleccion
+
+        return "facturacion-masiva";
+    }
+    
+    @PostMapping("/procesar/masiva")
+    public String procesarFacturacionMasiva(
+            @ModelAttribute("facturaForm") FacturacionFormDto facturaForm,
+            RedirectAttributes redirectAttributes) {
+
+        try {
+            // Validación de período
+            if (facturaForm.getPeriodo() == null) {
+                redirectAttributes.addFlashAttribute("error", "Debe seleccionar un período");
+                return "redirect:/facturacion/masiva";
+            }
+
+            // Procesar facturación masiva
+            facturacionService.facturacionMasiva(facturaForm.getPeriodo());
+
+            // Mensaje de éxito
+            redirectAttributes.addFlashAttribute("success", "Facturación masiva procesada correctamente");
+            return "redirect:/facturacion/masiva";
+            
+        } catch (IllegalArgumentException e) {
+            // Capturar errores de validación de negocio
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/facturacion/masiva";
+        } catch (Exception e) {
+            // Capturar cualquier otra excepción
+            redirectAttributes.addFlashAttribute("error", "No se pudieron procesar las facturas masivas en este momento");
+            return "redirect:/facturacion/masiva";
+        }
+    }
+
+    @GetMapping("/masiva/{id}")
+    public String verDetalleFacturacionMasiva(@PathVariable Integer id, Model model) {
+        FacturacionMasivaDto facturacionMasivaDto = facturacionService.obtenerFacturacionMasivaPorId(id);
+        
+        if (facturacionMasivaDto == null) {
+            throw new IllegalArgumentException("Facturación masiva no encontrada");
+        }
+        
+        model.addAttribute("facturacionMasiva", facturacionMasivaDto);
+        return "facturacion-masiva-detalle";
+    }
 }

@@ -8,8 +8,10 @@ import com.gpp.servisoft.model.dto.DatosClienteFacturaDto;
 import com.gpp.servisoft.model.dto.DatosServicioFacturaDto;
 import com.gpp.servisoft.model.dto.DetalleFacturaDto;
 import com.gpp.servisoft.model.dto.FacturacionDTO;
+import com.gpp.servisoft.model.dto.FacturacionMasivaDto;
 import com.gpp.servisoft.model.dto.ServicioDeLaCuentaDto;
 import com.gpp.servisoft.model.entities.Factura;
+import com.gpp.servisoft.model.entities.FacturacionMasiva;
 import com.gpp.servisoft.model.entities.ServicioDeLaCuenta;
 import com.gpp.servisoft.model.enums.EstadoFactura;
 
@@ -59,6 +61,34 @@ public class Mapper {
                 .detalleFacturas(mapearDetalleFacturas(factura.getDetallesFacturas()))
                 .datosClienteFactura(mapearDatosClienteFactura(factura.getDatosClienteFactura()))
                 .build();
+    }
+
+    /**
+     * Convierte una FacturacionMasiva a FacturacionMasivaDto con lista de FacturacionDTO
+     */
+    public static FacturacionMasivaDto toDto(FacturacionMasiva facturacionMasiva) {
+        if (facturacionMasiva == null)
+            return null;
+
+        return FacturacionMasivaDto.builder()
+                .idFacturacionMasiva(facturacionMasiva.getIdFacturacionMasiva())
+                .cantidadDeFacturas(facturacionMasiva.getCantidadDeFacturas())
+                .montoTotal(facturacionMasiva.getMontoTotal() == null ? 0.0d : facturacionMasiva.getMontoTotal())
+                .fechaEmision(facturacionMasiva.getFechaEmision())
+                .facturas(mapearFacturas(facturacionMasiva.getFacturas()))
+                .build();
+    }
+
+    /**
+     * Convierte una lista de Facturas a lista de FacturacionDTO
+     */
+    private static List<FacturacionDTO> mapearFacturas(List<Factura> facturas) {
+        if (facturas == null || facturas.isEmpty())
+            return List.of();
+
+        return facturas.stream()
+                .map(Mapper::toDto)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -154,7 +184,7 @@ public class Mapper {
         // Tolerancia para comparación de doubles (1 centavo)
         double epsilon = 0.01;
 
-        if (totalPagado >= (montoTotal - epsilon)) {
+        if (totalPagado >= montoTotal) {
             return EstadoFactura.PAGADA;
         }
 

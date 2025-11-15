@@ -12,12 +12,10 @@ import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
@@ -131,14 +129,6 @@ public class Factura {
 
     @OneToOne(mappedBy = "factura", cascade = CascadeType.ALL, orphanRemoval = true)
     private NotaDeCredito notaDeCredito;
-
-    /**
-     * muchas Facturas pueden estar involucradas en el proceso de facturacion masiva
-     */
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_facturacion_masiva", nullable = true)
-    private FacturacionMasiva facturacionMasiva;
 
     @OneToMany(mappedBy = "factura", cascade = CascadeType.ALL, orphanRemoval = true)
     @Valid

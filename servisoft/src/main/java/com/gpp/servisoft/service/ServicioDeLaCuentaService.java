@@ -1,4 +1,4 @@
-package com.gpp.servisoft.services;
+package com.gpp.servisoft.service;
 
 import java.util.List;
 

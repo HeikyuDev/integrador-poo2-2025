@@ -1,23 +1,360 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="fragments/template :: head">
+<head th:replace="~{fragments/template :: head}">
     <meta charset="UTF-8">
-    <title>Temporal</title>
+    <title>Inicio - ServiSoft</title>
 </head>
 
 <body class="d-flex flex-column min-vh-100">
     
     <!-- NAVBAR -->
-    <header th:replace="fragments/template :: navbar"></header>
+    <header th:replace="~{fragments/template :: navbar}"></header>
 
-    <!--CONTENIDO-->
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="flex-fill">
+        
+        <!-- HERO SECTION -->
+        <section class="bg-gradient-purple py-5">
+            <div class="container py-5">
+                <div class="row align-items-center">
+                    <div class="col-lg-8 mx-auto text-center text-white">
+                        <h1 class="display-4 fw-bold mb-3">
+                            <i class="fas fa-cube me-3"></i>Bienvenido a ServiSoft
+                        </h1>
+                        <p class="lead mb-4">
+                            Sistema integral de gestión de facturación y servicios para empresas
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ESTADÍSTICAS / INFORMACIÓN GENERAL -->
+        <section class="py-5 bg-light">
+            <div class="container">
+                <div class="row text-center mb-5">
+                    <div class="col-md-4 mb-3">
+                        <div class="card shadow-2-strong h-100">
+                            <div class="card-body">
+                                <i class="fas fa-file-invoice-dollar fa-3x text-purple-dark mb-3"></i>
+                                <h5 class="card-title text-purple-dark fw-bold">Facturación Ágil</h5>
+                                <p class="card-text text-muted">
+                                    Crea facturas individuales o masivas en segundos con nuestro sistema optimizado.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card shadow-2-strong h-100">
+                            <div class="card-body">
+                                <i class="fas fa-chart-line fa-3x text-purple-dark mb-3"></i>
+                                <h5 class="card-title text-purple-dark fw-bold">Análisis Completo</h5>
+                                <p class="card-text text-muted">
+                                    Consulta detalles de facturas, pagos y servicios en un solo lugar.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card shadow-2-strong h-100">
+                            <div class="card-body">
+                                <i class="fas fa-lock fa-3x text-purple-dark mb-3"></i>
+                                <h5 class="card-title text-purple-dark fw-bold">Seguridad Garantizada</h5>
+                                <p class="card-text text-muted">
+                                    Tus datos están protegidos con los más altos estándares de seguridad.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ACCESOS RÁPIDOS -->
+        <section class="py-5">
+            <div class="container">
+                <h2 class="text-center text-purple-dark fw-bold mb-5">
+                    <i class="fas fa-rocket me-2"></i>Accesos Rápidos
+                </h2>
+
+                <div class="row g-4">
+                    <!-- FACTURACIÓN INDIVIDUAL -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card shadow-2-strong h-100 border-0 hover-shadow">
+                            <div class="card-body text-center">
+                                <div class="bg-purple-dark text-white rounded-circle p-4 mx-auto mb-3" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-file-alt fa-2x"></i>
+                                </div>
+                                <h5 class="card-title text-purple-dark fw-bold mb-3">Facturación Individual</h5>
+                                <p class="card-text text-muted mb-4">
+                                    Factura a clientes específicos con servicios personalizados.
+                                </p>
+                                <a href="/facturacion/individual" class="btn btn-outline-purple">
+                                    Acceder <i class="fas fa-arrow-right ms-2"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FACTURACIÓN MASIVA -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card shadow-2-strong h-100 border-0 hover-shadow">
+                            <div class="card-body text-center">
+                                <div class="bg-purple-dark text-white rounded-circle p-4 mx-auto mb-3" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-bolt fa-2x"></i>
+                                </div>
+                                <h5 class="card-title text-purple-dark fw-bold mb-3">Facturación Masiva</h5>
+                                <p class="card-text text-muted mb-4">
+                                    Procesa múltiples facturas automáticamente por período.
+                                </p>
+                                <a href="/facturacion/masiva" class="btn btn-outline-purple">
+                                    Acceder <i class="fas fa-arrow-right ms-2"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CONSULTAR FACTURAS -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card shadow-2-strong h-100 border-0 hover-shadow">
+                            <div class="card-body text-center">
+                                <div class="bg-purple-dark text-white rounded-circle p-4 mx-auto mb-3" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-search fa-2x"></i>
+                                </div>
+                                <h5 class="card-title text-purple-dark fw-bold mb-3">Consultar Facturas</h5>
+                                <p class="card-text text-muted mb-4">
+                                    Busca y revisa todas tus facturas emitidas con facilidad.
+                                </p>
+                                <a href="/facturacion/consulta" class="btn btn-outline-purple">
+                                    Acceder <i class="fas fa-arrow-right ms-2"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- GESTIÓN DE CUENTAS -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card shadow-2-strong h-100 border-0 hover-shadow">
+                            <div class="card-body text-center">
+                                <div class="bg-purple-dark text-white rounded-circle p-4 mx-auto mb-3" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-building fa-2x"></i>
+                                </div>
+                                <h5 class="card-title text-purple-dark fw-bold mb-3">Cuentas</h5>
+                                <p class="card-text text-muted mb-4">
+                                    Administra y gestiona todas tus cuentas de clientes.
+                                </p>
+                                <a href="#" class="btn btn-outline-purple disabled">
+                                    Próximamente <i class="fas fa-arrow-right ms-2"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- GESTIÓN DE CLIENTES -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card shadow-2-strong h-100 border-0 hover-shadow">
+                            <div class="card-body text-center">
+                                <div class="bg-purple-dark text-white rounded-circle p-4 mx-auto mb-3" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-users fa-2x"></i>
+                                </div>
+                                <h5 class="card-title text-purple-dark fw-bold mb-3">Clientes</h5>
+                                <p class="card-text text-muted mb-4">
+                                    Directorio completo de clientes y sus datos fiscales.
+                                </p>
+                                <a href="#" class="btn btn-outline-purple disabled">
+                                    Próximamente <i class="fas fa-arrow-right ms-2"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- GESTIÓN DE SERVICIOS -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card shadow-2-strong h-100 border-0 hover-shadow">
+                            <div class="card-body text-center">
+                                <div class="bg-purple-dark text-white rounded-circle p-4 mx-auto mb-3" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-cogs fa-2x"></i>
+                                </div>
+                                <h5 class="card-title text-purple-dark fw-bold mb-3">Servicios</h5>
+                                <p class="card-text text-muted mb-4">
+                                    Catálogo y configuración de servicios disponibles.
+                                </p>
+                                <a href="#" class="btn btn-outline-purple disabled">
+                                    Próximamente <i class="fas fa-arrow-right ms-2"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- GESTIÓN DE PAGOS -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card shadow-2-strong h-100 border-0 hover-shadow">
+                            <div class="card-body text-center">
+                                <div class="bg-purple-dark text-white rounded-circle p-4 mx-auto mb-3" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-credit-card fa-2x"></i>
+                                </div>
+                                <h5 class="card-title text-purple-dark fw-bold mb-3">Pagos</h5>
+                                <p class="card-text text-muted mb-4">
+                                    Registro y seguimiento de pagos recibidos.
+                                </p>
+                                <a href="#" class="btn btn-outline-purple disabled">
+                                    Próximamente <i class="fas fa-arrow-right ms-2"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- REPORTES -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card shadow-2-strong h-100 border-0 hover-shadow">
+                            <div class="card-body text-center">
+                                <div class="bg-purple-dark text-white rounded-circle p-4 mx-auto mb-3" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-chart-bar fa-2x"></i>
+                                </div>
+                                <h5 class="card-title text-purple-dark fw-bold mb-3">Reportes</h5>
+                                <p class="card-text text-muted mb-4">
+                                    Análisis e informes detallados de facturación.
+                                </p>
+                                <a href="#" class="btn btn-outline-purple disabled">
+                                    Próximamente <i class="fas fa-arrow-right ms-2"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CARACTERÍSTICAS -->
+        <section class="py-5 bg-light">
+            <div class="container">
+                <h2 class="text-center text-purple-dark fw-bold mb-5">
+                    <i class="fas fa-star me-2"></i>Características Principales
+                </h2>
+
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="d-flex">
+                            <div class="me-3">
+                                <div class="bg-purple-dark text-white rounded-circle p-3" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-check fa-lg"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <h5 class="text-purple-dark fw-bold">Facturas Tipo A, B, C y E</h5>
+                                <p class="text-muted">Soporte completo para diferentes tipos de comprobantes según la legislación fiscal.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+                        <div class="d-flex">
+                            <div class="me-3">
+                                <div class="bg-purple-dark text-white rounded-circle p-3" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-check fa-lg"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <h5 class="text-purple-dark fw-bold">Cálculo de IVA Automático</h5>
+                                <p class="text-muted">Cálculo automático y discriminación de IVA según tipo de cliente.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+                        <div class="d-flex">
+                            <div class="me-3">
+                                <div class="bg-purple-dark text-white rounded-circle p-3" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-check fa-lg"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <h5 class="text-purple-dark fw-bold">Registro de Pagos</h5>
+                                <p class="text-muted">Seguimiento completo del estado de pagos y notas de crédito.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+                        <div class="d-flex">
+                            <div class="me-3">
+                                <div class="bg-purple-dark text-white rounded-circle p-3" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-check fa-lg"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <h5 class="text-purple-dark fw-bold">Datos Históricos</h5>
+                                <p class="text-muted">Almacenamiento seguro de datos históricos de clientes y servicios.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+                        <div class="d-flex">
+                            <div class="me-3">
+                                <div class="bg-purple-dark text-white rounded-circle p-3" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-check fa-lg"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <h5 class="text-purple-dark fw-bold">Múltiples Períodos</h5>
+                                <p class="text-muted">Soporte para diferentes períodos de facturación (mensual, bimestral, etc).</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+                        <div class="d-flex">
+                            <div class="me-3">
+                                <div class="bg-purple-dark text-white rounded-circle p-3" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-check fa-lg"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <h5 class="text-purple-dark fw-bold">Interfaz Intuitiva</h5>
+                                <p class="text-muted">Diseño moderno y fácil de usar para todos los niveles de usuarios.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- LLAMADA A LA ACCIÓN -->
+        <section class="py-5 bg-purple-dark text-white">
+            <div class="container text-center">
+                <h2 class="fw-bold mb-4">¿Listo para comenzar?</h2>
+                <p class="lead mb-4">Accede a la plataforma y comienza a facturar ahora mismo.</p>
+                <a href="/facturacion/individual" class="btn btn-light btn-lg">
+                    <i class="fas fa-play me-2"></i>Comenzar Ahora
+                </a>
+            </div>
+        </section>
+
+    </main>
 
     <!-- PIE DE PÁGINA -->
-    <footer th:replace="fragments/template :: footer"></footer>
+    <footer th:replace="~{fragments/template :: footer}"></footer>
     
-    <!-- ⚡ SCRIPTS (IMPORTANTE para dropdowns) -->
-    <div th:replace="fragments/template :: scripts"></div>
+    <!-- SCRIPTS -->
+    <div th:replace="~{fragments/template :: scripts}"></div>
+
+    <style>
+        .bg-gradient-purple {
+            background: linear-gradient(135deg, #2a003d 0%, #4a235a 100%);
+        }
+
+        .hover-shadow {
+            transition: all 0.3s ease;
+        }
+
+        .hover-shadow:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(42, 0, 61, 0.2) !important;
+        }
+    </style>
     
 </body>
+
 </html>

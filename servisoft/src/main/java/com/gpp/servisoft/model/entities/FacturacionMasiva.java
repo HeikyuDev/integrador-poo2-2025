@@ -66,7 +66,7 @@ public class FacturacionMasiva {
      * una Facturacion masiva involucra una lista de Facturas
      */
 
-    @OneToMany(mappedBy="facturacionMasiva")
+    @OneToMany()
     @Valid
     private List<Factura> facturas;
 }

@@ -20,6 +20,15 @@ public class DatosServicioFacturaDto {
 
     private String descripcionServicio;
 
-    private Double precioActual;
+    private double precioActual;
+
+    /**
+     * Obtiene el precio actual garantizando que nunca sea nulo.
+     * @return precioActual siempre es un valor numérico válido (mínimo 0.0)
+     */
+    public double getPrecioActualSafe() {
+        return Double.isFinite(this.precioActual) ? this.precioActual : 0.0d;
+    }
 
 }
+

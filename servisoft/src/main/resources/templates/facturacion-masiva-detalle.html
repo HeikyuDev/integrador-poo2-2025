@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/template :: head}">
+    <meta charset="UTF-8">
+    <title>Detalle Facturación Masiva</title>
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+
+    <header th:replace="~{fragments/template :: navbar}"></header>
+
+    <main class="flex-fill">
+        <div class="container my-5">
+
+            <!-- BREADCRUMB -->
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="#" class="text-purple-dark">Facturación</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a th:href="@{/facturacion/masiva}" class="text-purple-dark">Facturaciones Masivas</a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">Detalle</li>
+                </ol>
+            </nav>
+
+            <!-- TITULO Y HEADER -->
+            <div class="row align-items-center mb-5">
+                <div class="col-md-8">
+                    <h1 class="text-purple-dark fw-bold">Detalle Facturación Masiva</h1>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="bg-purple-dark text-white p-4 rounded">
+                        <h5 class="fw-bold mb-0">
+                            <i class="fas fa-file-invoice-dollar me-2"></i>Masiva #<span th:text="${facturacionMasiva.idFacturacionMasiva}"></span>
+                        </h5>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INFORMACIÓN GENERAL DE LA FACTURACIÓN MASIVA -->
+            <div class="row mb-4">
+                <div class="col-lg-3 mb-3">
+                    <div class="card shadow-2-strong h-100">
+                        <div class="card-body text-center">
+                            <h6 class="card-title text-muted mb-2">Fecha de Emisión</h6>
+                            <p class="card-text fw-bold text-purple-dark fs-5" th:text="${#temporals.format(facturacionMasiva.fechaEmision, 'dd/MM/yyyy')}"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 mb-3">
+                    <div class="card shadow-2-strong h-100">
+                        <div class="card-body text-center">
+                            <h6 class="card-title text-muted mb-2">Cantidad de Facturas</h6>
+                            <p class="card-text fw-bold text-purple-dark fs-5">
+                                <span class="badge bg-purple-dark" th:text="${facturacionMasiva.cantidadDeFacturas}"></span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 mb-3">
+                    <div class="card shadow-2-strong h-100">
+                        <div class="card-body text-center">
+                            <h6 class="card-title text-muted mb-2">Monto Total Recaudado</h6>
+                            <p class="card-text fw-bold text-purple-dark fs-5">
+                                $<span th:text="${#numbers.formatDecimal(facturacionMasiva.montoTotal, 1, 2)}"></span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 mb-3">
+                    <div class="card shadow-2-strong h-100">
+                        <div class="card-body text-center">
+                            <h6 class="card-title text-muted mb-2">Promedio por Factura</h6>
+                            <p class="card-text fw-bold text-purple-dark fs-5">
+                                <span th:if="${facturacionMasiva.cantidadDeFacturas > 0}">
+                                    $<span th:text="${#numbers.formatDecimal(facturacionMasiva.montoTotal / facturacionMasiva.cantidadDeFacturas, 1, 2)}"></span>
+                                </span>
+                                <span th:if="${facturacionMasiva.cantidadDeFacturas == 0}">N/A</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TABLA DE FACTURAS -->
+            <div class="card shadow-2-strong">
+                <div class="card-body p-4">
+                    <h5 class="card-title text-purple-dark fw-bold mb-3">
+                        <i class="fas fa-list me-2"></i>Facturas Generadas
+                    </h5>
+
+                    <!-- TABLA RESPONSIVA -->
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped align-middle">
+                            <thead class="bg-purple-dark text-white">
+                                <tr>
+                                    <th scope="col">Nro. Comprobante</th>
+                                    <th scope="col">Tipo</th>
+                                    <th scope="col">Razón Social</th>
+                                    <th scope="col">Fecha Emisión</th>
+                                    <th scope="col">Estado</th>
+                                    <th scope="col" class="text-end">Monto</th>
+                                    <th scope="col" class="text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- FILAS DE FACTURAS -->
+                                <tr th:each="factura : ${facturacionMasiva.facturas}" class="border-bottom">
+                                    <td class="fw-bold text-purple-dark" th:text="${factura.nroComprobante}"></td>
+                                    <td>
+                                        <span class="badge bg-secondary" th:text="${factura.tipo}"></span>
+                                    </td>
+                                    <td th:text="${factura.razonSocial}"></td>
+                                    <td th:text="${#temporals.format(factura.fechaEmision, 'dd/MM/yyyy')}"></td>
+                                    <td>
+                                        <!-- BADGES DINÁMICOS SEGÚN ESTADO -->
+                                        <span th:if="${factura.estado.name() == 'PAGADA'}" class="badge bg-success">
+                                            <i class="fas fa-check-circle me-1"></i>Pagada
+                                        </span>
+                                        <span th:if="${factura.estado.name() == 'VENCIDA'}" class="badge bg-danger">
+                                            <i class="fas fa-exclamation-circle me-1"></i>Vencida
+                                        </span>
+                                        <span th:if="${factura.estado.name() == 'PENDIENTE'}" class="badge bg-warning text-dark">
+                                            <i class="fas fa-clock me-1"></i>Pendiente
+                                        </span>
+                                        <span th:if="${factura.estado.name() == 'PARCIALMENTE_PAGADA'}" class="badge bg-info">
+                                            <i class="fas fa-partial-circle me-1"></i>Parcial
+                                        </span>
+                                        <span th:if="${factura.estado.name() == 'ANULADA'}" class="badge bg-dark">
+                                            <i class="fas fa-ban me-1"></i>Anulada
+                                        </span>
+                                    </td>
+                                    <td class="text-end fw-bold">
+                                        $<span th:text="${#numbers.formatDecimal(factura.montoTotal, 1, 2)}"></span>
+                                    </td>
+                                    <td class="text-center">
+                                        <a th:href="@{/facturacion/detalle/{id}(id=${factura.idFactura})}" 
+                                           class="btn btn-sm btn-outline-purple" title="Ver detalle">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+
+                                <!-- FILA VACÍA SI NO HAY FACTURAS -->
+                                <tr th:if="${facturacionMasiva.facturas.isEmpty()}">
+                                    <td colspan="7" class="text-center py-4 text-muted">
+                                        <i class="fas fa-inbox me-2"></i>No hay facturas en esta facturación masiva.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- RESUMEN DE ESTADOS -->
+                    <div class="row mt-4 pt-4 border-top">
+                        <div class="col-md-3 text-center">
+                            <h6 class="text-muted mb-2">Pagadas</h6>
+                            <p class="fw-bold text-success fs-5" th:text="${facturacionMasiva.facturas.?[estado.name() == 'PAGADA'].size()}"></p>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <h6 class="text-muted mb-2">Pendientes</h6>
+                            <p class="fw-bold text-warning fs-5" th:text="${facturacionMasiva.facturas.?[estado.name() == 'PENDIENTE'].size()}"></p>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <h6 class="text-muted mb-2">Vencidas</h6>
+                            <p class="fw-bold text-danger fs-5" th:text="${facturacionMasiva.facturas.?[estado.name() == 'VENCIDA'].size()}"></p>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <h6 class="text-muted mb-2">Otras</h6>
+                            <p class="fw-bold text-secondary fs-5" 
+                               th:text="${facturacionMasiva.facturas.?[!(estado.name() == 'PAGADA' || estado.name() == 'PENDIENTE' || estado.name() == 'VENCIDA')].size()}"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BOTÓN VOLVER -->
+            <div class="mt-4">
+                <a th:href="@{/facturacion/masiva}" class="btn btn-outline-purple btn-lg">
+                    <i class="fas fa-arrow-left me-2"></i>Volver a Facturaciones Masivas
+                </a>
+            </div>
+
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/template :: footer}"></footer>
+
+    <div th:replace="~{fragments/template :: scripts}"></div>
+
+</body>
+
+</html>
