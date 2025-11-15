@@ -25,6 +25,8 @@ import lombok.NoArgsConstructor;
 @Embeddable
 public class DatosClienteFactura {
 
+    @Column(nullable = false)
+    private int idCuenta;
     /**
      * Domicilio fiscal del cliente (dirección). Campo obligatorio,
      * máximo 50 caracteres.

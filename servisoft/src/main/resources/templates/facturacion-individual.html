@@ -15,6 +15,19 @@
 
             <h2 class="mb-4 text-purple-dark">Facturacion Individual</h2>
 
+            <!--MENSAJE DE ERROR-->
+            <div th:if="${error}" class="alert alert-danger" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <span th:text="${error}"></span>
+            </div>
+
+            <!--MENSAJE DE EXITO-->
+            <div th:if="${success}" class="alert alert-success" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                <span th:text="${success}"></span>
+            </div>
+
+            <!--CARTA-->
             <div class="card shadow-2-strong">
                 <div class="card-body p-4 p-md-5">
 
@@ -52,10 +65,30 @@
                             </div>
                         </div>
 
-                        <div id="tabla-servicios-container">
+                        <!-- Mensaje informativo cuando no hay cuenta seleccionada -->
+                        <div th:if="${cuentaSeleccionada == null}" class="alert alert-info d-flex align-items-center mb-4" role="alert">
+                            <i class="fas fa-info-circle fa-2x me-3"></i>
+                            <div>
+                                <strong>Seleccione una cuenta</strong>
+                                <p class="mb-0">Por favor, seleccione una cuenta del menú desplegable para ver sus servicios pendientes de facturación.</p>
+                            </div>
+                        </div>
+
+                        <!-- Mensaje cuando la cuenta no tiene servicios pendientes -->
+                        <div th:if="${cuentaSeleccionada != null && facturaForm.items.isEmpty()}" 
+                             class="alert alert-warning d-flex align-items-center mb-4" role="alert">
+                            <i class="fas fa-check-circle fa-2x me-3"></i>
+                            <div>
+                                <strong>Sin servicios pendientes</strong>
+                                <p class="mb-0">Esta cuenta no tiene servicios pendientes de facturación. Todos sus servicios ya han sido facturados o no tiene servicios asociados.</p>
+                            </div>
+                        </div>
+
+                        <!-- Tabla de servicios (solo visible cuando hay servicios) -->
+                        <div id="tabla-servicios-container" th:if="${cuentaSeleccionada != null && !facturaForm.items.isEmpty()}">
                             <div class="table-responsive">
                                 <table class="table table-hover align-middle mb-0">
-                                    <thead>
+                                    <thead class="bg-purple-dark">
                                         <tr>
                                             <th scope="col" style="width: 8%;" class="text-center">Facturar</th>
                                             <th scope="col" style="width: 47%;">Servicio</th>
@@ -73,24 +106,22 @@
                                                         th:field="*{items[__${stat.index}__].seleccionado}" />
                                                 </div>
                                             </td>
-                                        <!-- Muestro el Nombre, del servicio a Facturar-->
+                                            <!-- Muestro el Nombre, del servicio a Facturar-->
                                             <td th:text="${item.nombreServicio}">Agua</td>
-                                        <!-- Cuadro numerico, para que ingrese la cantidad-->
+                                            <!-- Cuadro numerico, para que ingrese la cantidad-->
                                             <td class="text-center">
                                                 <input type="number" class="form-control form-control-sm mx-auto"
                                                     th:field="*{items[__${stat.index}__].cantidad}" min="1"
-                                                    style="width: 90px;" 
-                                                    th:readonly="${!item.tieneCantidad}"
-                                                    />
+                                                    style="width: 90px;" th:readonly="${!item.tieneCantidad}" />
                                             </td>
-                                        
-                                        <!--Etiqueta que muestra el Monto del servicio-->
+
+                                            <!--Etiqueta que muestra el Monto del servicio-->
                                             <td class="text-end"
                                                 th:text="'$' + ${#numbers.formatDecimal(item.montoUnitario, 1, 'POINT', 2, 'COMMA')}">
                                                 $1500.00
                                             </td>
-                                        <!--Campo oculto, el cual toma como nombre y valor el id del servicio de la cta-->
-                                        <!--Cada servicio que tenga la cuenta, va a estar su id aca abz-->
+                                            <!--Campo oculto, el cual toma como nombre y valor el id del servicio de la cta-->
+                                            <!--Cada servicio que tenga la cuenta, va a estar su id aca abz-->
                                             <input type="hidden" th:field="*{items[__${stat.index}__].idServicio}" />
                                         </tr>
                                     </tbody>
@@ -98,13 +129,20 @@
                             </div>
                         </div>
 
-                        <hr class="my-4">
+                        <!-- Botón de facturación (solo visible cuando hay servicios) -->
+                        <div th:if="${cuentaSeleccionada != null && !facturaForm.items.isEmpty()}">
+                            <hr class="my-4">
 
-                        <div class="text-end">
-                            <button type="submit" class="btn btn-purple btn-lg" data-mdb-ripple-init>
-                                <i class="fas fa-file-invoice me-2"></i>
-                                FACTURAR
-                            </button>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="text-muted">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    Seleccione los servicios y la periodicidad antes de facturar
+                                </div>
+                                <button type="submit" class="btn btn-purple btn-lg" data-mdb-ripple-init>
+                                    <i class="fas fa-file-invoice me-2"></i>
+                                    FACTURAR
+                                </button>
+                            </div>
                         </div>
 
                     </form>

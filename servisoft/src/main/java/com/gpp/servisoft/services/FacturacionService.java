@@ -1,13 +1,18 @@
 package com.gpp.servisoft.services;
 
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.gpp.servisoft.mapper.Mapper;
+import com.gpp.servisoft.model.dto.FacturacionDTO;
 import com.gpp.servisoft.model.dto.ServicioSeleccionadoDto;
 import com.gpp.servisoft.model.entities.Cuenta;
 import com.gpp.servisoft.model.entities.DatosClienteFactura;
@@ -37,18 +42,42 @@ public class FacturacionService {
     @Autowired
     public ServicioDeLaCuentaRepository servicioDeLaCuentaRepository;
 
-
-
     @Autowired
     public CuentaRepository cuentaRepository;
 
     /**
-     * Implementacion Basica de la consulta de todos los registros en la BD
-     * 
-     * @return la lista completa de Facturas existentes de la BD
+     * Obtiene una lista paginada de facturas, permitiendo filtrar por el ID de la cuenta
+     * y/o por una búsqueda parcial del número de comprobante.
+     *
+     * @param idCuenta    El mismo tiene que ser Integer, ya que se acepta que el valor
+     * puede ser nulo (Todas las Cuentas)
+     * @param comprobante Representa el Comprobante "0001-000000004" de una factura,
+     * se utiliza el LIKE para filtrar
+     * @param pageable    Objeto de pregunta generado por Spring
+     * @return Un objeto Page de FacturacionDTO con los datos de paginación preservados.
      */
-    public List<Factura> obtenerFacturas() {
-        return facturacionRepository.findAll();
+    public Page<FacturacionDTO> obtenerFacturas(Integer idCuenta, String comprobante, Pageable pageable) {
+        
+        // 1. Llama al repositorio y obtienes la página de ENTIDADES (Factura)
+        Page<Factura> paginaDeEntidades = facturacionRepository.findFacturasByFilters(idCuenta, comprobante, pageable);
+
+        // 2. Mapea la página de Entidades a una página de DTOs
+        //    Esto aplica "Mapper::toDto" a cada ítem Y MANTIENE la paginación.
+        return paginaDeEntidades.map(Mapper::toDto);
+    }
+
+    /**
+     * Obtiene una factura por su ID y la convierte a DTO.
+     * 
+     * @param idFactura ID de la factura a buscar
+     * @return FacturacionDTO con los datos de la factura
+     * @throws IllegalArgumentException si no se encuentra una factura con el ID proporcionado
+     */
+    public FacturacionDTO obtenerFacturaPorId(Integer idFactura) {
+        Factura factura = facturacionRepository.findById(idFactura)
+                .orElseThrow(() -> new IllegalArgumentException("Factura con ID " + idFactura + " no encontrada"));
+        
+        return Mapper.toDto(factura);
     }
 
     /**
@@ -137,7 +166,7 @@ public class FacturacionService {
 
         // Establecer bidireccionalidad: cada detalle debe conocer su factura
         detallesFacturas.forEach(detalle -> detalle.setFactura(factura));
-        
+
         factura.setDetallesFacturas(detallesFacturas);
         factura.setMontoTotal(calcularMontoTotalFactura(detallesFacturas));
         factura.setFechaEmision(LocalDate.now());
@@ -171,6 +200,7 @@ public class FacturacionService {
         }
 
         DatosClienteFactura datosCliente = new DatosClienteFactura();
+        datosCliente.setIdCuenta(cuenta.getIdCuenta());
         datosCliente.setDomicilioFiscal(cuenta.getDomicilioFiscal());
         datosCliente.setCondicionFrenteIVA(cuenta.getCondicionFrenteIVA());
         datosCliente.setCuit(cuenta.getCuit());

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/template :: head}">
+    <meta charset="UTF-8">
+    <title>Detalle de Factura</title>
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+
+    <header th:replace="~{fragments/template :: navbar}"></header>
+
+    <main class="flex-fill">
+        <div class="container my-5">
+
+            <!-- Encabezado Principal -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="text-purple-dark mb-0">Detalle de Factura</h2>
+                <a th:href="@{/facturacion/consulta}" class="btn btn-outline-purple">
+                    <i class="fas fa-arrow-left me-2"></i>Volver a Consulta
+                </a>
+            </div>
+
+            <!-- ====== SECCION 1: DATOS DE LA FACTURA ====== -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-purple-dark text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-file-invoice me-2"></i>
+                        Información de la Factura
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <!-- Comprobante -->
+                            <div class="mb-3">
+                                <label class="form-label text-muted small mb-1">Comprobante Nº</label>
+                                <p class="mb-0 h5 text-purple-dark fw-bold" th:text="${factura.nroComprobante}">0001-00000000</p>
+                            </div>
+                            <!-- Tipo de Comprobante - BOLD -->
+                            <div class="mb-0">
+                                <label class="form-label text-muted small mb-1">Tipo de Comprobante</label>
+                                <p class="mb-0 h5 text-purple-dark fw-bold" 
+                                   th:if="${factura.tipo != null}"
+                                   th:text="'Factura ' + ${factura.tipo}">
+                                    Factura A
+                                </p>
+                                <p class="mb-0 text-muted" th:if="${factura.tipo == null}">No especificado</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <!-- Fecha de Emisión -->
+                            <div class="mb-3">
+                                <label class="form-label text-muted small mb-1">Fecha de Emisión</label>
+                                <p class="mb-0 fw-bold" th:text="${#temporals.format(factura.fechaEmision, 'dd/MM/yyyy')}">01/01/2025</p>
+                            </div>
+                            <!-- Fecha de Vencimiento -->
+                            <div class="mb-0">
+                                <label class="form-label text-muted small mb-1">Fecha de Vencimiento</label>
+                                <p class="mb-0 fw-bold" th:text="${#temporals.format(factura.fechaVencimiento, 'dd/MM/yyyy')}">31/01/2025</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Fila adicional: Periodicidad y Estado -->
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small mb-1">Periodicidad</label>
+                            <p class="mb-0 fw-bold" th:text="${factura.periodicidad}">BIMESTRAL</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small mb-1">Estado</label>
+                            <p class="mb-0">
+                                <span class="badge"
+                                      th:classappend="${factura.estado.name() == 'PAGADA'} ? 'bg-success' : 
+                                                       (${factura.estado.name() == 'VENCIDA'} ? 'bg-danger' : 
+                                                        (${factura.estado.name() == 'ANULADA'} ? 'bg-secondary' : 
+                                                         (${factura.estado.name() == 'PARCIALMENTE_PAGADA'} ? 'bg-warning text-dark' : 'bg-info')))"
+                                      th:text="${factura.estado.name()}">
+                                    PENDIENTE
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ====== SECCION 2: DATOS DE LA CUENTA / CLIENTE ====== -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-purple-dark text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-building me-2"></i>
+                        Datos de la Cuenta / Cliente
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <!-- Razón Social -->
+                            <div class="mb-3">
+                                <label class="form-label text-muted small mb-1">Razón Social</label>
+                                <p class="mb-0 fw-bold" th:text="${factura.razonSocial}">Empresa S.A.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <!-- Condición frente al IVA -->
+                            <div class="mb-3">
+                                <label class="form-label text-muted small mb-1">Condición frente al IVA</label>
+                                <p class="mb-0 fw-bold text-purple-dark" 
+                                   th:if="${factura.datosClienteFactura != null}"
+                                   th:text="${factura.datosClienteFactura.condicionFrenteIVA}">
+                                    RESPONSABLE_INSCRIPTO
+                                </p>
+                                <p class="mb-0 text-muted" th:if="${factura.datosClienteFactura == null}">No disponible</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <!-- CUIT -->
+                            <div class="mb-3">
+                                <label class="form-label text-muted small mb-1">CUIT</label>
+                                <p class="mb-0 fw-bold" 
+                                   th:if="${factura.datosClienteFactura != null}"
+                                   th:text="${factura.datosClienteFactura.cuit}">
+                                    XX-XXXXXXXX-X
+                                </p>
+                                <p class="mb-0 text-muted" th:if="${factura.datosClienteFactura == null}">No disponible</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <!-- Domicilio Fiscal -->
+                            <div class="mb-3">
+                                <label class="form-label text-muted small mb-1">Domicilio Fiscal</label>
+                                <p class="mb-0 fw-bold" 
+                                   th:if="${factura.datosClienteFactura != null}"
+                                   th:text="${factura.datosClienteFactura.domicilioFiscal}">
+                                    Calle Principal 123
+                                </p>
+                                <p class="mb-0 text-muted" th:if="${factura.datosClienteFactura == null}">No disponible</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ====== SECCION 3: SERVICIOS FACTURADOS ====== -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-purple-dark text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>
+                        Servicios Facturados
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col" class="text-purple-dark">Servicio</th>
+                                    <th scope="col" class="text-center text-purple-dark">Cantidad</th>
+                                    <th scope="col" class="text-end text-purple-dark">Precio Unit.</th>
+                                    <th scope="col" class="text-end text-purple-dark">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Si no hay servicios -->
+                                <tr th:if="${factura.detalleFacturas == null || factura.detalleFacturas.isEmpty()}">
+                                    <td colspan="4" class="text-center text-muted py-4">
+                                        <i class="fas fa-info-circle me-2"></i>No hay servicios en esta factura
+                                    </td>
+                                </tr>
+                                <!-- Listado de servicios -->
+                                <tr th:each="detalle : ${factura.detalleFacturas}">
+                                    <td class="fw-bold">
+                                        <span th:text="${detalle.servicioDeLaCuenta.servicio.nombreServicio}">Servicio</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span th:text="${detalle.cantidad}">1</span>
+                                    </td>
+                                    <td class="text-end">
+                                        <span th:text="'$' + ${#numbers.formatDecimal(detalle.precioUnitario, 1, 'POINT', 2, 'COMMA')}">$100.00</span>
+                                    </td>
+                                    <td class="text-end fw-bold text-purple-dark">
+                                        <span th:text="'$' + ${#numbers.formatDecimal(detalle.subtotal, 1, 'POINT', 2, 'COMMA')}">$100.00</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ====== SECCION 4: RESUMEN Y TOTALES CON LOGICA SEGUN TIPO ====== -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-purple-dark text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-calculator me-2"></i>
+                        Resumen de Montos
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8"></div>
+                        <div class="col-md-4">
+                            
+                            <!-- FACTURA A: IVA DISCRIMINADO -->
+                            <div th:if="${factura.tipo != null && factura.tipo.name() == 'A'}">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-muted">Subtotal:</span>
+                                    <span th:text="'$' + ${#numbers.formatDecimal(factura.subtotal, 1, 'POINT', 2, 'COMMA')}">$1,000.00</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-3">
+                                    <span class="text-muted">IVA (21%):</span>
+                                    <span class="fw-bold text-success" th:text="'$' + ${#numbers.formatDecimal(factura.totalIva, 1, 'POINT', 2, 'COMMA')}">$210.00</span>
+                                </div>
+                                <hr style="border-color: #2a003d; opacity: 0.3;">
+                                <div class="d-flex justify-content-between mb-0">
+                                    <strong class="fs-5 text-purple-dark">Total:</strong>
+                                    <strong class="fs-5 text-purple-dark" th:text="'$' + ${#numbers.formatDecimal(factura.montoTotal, 1, 'POINT', 2, 'COMMA')}">$1,210.00</strong>
+                                </div>
+                                <small class="text-muted d-block mt-2">
+                                    <i class="fas fa-info-circle me-1"></i>IVA discriminado.
+                                </small>
+                            </div>
+
+                            <!-- FACTURA B: MONOTRIBUTISTA / CONSUMIDOR FINAL -->
+                            <div th:if="${factura.tipo != null && factura.tipo.name() == 'B'}">
+                                <div class="d-flex justify-content-between mb-3">
+                                    <strong class="fs-5 text-purple-dark">Total (IVA incluido):</strong>
+                                    <strong class="fs-5 text-purple-dark" th:text="'$' + ${#numbers.formatDecimal(factura.montoTotal, 1, 'POINT', 2, 'COMMA')}">$1,210.00</strong>
+                                </div>
+                                <small class="text-muted d-block">
+                                    <i class="fas fa-info-circle me-1"></i>IVA incluido en el precio.
+                                </small>
+                            </div>
+
+                            <!-- FACTURA C: MONOTRIBUTISTA (EMISOR) -->
+                            <div th:if="${factura.tipo != null && factura.tipo.name() == 'C'}">
+                                <div class="d-flex justify-content-between mb-3">
+                                    <strong class="fs-5 text-purple-dark">Total (IVA incluido):</strong>
+                                    <strong class="fs-5 text-purple-dark" th:text="'$' + ${#numbers.formatDecimal(factura.montoTotal, 1, 'POINT', 2, 'COMMA')}">$1,210.00</strong>
+                                </div>
+                                <small class="text-muted d-block">
+                                    <i class="fas fa-info-circle me-1"></i>Emisor monotributista. IVA incluido en el precio.
+                                </small>
+                            </div>
+
+                            <!-- FACTURA E: EXPORTACION (SIN IVA) -->
+                            <div th:if="${factura.tipo != null && factura.tipo.name() == 'E'}">
+                                <div class="d-flex justify-content-between mb-3">
+                                    <strong class="fs-5 text-purple-dark">Total (Exento de IVA):</strong>
+                                    <strong class="fs-5 text-purple-dark" th:text="'$' + ${#numbers.formatDecimal(factura.montoTotal, 1, 'POINT', 2, 'COMMA')}">$1,000.00</strong>
+                                </div>
+                                <small class="text-muted d-block">
+                                    <i class="fas fa-globe me-1"></i>Comprobante de exportación. Sin IVA.
+                                </small>
+                            </div>
+
+                            <!-- TIPO NO DEFINIDO -->
+                            <div th:if="${factura.tipo == null}">
+                                <div class="alert alert-warning py-2 mb-0">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>Tipo de comprobante no especificado
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/template :: footer}"></footer>
+
+    <div th:replace="~{fragments/template :: scripts}"></div>
+
+</body>
+</html>

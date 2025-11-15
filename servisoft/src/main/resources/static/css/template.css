@@ -77,3 +77,59 @@ footer a:hover {
   color: #2a003d;
 }
 
+/* Fondo morado para encabezados de tarjeta y tabla */
+.bg-purple-dark {
+  background-color: #2a003d !important;
+  color: white !important;
+}
+
+/* Badge morado (ej. "Factura A") */
+.bg-purple {
+  background-color: #2a003d !important;
+  color: white;
+}
+
+/* Botón de contorno morado (ej. "Volver a Consulta") */
+.btn-outline-purple {
+  color: #2a003d !important;
+  border-color: #2a003d !important;
+}
+
+.btn-outline-purple:hover {
+  background-color: #4a235a !important;
+  color: white !important;
+}
+
+/* === CORRECCIÓN DE FORMULARIOS === */
+
+/* 1. Arreglar el foco (quitar el resplandor) */
+.form-select:focus,
+.form-control:focus,
+.form-check-input:focus {
+  border-color: #ba68c8; /* Tu morado de acento */
+  box-shadow: none !important; /* ¡Adiós resplandor feo! */
+}
+
+/* 2. Cambiar el color de los checkboxes de azul a morado */
+.form-check-input:checked {
+  background-color: #2a003d; /* Tu morado oscuro */
+  border-color: #2a003d; /* Borde del mismo color */
+}
+
+/* 3. Ocultar las flechas (spin buttons) en los inputs de tipo número */
+/* Para Chrome, Safari, Edge */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+/* Para Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+/* 4. Regla específica para el encabezado de la tabla de consulta */
+.table thead.bg-purple-dark {
+    background-color: #2a003d !important;
+    color: white !important;
+}
