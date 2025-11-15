@@ -25,7 +25,7 @@ import com.gpp.servisoft.model.dto.FacturacionMasivaDto;
 import com.gpp.servisoft.model.dto.ServicioDeLaCuentaDto;
 import com.gpp.servisoft.model.dto.ServicioSeleccionadoDto;
 import com.gpp.servisoft.model.enums.Periodicidad;
-import com.gpp.servisoft.service.CuentaServicio;
+import com.gpp.servisoft.service.CuentaService;
 import com.gpp.servisoft.service.FacturacionService;
 import com.gpp.servisoft.service.ServicioDeLaCuentaService;
 
@@ -38,7 +38,7 @@ import com.gpp.servisoft.service.ServicioDeLaCuentaService;
 public class FacturacionController {
 
     @Autowired
-    private CuentaServicio cuentaServicio;
+    private CuentaService cuentaServicio;
 
     @Autowired
     private ServicioDeLaCuentaService servicioDeLaCuentaServicio;
@@ -88,7 +88,7 @@ public class FacturacionController {
         // model.addAttribute("periodoSeleccionado", );
         model.addAttribute("cuentaSeleccionada", cuentaId); // para mantener selección
 
-        return "facturacion-individual";
+        return "facturacion/facturacion-individual";
     }
 
     @PostMapping("/procesar")
@@ -156,7 +156,7 @@ public class FacturacionController {
         model.addAttribute("cuentaId", cuentaId);
         model.addAttribute("comprobante", comprobante);
 
-        return "facturacion-consulta";
+        return "facturacion/facturacion-consulta";
     }
 
     @GetMapping("/detalle/{id}")
@@ -168,7 +168,7 @@ public class FacturacionController {
         }
 
         model.addAttribute("factura", factura);
-        return "facturacion-detalle";
+        return "facturacion/facturacion-detalle";
     }
 
     // ================= FACTURACION MASIVA =====================
@@ -190,7 +190,7 @@ public class FacturacionController {
 
         // Atributos para mantener Seleccion
 
-        return "facturacion-masiva";
+        return "facturacion/facturacion-masiva";
     }
     
     @PostMapping("/procesar/masiva")
@@ -232,6 +232,6 @@ public class FacturacionController {
         }
         
         model.addAttribute("facturacionMasiva", facturacionMasivaDto);
-        return "facturacion-masiva-detalle";
+        return "facturacion/facturacion-masiva-detalle";
     }
 }

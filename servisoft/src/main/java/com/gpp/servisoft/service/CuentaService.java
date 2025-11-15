@@ -94,4 +94,16 @@ public Cuenta obtenerPorId(int idCuenta) {
         cuenta.setEstado(Estado.INACTIVO);
         cuentaRepository.save(cuenta);
     }
+
+    // METODOS QUE SE NECESITAN PARA EL MODULO DE FACTURACION
+
+    /**
+     * Implementacion Basica de la consulta de todos los registros en 
+     * estado ACTIVO
+     * 
+     * @return la lista completa de Cuentas existentes de la BD, que tienen el estado activo
+     */
+    public List<Cuenta> obtenerCuentas() {
+        return cuentaRepository.findByEstado(Estado.ACTIVO);
+    }
 }
