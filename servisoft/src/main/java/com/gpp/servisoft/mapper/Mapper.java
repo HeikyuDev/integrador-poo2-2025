@@ -42,16 +42,16 @@ public class Mapper {
                 .razonSocial(factura.getDatosClienteFactura().getRazonSocial())
                 .fechaEmision(factura.getFechaEmision())
                 .fechaVencimiento(factura.getFechaVencimiento())
-                .montoTotal(factura.getMontoTotal() == null ? 0.0d : factura.getMontoTotal())
+                .montoTotal(factura.getMontoTotal() != null ? (double)factura.getMontoTotal() : 0.0)
                 .totalIva(
                         factura.getDetallesFacturas()
                                 .stream()
-                                .mapToDouble(detalle -> detalle.getIvaCalculado() == null ? 0.0d : detalle.getIvaCalculado())
+                                .mapToDouble(detalle -> detalle.getIvaCalculado() == null ? 0.0d : (double) detalle.getIvaCalculado())
                                 .sum())
                 .subtotal(
                         factura.getDetallesFacturas()
                                 .stream()
-                                .mapToDouble(detalle -> detalle.getSubtotal() == null ? 0.0d : detalle.getSubtotal())
+                                .mapToDouble(detalle -> detalle.getSubtotal() == null ? 0.0d : (double)detalle.getSubtotal())
                                 .sum())
                 .tipo(factura.getTipoComprobante())
                 // Mapear DTOs
@@ -73,7 +73,7 @@ public class Mapper {
         return FacturacionMasivaDto.builder()
                 .idFacturacionMasiva(facturacionMasiva.getIdFacturacionMasiva())
                 .cantidadDeFacturas(facturacionMasiva.getCantidadDeFacturas())
-                .montoTotal(facturacionMasiva.getMontoTotal() == null ? 0.0d : facturacionMasiva.getMontoTotal())
+                .montoTotal(facturacionMasiva.getMontoTotal() == null ? 0.0d : (double)facturacionMasiva.getMontoTotal())
                 .fechaEmision(facturacionMasiva.getFechaEmision())
                 .facturas(mapearFacturas(facturacionMasiva.getFacturas()))
                 .build();
@@ -177,7 +177,7 @@ public class Mapper {
         if (factura.getPagos() != null && !factura.getPagos().isEmpty()) {
             totalPagado = factura.getPagos()
                     .stream()
-                    .mapToDouble(pago -> pago.getMonto() == null ? 0.0d : pago.getMonto())
+                    .mapToDouble(pago -> pago.getMonto() == null ? 0.0d : (double)pago.getMonto())
                     .sum();
         }
 

@@ -35,7 +35,7 @@ public class Pago {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Setter(AccessLevel.NONE)
-    private int idPago;
+    private Integer idPago;
 
     /**
      * Monto pagado. Debe ser un valor mayor o igual a 0.0.

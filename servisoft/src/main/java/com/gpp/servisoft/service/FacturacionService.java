@@ -35,6 +35,7 @@ import com.gpp.servisoft.repository.FacturacionRepository;
 import com.gpp.servisoft.repository.ServicioDeLaCuentaRepository;
 
 @Service
+@SuppressWarnings("null")
 public class FacturacionService {
 
     // Utilizamos Autowired para poder inyectar la dependencia del repositorio
@@ -167,7 +168,7 @@ public class FacturacionService {
         facturacionMasiva.setFacturas(facturas);
         facturacionMasiva.setCantidadDeFacturas(facturas.size());
         facturacionMasiva.setFechaEmision(LocalDate.now());
-        facturacionMasiva.setMontoTotal(facturas.stream()
+        facturacionMasiva.setMontoTotal((double) facturas.stream()
                 .mapToDouble(factura -> factura.getMontoTotal() != null ? factura.getMontoTotal() : 0.0)
                 .sum());
         facturacionMasivaRepository.save(facturacionMasiva);
@@ -188,7 +189,7 @@ public class FacturacionService {
         Factura factura = construirFactura(detallesFacturas, periodicidad);
 
         // Persistir factura y detalles (cascade automático)
-        facturacionRepository.save(factura);
+        facturacionRepository.save((Factura) factura);
 
         // Actualizar estados de servicios a FACTURADO
         actualizarEstadoServiciosAFacturado(detallesFacturas);
@@ -290,7 +291,7 @@ public class FacturacionService {
                 .peek(sdc -> sdc.setEstadoServicio(EstadoServicio.FACTURADO))
                 .collect(Collectors.toList());
 
-        servicioDeLaCuentaRepository.saveAll(serviciosAActualizar);
+        servicioDeLaCuentaRepository.saveAll((Iterable<ServicioDeLaCuenta>) serviciosAActualizar);
     }
 
     /**

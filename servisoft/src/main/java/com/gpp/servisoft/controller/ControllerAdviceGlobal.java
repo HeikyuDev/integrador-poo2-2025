@@ -4,9 +4,6 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -15,9 +12,12 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.FlashMap;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.support.RequestContextUtils;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Manejo global de errores para páginas Thymeleaf y APIs REST.
@@ -26,6 +26,7 @@ import org.springframework.web.servlet.support.RequestContextUtils;
  * - Si es página, guarda un flash "error" y redirige al referer o /home.
  */
 @ControllerAdvice
+@SuppressWarnings("null")
 public class ControllerAdviceGlobal {
 
     @ModelAttribute("appName")

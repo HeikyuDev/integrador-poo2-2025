@@ -12,6 +12,7 @@ import com.gpp.servisoft.repository.CuentaRepository;
 import com.gpp.servisoft.repository.ServicioDeLaCuentaRepository;
 
 @Service
+@SuppressWarnings("null")
 public class ServicioDeLaCuentaService {
 
     @Autowired

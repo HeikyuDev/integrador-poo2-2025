@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import com.gpp.servisoft.model.entities.FacturacionMasiva;
 
 @Repository
+@SuppressWarnings("null")
 public interface FacturacionMasivaRepository extends JpaRepository<FacturacionMasiva, Integer> {
 
     @Override
