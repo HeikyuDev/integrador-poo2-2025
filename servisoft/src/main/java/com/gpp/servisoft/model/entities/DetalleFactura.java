@@ -1,13 +1,6 @@
 package com.gpp.servisoft.model.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -28,7 +21,7 @@ import lombok.Setter;
 public class DetalleFactura {
 
     /**
-     * Identificador único del detalle de factura.
+     * Atributo idDetalleFactura: Identificador único del detalle de factura.
      * Se genera automáticamente y no puede ser modificado manualmente.
      */
     @Id
@@ -37,14 +30,15 @@ public class DetalleFactura {
     private int idDetalleFactura;
 
     /**
-     * Cantidad de unidades del producto o servicio en este detalle.
+     * Atributo cantidad:Cantidad de unidades del 
+     * producto o servicio en este detalle.
      * Debe ser un número positivo.
      */
     @Min(1)
     private int cantidad;
 
     /**
-     * Precio unitario del producto o servicio.
+     * Atributo: precioUnitario: Precio unitario del producto o servicio.
      * Debe ser un valor igual o mayor a cero.
      */
     @NotNull
@@ -52,20 +46,22 @@ public class DetalleFactura {
     private Double precioUnitario;
 
     /**
-     * Subtotal calculado (cantidad * precio unitario).
+     * Atributo subtotal: Subtotal calculado (cantidad * precio unitario).
      * Se calcula automáticamente y debe ser igual o mayor a cero.
      */
     @PositiveOrZero
     private Double subtotal;
 
     /**
-     * Monto de IVA calculado para este detalle.
+     * Atributo ivaCalculado: Monto de IVA calculado para este detalle.
      * Se calcula automáticamente y debe ser igual o mayor a cero.
      */
     @PositiveOrZero
     private Double ivaCalculado;
 
     /**
+     * Atributo servicioDeLaCuenta: almacena el listado de servicios 
+     * los cuales están asociados o registrados en la cuenta.
      * un detalle de una Factura se asocia a un unico servicio de una determinada cuenta
      */
 
@@ -74,6 +70,7 @@ public class DetalleFactura {
     private ServicioDeLaCuenta servicioDeLaCuenta;
 
     /**
+     * Atributo factura: Factura a la que pertenece este detalle.
      * Muchos detalles de una Factura se asocia a una Factura
      */
 

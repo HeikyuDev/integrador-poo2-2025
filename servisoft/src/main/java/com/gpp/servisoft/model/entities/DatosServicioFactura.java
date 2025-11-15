@@ -39,7 +39,8 @@ public class DatosServicioFactura {
 
 
     /**
-     * Nombre del servicio. Obligatorio y hasta 50 caracteres.
+     * Atributo nombreServicio: Indica el nombre del servicio.
+     * Debe ser una cadena no vacía con un máximo de 50 caracteres.
      */
     @NotBlank(message = "El nombre no puede estar vacío")
     @Size(max = 50, message = "El nombre no debe superar los 50 caracteres")
@@ -47,7 +48,8 @@ public class DatosServicioFactura {
     private String nombreServicio;
 
     /**
-     * Descripción breve del servicio. Obligatoria y hasta 50 caracteres.
+     * Atributo descripcionServicio: Descripción breve del servicio.
+     * Debe ser una cadena no vacía con un máximo de 50 caracteres.
      */
     @NotBlank(message = "La descripción no puede estar vacía")
     @Size(max = 50, message = "La descripción no debe superar los 50 caracteres")
@@ -55,7 +57,8 @@ public class DatosServicioFactura {
     private String descripcionServicio;
 
     /**
-     * Precio actual del servicio. Debe ser un valor numérico no negativo.
+     * Atributo precioActual: Precio actual del servicio.
+     * Debe ser un valor numérico no negativo.
      * Se usa {@link Double} para permitir distinguir entre "no proporcionado"
      * y 0.0 cuando sea necesario.
      */
