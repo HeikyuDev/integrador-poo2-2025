@@ -172,7 +172,7 @@
                                 <!-- Listado de servicios -->
                                 <tr th:each="detalle : ${factura.detalleFacturas}">
                                     <td class="fw-bold">
-                                        <span th:text="${detalle.servicioDeLaCuenta.servicio.nombreServicio}">Servicio</span>
+                                        <span th:text="${detalle.nombreServicio}">Servicio</span>
                                     </td>
                                     <td class="text-center">
                                         <span th:text="${detalle.cantidad}">1</span>

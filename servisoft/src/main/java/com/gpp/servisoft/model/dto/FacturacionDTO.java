@@ -3,9 +3,6 @@ package com.gpp.servisoft.model.dto;
 import java.time.LocalDate;
 import java.util.List;
 
-import com.gpp.servisoft.model.entities.DatosClienteFactura;
-import com.gpp.servisoft.model.entities.DatosServicioFactura;
-import com.gpp.servisoft.model.entities.DetalleFactura;
 import com.gpp.servisoft.model.enums.EstadoFactura;
 import com.gpp.servisoft.model.enums.Periodicidad;
 import com.gpp.servisoft.model.enums.TipoComprobante;
@@ -13,11 +10,15 @@ import com.gpp.servisoft.model.enums.TipoComprobante;
 import lombok.Builder;
 import lombok.Data;
 
+/**
+ * DTO para representar la información completa de una factura.
+ * Contiene solo DTOs, sin referencias a entidades.
+ */
 @Data
 @Builder
 public class FacturacionDTO {
 
-    // Datos para mostrar en la tabla Principal
+    // Datos principales
     private int idFactura;
 
     private String nroComprobante;
@@ -28,32 +29,26 @@ public class FacturacionDTO {
 
     private LocalDate fechaVencimiento;
 
+    // Montos
     private double montoTotal;
 
+    private double subtotal;
 
-    // Detalles Adicionales
+    private double totalIva;
 
-    // En caso de querer mostrar el iva de forma separada
-    private double totalIva; 
-
-    // Suma de todos los montos de cada servicio
-    private double subtotal; 
-
-    // Para mostrar el tipo de comprobante
+    // Estados y tipos
     private TipoComprobante tipo;
 
-    // Para mostrar los servicios que se facturaron
-    List<DatosServicioFactura> serviciosInvolucrados;
-
-    // Paar mostrar datos fiscales del Cliente
-    DatosClienteFactura datosClienteFactura;
-
-    // Detalles del Servicio
-    List<DetalleFactura> detalleFacturas;
-    
-    // Estados que puede tener la misma
     private EstadoFactura estado;
 
     private Periodicidad periodicidad;
 
+    // DTOs en lugar de entidades
+    private DatosClienteFacturaDto datosClienteFactura;
+
+    private List<DatosServicioFacturaDto> serviciosInvolucrados;
+
+    private List<DetalleFacturaDto> detalleFacturas;
+
 }
+

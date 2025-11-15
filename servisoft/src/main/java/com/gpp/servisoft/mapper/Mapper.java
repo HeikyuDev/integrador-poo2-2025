@@ -1,7 +1,12 @@
 package com.gpp.servisoft.mapper;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
+import com.gpp.servisoft.model.dto.DatosClienteFacturaDto;
+import com.gpp.servisoft.model.dto.DatosServicioFacturaDto;
+import com.gpp.servisoft.model.dto.DetalleFacturaDto;
 import com.gpp.servisoft.model.dto.FacturacionDTO;
 import com.gpp.servisoft.model.dto.ServicioDeLaCuentaDto;
 import com.gpp.servisoft.model.entities.Factura;
@@ -21,6 +26,10 @@ public class Mapper {
                 .build();
     }
 
+    /**
+     * Convierte una Factura a FacturacionDTO con solo DTOs, sin referencias a
+     * entidades.
+     */
     public static FacturacionDTO toDto(Factura factura) {
         if (factura == null)
             return null;
@@ -43,11 +52,67 @@ public class Mapper {
                                 .mapToDouble(detalle -> detalle.getSubtotal() == null ? 0.0d : detalle.getSubtotal())
                                 .sum())
                 .tipo(factura.getTipoComprobante())
-                .serviciosInvolucrados(factura.getDatosServicioFactura())
+                // Mapear DTOs
+                .serviciosInvolucrados(mapearDatosServicioFactura(factura.getDatosServicioFactura()))
                 .estado(calcularEstado(factura))
                 .periodicidad(factura.getPeriodicidad())
-                .detalleFacturas(factura.getDetallesFacturas())
-                .datosClienteFactura(factura.getDatosClienteFactura())
+                .detalleFacturas(mapearDetalleFacturas(factura.getDetallesFacturas()))
+                .datosClienteFactura(mapearDatosClienteFactura(factura.getDatosClienteFactura()))
+                .build();
+    }
+
+    /**
+     * Convierte una lista de DatosServicioFactura a DTOs
+     */
+    private static List<DatosServicioFacturaDto> mapearDatosServicioFactura(
+            List<com.gpp.servisoft.model.entities.DatosServicioFactura> servicios) {
+        if (servicios == null || servicios.isEmpty())
+            return List.of();
+
+        return servicios.stream()
+                .map(servicio -> DatosServicioFacturaDto.builder()
+                        .idDatosServicioFactura(servicio.getIdDatosServicioFactura())
+                        .nombreServicio(servicio.getNombreServicio())
+                        .descripcionServicio(servicio.getDescripcionServicio())
+                        .precioActual(servicio.getPrecioActual())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Convierte una lista de DetalleFactura a DTOs
+     */
+    private static List<DetalleFacturaDto> mapearDetalleFacturas(
+            List<com.gpp.servisoft.model.entities.DetalleFactura> detalles) {
+        if (detalles == null || detalles.isEmpty())
+            return List.of();
+
+        return detalles.stream()
+                .map(detalle -> DetalleFacturaDto.builder()
+                        .idDetalleFactura(detalle.getIdDetalleFactura())
+                        .nombreServicio(detalle.getServicioDeLaCuenta().getServicio().getNombreServicio())
+                        .cantidad(detalle.getCantidad())
+                        .precioUnitario(detalle.getPrecioUnitario())
+                        .subtotal(detalle.getSubtotal())
+                        .ivaCalculado(detalle.getIvaCalculado())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Convierte DatosClienteFactura a DTO
+     */
+    private static DatosClienteFacturaDto mapearDatosClienteFactura(
+            com.gpp.servisoft.model.entities.DatosClienteFactura datosCliente) {
+        if (datosCliente == null)
+            return null;
+
+        return DatosClienteFacturaDto.builder()
+                .idCuenta(datosCliente.getIdCuenta())
+                .domicilioFiscal(datosCliente.getDomicilioFiscal())
+                .condicionFrenteIVA(datosCliente.getCondicionFrenteIVA().toString())
+                .cuit(datosCliente.getCuit())
+                .razonSocial(datosCliente.getRazonSocial())
                 .build();
     }
 
@@ -112,3 +177,4 @@ public class Mapper {
         return EstadoFactura.PENDIENTE;
     }
 }
+
