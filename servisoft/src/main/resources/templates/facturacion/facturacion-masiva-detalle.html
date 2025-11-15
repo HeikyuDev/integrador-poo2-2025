@@ -13,36 +13,16 @@
     <main class="flex-fill">
         <div class="container my-5">
 
-            <!-- BREADCRUMB -->
-            <nav aria-label="breadcrumb" class="mb-4">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item">
-                        <a href="#" class="text-purple-dark">Facturación</a>
-                    </li>
-                    <li class="breadcrumb-item">
-                        <a th:href="@{/facturacion/masiva}" class="text-purple-dark">Facturaciones Masivas</a>
-                    </li>
-                    <li class="breadcrumb-item active" aria-current="page">Detalle</li>
-                </ol>
-            </nav>
-
             <!-- TITULO Y HEADER -->
             <div class="row align-items-center mb-5">
                 <div class="col-md-8">
-                    <h1 class="text-purple-dark fw-bold">Detalle Facturación Masiva</h1>
-                </div>
-                <div class="col-md-4 text-end">
-                    <div class="bg-purple-dark text-white p-4 rounded">
-                        <h5 class="fw-bold mb-0">
-                            <i class="fas fa-file-invoice-dollar me-2"></i>Masiva #<span th:text="${facturacionMasiva.idFacturacionMasiva}"></span>
-                        </h5>
-                    </div>
+                    <h1 class="text-purple-dark">Detalle Facturación Masiva</h1>
                 </div>
             </div>
 
             <!-- INFORMACIÓN GENERAL DE LA FACTURACIÓN MASIVA -->
             <div class="row mb-4">
-                <div class="col-lg-3 mb-3">
+                <div class="col-lg-4 mb-3">
                     <div class="card shadow-2-strong h-100">
                         <div class="card-body text-center">
                             <h6 class="card-title text-muted mb-2">Fecha de Emisión</h6>
@@ -50,7 +30,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-3 mb-3">
+                <div class="col-lg-4 mb-3">
                     <div class="card shadow-2-strong h-100">
                         <div class="card-body text-center">
                             <h6 class="card-title text-muted mb-2">Cantidad de Facturas</h6>
@@ -60,25 +40,12 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-3 mb-3">
+                <div class="col-lg-4 mb-3">
                     <div class="card shadow-2-strong h-100">
                         <div class="card-body text-center">
                             <h6 class="card-title text-muted mb-2">Monto Total Recaudado</h6>
                             <p class="card-text fw-bold text-purple-dark fs-5">
                                 $<span th:text="${#numbers.formatDecimal(facturacionMasiva.montoTotal, 1, 2)}"></span>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 mb-3">
-                    <div class="card shadow-2-strong h-100">
-                        <div class="card-body text-center">
-                            <h6 class="card-title text-muted mb-2">Promedio por Factura</h6>
-                            <p class="card-text fw-bold text-purple-dark fs-5">
-                                <span th:if="${facturacionMasiva.cantidadDeFacturas > 0}">
-                                    $<span th:text="${#numbers.formatDecimal(facturacionMasiva.montoTotal / facturacionMasiva.cantidadDeFacturas, 1, 2)}"></span>
-                                </span>
-                                <span th:if="${facturacionMasiva.cantidadDeFacturas == 0}">N/A</span>
                             </p>
                         </div>
                     </div>
