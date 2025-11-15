@@ -210,7 +210,7 @@
                                     <span th:text="'$' + ${#numbers.formatDecimal(factura.subtotal, 1, 'POINT', 2, 'COMMA')}">$1,000.00</span>
                                 </div>
                                 <div class="d-flex justify-content-between mb-3">
-                                    <span class="text-muted">IVA (21%):</span>
+                                    <span class="text-muted">IVA Total:</span>
                                     <span class="fw-bold text-success" th:text="'$' + ${#numbers.formatDecimal(factura.totalIva, 1, 'POINT', 2, 'COMMA')}">$210.00</span>
                                 </div>
                                 <hr style="border-color: #2a003d; opacity: 0.3;">
