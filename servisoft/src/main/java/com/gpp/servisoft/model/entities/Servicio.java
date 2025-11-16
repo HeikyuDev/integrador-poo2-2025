@@ -1,7 +1,6 @@
 package com.gpp.servisoft.model.entities;
 
 import com.gpp.servisoft.model.enums.Estado;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
