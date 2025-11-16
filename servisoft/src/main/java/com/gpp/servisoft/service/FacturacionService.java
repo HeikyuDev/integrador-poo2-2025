@@ -74,6 +74,15 @@ public class FacturacionService {
         return paginaDeEntidades.map(Mapper::toDto);
     }
 
+    public Page<FacturacionDTO> obtenerFacturasPendientes(Integer idCuenta, String comprobante, Pageable pageable) {
+        // Obtener la página de facturas pendientes usando el repositorio
+        // Una factura se considera pendiente si no tiene pagos o el total pagado es menor al monto total
+        Page<Factura> paginaDeFacturasPendientes = facturacionRepository.findFacturasPendientesByFilters(idCuenta, comprobante, pageable);
+        
+        // Mapear cada factura de la página a su correspondiente DTO
+        return paginaDeFacturasPendientes.map(Mapper::toDto);
+    }
+
     /**
      * 
      * @return
