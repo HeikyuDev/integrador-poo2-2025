@@ -1,0 +1,196 @@
+package com.gpp.servisoft.controller;
+
+import jakarta.validation.Valid;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import com.gpp.servisoft.service.ServicioService;
+import com.gpp.servisoft.model.entities.Servicio;
+import com.gpp.servisoft.model.enums.Estado;
+
+@Controller
+@RequestMapping("/servicios")
+public class ServicioController {
+
+     @Autowired
+    private ServicioService servicioService;
+
+    /**
+     * Muestra el dashboard con la lista de todos los servicios
+     */
+    @GetMapping
+    public String listarServicios(Model model) {
+
+        List<Servicio> servicios = servicioService.listarTodos();
+
+        // Calcular estadísticas
+        long totalServicios = servicios.size();
+        long serviciosActivos = servicios.stream()
+                .filter(s -> s.getEstado() == Estado.ACTIVO)
+                .count();
+        long serviciosInactivos = servicios.stream()
+                .filter(s -> s.getEstado() == Estado.INACTIVO)
+                .count();
+        double montoPromedio = servicios.stream()
+                .mapToDouble(Servicio::getMontoServicio)
+                .average()
+                .orElse(0.0);
+
+        model.addAttribute("servicios", servicios);
+        model.addAttribute("totalServicios", totalServicios);
+        model.addAttribute("serviciosActivos", serviciosActivos);
+        model.addAttribute("serviciosInactivos", serviciosInactivos);
+        model.addAttribute("montoPromedio", montoPromedio);
+
+        return "servicios/dashboardServicio";
+    }
+
+    /**
+     * Muestra el formulario para crear un nuevo servicio
+     */
+    @GetMapping("/nuevo")
+    public String mostrarFormularioNuevo(Model model) {
+        Servicio servicio = new Servicio();
+        servicio.setEstado(Estado.ACTIVO); // Estado por defecto
+        model.addAttribute("servicio", servicio);
+        return "servicios/formularioServicio";
+    }
+
+    /**
+     * Muestra el formulario para editar un servicio existente
+     */
+    @GetMapping("/editar/{id}")
+    public String mostrarFormularioEditar(@PathVariable("id") int id, Model model,
+            RedirectAttributes redirectAttributes) {
+        try {
+            Servicio servicio = servicioService.buscarPorId(id);
+            if (servicio == null) {
+                redirectAttributes.addFlashAttribute("error", "El servicio no existe");
+                return "redirect:/servicios";
+            }
+            model.addAttribute("servicio", servicio);
+            return "servicios/formularioServicio";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error al cargar el servicio: " + e.getMessage());
+            return "redirect:/servicios";
+        }
+    }
+
+    /**
+     * Guarda un nuevo servicio en la base de datos
+     */
+    @PostMapping("/guardar")
+    public String guardarServicio(@Valid @ModelAttribute("servicio") Servicio servicio,
+            BindingResult result,
+            Model model,
+            RedirectAttributes redirectAttributes) {
+
+        // Si hay errores de validación, volver al formulario
+        if (result.hasErrors()) {
+            model.addAttribute("servicio", servicio);
+            return "servicios/formularioServicio";
+        }
+
+        try {
+            servicioService.guardar(servicio);
+            redirectAttributes.addFlashAttribute("mensaje",
+                    "Servicio '" + servicio.getNombreServicio() + "' creado exitosamente");
+            return "redirect:/servicios";
+        } catch (Exception e) {
+            model.addAttribute("servicio", servicio);
+            model.addAttribute("error", "Error al guardar el servicio: " + e.getMessage());
+            return "servicios/formularioServicio";
+        }
+    }
+
+    /**
+     * Actualiza un servicio existente
+     */
+    @PostMapping("/actualizar")
+    public String actualizarServicio(@Valid @ModelAttribute("servicio") Servicio servicio,
+            BindingResult result,
+            Model model,
+            RedirectAttributes redirectAttributes) {
+
+        if (result.hasErrors()) {
+            System.out.println("⚠️ Errores detectados, recargando formulario...");
+            model.addAttribute("servicio", servicio);
+            return "servicios/formularioServicio";
+        }
+
+        try {
+            // 🔍 Log temporal para debug
+            System.out.println("Actualizando servicio ID: " + servicio.getIdServicio());
+
+            servicioService.actualizar(servicio);
+
+            redirectAttributes.addFlashAttribute("mensaje",
+                    "Servicio '" + servicio.getNombreServicio() + "' actualizado exitosamente");
+
+            // ✅ Redirige al dashboard
+            return "redirect:/servicios";
+
+        } catch (Exception e) {
+            model.addAttribute("servicio", servicio);
+            model.addAttribute("error", "Error al actualizar el servicio: " + e.getMessage());
+            return "servicios/formularioServicio";
+        }
+    }
+
+    /**
+     * Elimina un servicio (baja lógica o física según implementación)
+     */
+    @PostMapping("/eliminar/{id}")
+    public String eliminarServicio(@PathVariable("id") int id, RedirectAttributes redirectAttributes) {
+        try {
+            Servicio servicio = servicioService.buscarPorId(id);
+            if (servicio == null) {
+                redirectAttributes.addFlashAttribute("error", "El servicio no existe");
+                return "redirect:/servicios";
+            }
+
+            String nombreServicio = servicio.getNombreServicio();
+            servicioService.eliminar(id);
+            redirectAttributes.addFlashAttribute("mensaje",
+                    "Servicio '" + nombreServicio + "' eliminado exitosamente");
+
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error",
+                    "No se puede eliminar el servicio. Puede estar asociado a cuentas existentes.");
+        }
+
+        return "redirect:/servicios";
+    }
+
+    /**
+     * Cambia el estado de un servicio (Activo/Inactivo)
+     */
+    @PostMapping("/cambiar-estado/{id}")
+    public String cambiarEstado(@PathVariable("id") int id, RedirectAttributes redirectAttributes) {
+        try {
+            Servicio servicio = servicioService.buscarPorId(id);
+            if (servicio == null) {
+                redirectAttributes.addFlashAttribute("error", "El servicio no existe");
+                return "redirect:/servicios";
+            }
+
+            // Cambiar el estado
+            Estado nuevoEstado = servicio.getEstado() == Estado.ACTIVO ? Estado.INACTIVO : Estado.ACTIVO;
+            servicio.setEstado(nuevoEstado);
+            servicioService.actualizar(servicio);
+
+            redirectAttributes.addFlashAttribute("mensaje",
+                    "Estado del servicio actualizado a " + nuevoEstado);
+
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error",
+                    "Error al cambiar el estado: " + e.getMessage());
+        }
+
+        return "redirect:/servicios";
+    }
+}

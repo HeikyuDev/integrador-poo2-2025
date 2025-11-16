@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/template :: head">
+    <meta charset="UTF-8">
+    <title>Servicio</title>
+</head>
+<body class="d-flex flex-column min-vh-100">
+    
+    <!-- NAVBAR -->
+    <header th:replace="fragments/template :: navbar"></header>
+    
+    <!--CONTENIDO-->
+    <main class="flex-fill">
+        <div class="container my-5">
+            
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a th:href="@{/servicios}" class="text-decoration-none">
+                            <i class="fas fa-cogs me-1"></i>Servicios
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page" 
+                        th:text="${servicio.idServicio == 0} ? 'Nuevo Servicio' : 'Editar Servicio'">
+                        Nuevo Servicio
+                    </li>
+                </ol>
+            </nav>
+
+            <!-- Encabezado -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h2 class="fw-bold">
+                        <i th:class="${servicio.idServicio == 0} ? 'fas fa-plus-circle me-2 text-success' : 'fas fa-edit me-2 text-warning'"></i>
+                        <span th:text="${servicio.idServicio == 0} ? 'Nuevo Servicio' : 'Editar Servicio'">Nuevo Servicio</span>
+                    </h2>
+                    <p class="text-muted">Complete los datos del servicio</p>
+                </div>
+            </div>
+
+            <!-- Formulario -->
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card shadow-3-strong">
+                        <div class="card-body p-4">
+                            <form th:action="${servicio.idServicio == 0} ? @{/servicios/guardar} : @{/servicios/actualizar}" 
+                                  th:object="${servicio}" 
+                                  method="post">
+
+                                <!-- Mensajes de error -->
+                                <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                                    <i class="fas fa-exclamation-circle me-2"></i>
+                                    <strong>Error en el formulario:</strong>
+                                    <ul class="mb-0 mt-2">
+                                        <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
+                                    </ul>
+                                    <button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                                
+                                <!-- ID oculto para edición -->
+                                <input type="hidden" th:field="*{idServicio}">
+
+                                <!-- Información Básica -->
+                                <h5 class="mb-3 fw-bold text-primary">
+                                    <i class="fas fa-info-circle me-2"></i>Información Básica
+                                </h5>
+
+                                <div class="row">
+                                    <!-- Nombre del Servicio -->
+                                    <div class="col-md-6 mb-4">
+                                        <div data-mdb-input-init class="form-outline">
+                                            <input type="text" 
+                                                   th:field="*{nombreServicio}" 
+                                                   id="nombreServicio" 
+                                                   class="form-control" 
+                                                   th:classappend="${#fields.hasErrors('nombreServicio')} ? 'is-invalid' : ''"
+                                                   maxlength="50"
+                                                   required>
+                                            <label class="form-label" for="nombreServicio">Nombre del Servicio *</label>
+                                            <div class="invalid-feedback" th:if="${#fields.hasErrors('nombreServicio')}" 
+                                                 th:errors="*{nombreServicio}">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Descripción -->
+                                    <div class="col-md-6 mb-4">
+                                        <div data-mdb-input-init class="form-outline">
+                                            <input type="text" 
+                                                   th:field="*{descripcionServicio}" 
+                                                   id="descripcionServicio" 
+                                                   class="form-control"
+                                                   th:classappend="${#fields.hasErrors('descripcionServicio')} ? 'is-invalid' : ''"
+                                                   maxlength="50"
+                                                   required>
+                                            <label class="form-label" for="descripcionServicio">Descripción *</label>
+                                            <div class="invalid-feedback" th:if="${#fields.hasErrors('descripcionServicio')}" 
+                                                 th:errors="*{descripcionServicio}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <hr class="my-4">
+
+                                <!-- Información Económica -->
+                                <h5 class="mb-3 fw-bold text-success">
+                                    <i class="fas fa-dollar-sign me-2"></i>Información Económica
+                                </h5>
+
+                                <div class="row">
+                                    <!-- Monto del Servicio -->
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label" for="montoServicio">Monto ($) *</label>
+                                        <input type="number" 
+                                               th:field="*{montoServicio}" 
+                                               id="montoServicio" 
+                                               class="form-control"
+                                               th:classappend="${#fields.hasErrors('montoServicio')} ? 'is-invalid' : ''"
+                                               step="0.01"
+                                               min="0"
+                                               required>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('montoServicio')}" 
+                                             th:errors="*{montoServicio}">
+                                        </div>
+                                        <small class="text-muted">
+                                            <i class="fas fa-info-circle me-1"></i>Ingrese el monto base del servicio
+                                        </small>
+                                    </div>
+
+                                    <!-- Alícuota (IVA) -->
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label" for="alicuota">Alícuota (IVA) *</label>
+                                        <select th:field="*{alicuota}" 
+                                                id="alicuota" 
+                                                class="form-select"
+                                                th:classappend="${#fields.hasErrors('alicuota')} ? 'is-invalid' : ''"
+                                                required>
+                                            <option value="">Seleccione una alícuota</option>
+                                            <option value="0">0% (Exento)</option>
+                                            <option value="0.105">10.5%</option>
+                                            <option value="0.21">21%</option>
+                                            <option value="0.27">27%</option>
+                                        </select>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('alicuota')}" 
+                                             th:errors="*{alicuota}">
+                                        </div>
+                                        <small class="text-muted">
+                                            <i class="fas fa-info-circle me-1"></i>Seleccione el porcentaje de IVA aplicable
+                                        </small>
+                                    </div>
+                                </div>
+
+                                <hr class="my-4">
+
+                                <!-- Configuración del Servicio -->
+                                <h5 class="mb-3 fw-bold text-info">
+                                    <i class="fas fa-cog me-2"></i>Configuración del Servicio
+                                </h5>
+
+                                <div class="row">
+                                    <!-- Estado -->
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label" for="estado">Estado *</label>
+                                        <select th:field="*{estado}" 
+                                                id="estado" 
+                                                class="form-select"
+                                                required>
+                                            <option value="ACTIVO">Activo</option>
+                                            <option value="INACTIVO">Inactivo</option>
+                                        </select>
+                                        <small class="text-muted">
+                                            <i class="fas fa-info-circle me-1"></i>Los servicios inactivos no se pueden asignar
+                                        </small>
+                                    </div>
+                                </div>
+
+                                <!-- Tiene Cantidad -->
+                                <div class="row">
+                                    <div class="col-12 mb-4">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" 
+                                                   type="checkbox" 
+                                                   th:field="*{tieneCantidad}" 
+                                                   id="tieneCantidad"
+                                                   role="switch">
+                                            <label class="form-check-label" for="tieneCantidad">
+                                                <strong>Admite cantidad variable</strong>
+                                            </label>
+                                        </div>
+                                        <small class="text-muted ms-5">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            Active esta opción si el servicio puede facturarse en diferentes cantidades (ej: horas de consultoría)
+                                        </small>
+                                    </div>
+                                </div>
+
+                                <hr class="my-4">
+
+                                <!-- Vista Previa del Cálculo -->
+                                <div class="alert alert-light border" role="alert">
+                                    <h6 class="alert-heading fw-bold">
+                                        <i class="fas fa-calculator me-2"></i>Vista Previa del Cálculo
+                                    </h6>
+                                    <div class="row mt-3">
+                                        <div class="col-md-4">
+                                            <small class="text-muted d-block">Monto Base</small>
+                                            <strong id="previewMonto">$0.00</strong>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <small class="text-muted d-block">IVA</small>
+                                            <strong id="previewIva">$0.00</strong>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <small class="text-muted d-block">Total</small>
+                                            <strong class="text-success" id="previewTotal">$0.00</strong>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Botones de Acción -->
+                                <div class="d-flex justify-content-between mt-4">
+                                    <a th:href="@{/servicios}" class="btn btn-secondary btn-lg" data-mdb-ripple-init>
+                                        <i class="fas fa-times me-2"></i>Cancelar
+                                    </a>
+                                    <button type="submit" class="btn btn-primary btn-lg" data-mdb-ripple-init>
+                                        <i th:class="${servicio.idServicio == 0} ? 'fas fa-save me-2' : 'fas fa-check me-2'"></i>
+                                        <span th:text="${servicio.idServicio == 0} ? 'Guardar Servicio' : 'Actualizar Servicio'">Guardar</span>
+                                    </button>
+                                </div>
+
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Información Adicional -->
+                    <div class="card shadow-2-strong mt-3">
+                        <div class="card-body">
+                            <h6 class="fw-bold mb-3">
+                                <i class="fas fa-lightbulb me-2 text-warning"></i>Información Importante
+                            </h6>
+                            <ul class="list-unstyled mb-0">
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Los campos marcados con * son obligatorios
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    El monto del servicio no incluye el IVA
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Los servicios inactivos no aparecerán disponibles para asignar a cuentas
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- PIE DE PÁGINA -->
+    <footer th:replace="fragments/template :: footer"></footer>
+    
+    <!-- ⚡ SCRIPTS -->
+    <div th:replace="fragments/template :: scripts"></div>
+    
+    <script>
+        // Función para actualizar la vista previa del cálculo
+        function actualizarVistaPrevia() {
+            const monto = parseFloat(document.getElementById('montoServicio').value) || 0;
+            const alicuota = parseFloat(document.getElementById('alicuota').value) || 0;
+            
+            const iva = monto * alicuota;
+            const total = monto + iva;
+            
+            document.getElementById('previewMonto').textContent = '$' + monto.toFixed(2);
+            document.getElementById('previewIva').textContent = '$' + iva.toFixed(2);
+            document.getElementById('previewTotal').textContent = '$' + total.toFixed(2);
+        }
+        
+        // Escuchar cambios en monto y alícuota
+        document.addEventListener('DOMContentLoaded', function() {
+            const montoInput = document.getElementById('montoServicio');
+            const alicuotaSelect = document.getElementById('alicuota');
+            
+            if (montoInput) {
+                montoInput.addEventListener('input', actualizarVistaPrevia);
+            }
+            if (alicuotaSelect) {
+                alicuotaSelect.addEventListener('change', actualizarVistaPrevia);
+            }
+            
+            // Actualizar vista previa inicial
+            actualizarVistaPrevia();
+        });
+    </script>
+    
+</body>
+</html>
