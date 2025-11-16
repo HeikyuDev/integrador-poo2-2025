@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="fragments/template :: head">
+    <meta charset="UTF-8">
+    <title>Próximamente - ServiSoft</title>
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+
+    <!-- NAVBAR reutilizada desde la plantilla base -->
+    <header th:replace="fragments/template :: navbar"></header>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="flex-fill d-flex align-items-center justify-content-center">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <!-- Tarjeta principal -->
+                    <div class="card shadow-3-strong border-0 rounded-4">
+                        <div class="card-body p-5 text-center">
+                            
+                            <!-- Icono de construcción -->
+                            <div class="mb-4">
+                                <i class="fas fa-hammer-and-wrench text-warning" style="font-size: 80px;"></i>
+                            </div>
+
+                            <!-- Título principal -->
+                            <h1 class="fw-bold text-dark mb-3">Próximamente</h1>
+
+                            <!-- Descripción -->
+                            <p class="text-muted fs-5 mb-4">
+                                Esta funcionalidad está en desarrollo y estará disponible muy pronto.
+                                <br>
+                                Estamos trabajando para brindarte la mejor experiencia.
+                            </p>
+
+                            <!-- Características que vendrán -->
+                            <div class="alert alert-info alert-dismissible fade show shadow-1-strong" role="alert">
+                                <i class="fas fa-lightbulb me-2"></i>
+                                <strong>¿Qué esperar?</strong>
+                                <ul class="mb-0 mt-2">
+                                    <li>Interfaz intuitiva y amigable</li>
+                                    <li>Funcionalidades optimizadas</li>
+                                    <li>Reportes detallados</li>
+                                </ul>
+                            </div>
+
+                            <!-- Botón para volver -->
+                            <div class="mt-5">
+                                <a href="/" class="btn btn-primary btn-lg shadow-2-strong" data-mdb-ripple-init>
+                                    <i class="fas fa-home me-2"></i>Volver al Inicio
+                                </a>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Información adicional -->
+                    <div class="row mt-5 text-center">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <i class="fas fa-rocket text-primary" style="font-size: 40px;"></i>
+                            </div>
+                            <h6 class="fw-bold">Innovación</h6>
+                            <p class="text-muted small">Nuevas funcionalidades diseñadas para mejorar tu experiencia</p>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <i class="fas fa-tools text-success" style="font-size: 40px;"></i>
+                            </div>
+                            <h6 class="fw-bold">En Desarrollo</h6>
+                            <p class="text-muted small">Nuestro equipo trabaja constantemente en mejoras</p>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <i class="fas fa-smile text-warning" style="font-size: 40px;"></i>
+                            </div>
+                            <h6 class="fw-bold">Para Ti</h6>
+                            <p class="text-muted small">Pensado en tu productividad y facilidad de uso</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- PIE DE PÁGINA -->
+    <footer th:replace="fragments/template :: footer"></footer>
+
+    <!-- SCRIPTS -->
+    <div th:replace="fragments/template :: scripts"></div>
+
+</body>
+
+</html>
