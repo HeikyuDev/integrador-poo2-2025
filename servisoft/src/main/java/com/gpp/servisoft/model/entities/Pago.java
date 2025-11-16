@@ -25,7 +25,7 @@ import lombok.Setter;
 
 @Entity
 @Data
-@Table(name = "pago")
+@Table(name = "pagos")
 @NoArgsConstructor
 public class Pago {
 
@@ -35,7 +35,7 @@ public class Pago {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Setter(AccessLevel.NONE)
-    private int idPago;
+    private Integer idPago;
 
     /**
      * Monto pagado. Debe ser un valor mayor o igual a 0.0.

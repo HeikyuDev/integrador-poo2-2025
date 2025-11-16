@@ -1,7 +1,6 @@
 package com.gpp.servisoft.model.entities;
 
 import com.gpp.servisoft.model.enums.Estado;
-import com.gpp.servisoft.model.enums.Periodicidad;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,11 +10,11 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import jakarta.validation.constraints.DecimalMax;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -73,9 +72,5 @@ public class Servicio {
 
     private boolean tieneCantidad;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    @NotNull(message = "La periodicidad es obligatoria")
-    private Periodicidad periodicidad;
 
 }
