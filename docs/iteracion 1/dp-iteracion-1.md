@@ -11,7 +11,7 @@ Para el desarrollo de la iteracion 1 se dividió el trabajo de la siguiente mane
 - Modulo de Facturacion y Pagos
 
 # Diseño OO
-![image](img\DiagramaClasesPOOII.jpg)
+![image](https://github.com/HeikyuDev/integrador-poo2-2025/blob/main/docs/iteracion%201/img/DiagramaClasesPOOII.jpg?raw=true)
 
 ---
 # Wireframe y caso de uso
@@ -52,7 +52,7 @@ Para el desarrollo de la iteracion 1 se dividió el trabajo de la siguiente mane
 # Facturacion Individual
 
 ## Wireframe
-![image](img\Modulo-Facturacion\Mockup-Facturacion-Individual.jpg)
+![image](https://github.com/HeikyuDev/integrador-poo2-2025/blob/main/docs/iteracion%201/img/Modulo-Facturacion/Mockup-Facturacion-Individual.jpg?raw=true)
 
 ## Caso de Uso
 
@@ -92,7 +92,7 @@ Para el desarrollo de la iteracion 1 se dividió el trabajo de la siguiente mane
 # Facturacion Masiva
 
 ## Wireframe
-![image](img\Modulo-Facturacion\Mockup-Facturacion-Masiva.jpg)
+![image](https://github.com/HeikyuDev/integrador-poo2-2025/blob/main/docs/iteracion%201/img/Modulo-Facturacion/Mockup-Facturacion-Masiva.jpg?raw=true)
 
 ## Caso de Uso
 
@@ -126,7 +126,7 @@ Para el desarrollo de la iteracion 1 se dividió el trabajo de la siguiente mane
 # Pago Total
 
 ## Wireframe
-![image](img\Modulo-Facturacion\Mockup-pago-total.jpg)
+![image](https://github.com/HeikyuDev/integrador-poo2-2025/blob/main/docs/iteracion%201/img/Modulo-Facturacion/Mockup-Pago-total.jpg?raw=true)
 
 ## Caso de Uso
 
@@ -165,7 +165,7 @@ Para el desarrollo de la iteracion 1 se dividió el trabajo de la siguiente mane
 # Consulta de Facturacion
 
 ## Wireframe
-![image](img\Modulo-Facturacion\Mockup-Facturacion-Consulta.jpg)
+![image](https://github.com/HeikyuDev/integrador-poo2-2025/blob/main/docs/iteracion%201/img/Modulo-Facturacion/Mockup-Facturacion-Consulta.jpg?raw=true)
 
 ## Caso de Uso
 
