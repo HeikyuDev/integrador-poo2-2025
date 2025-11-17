@@ -106,7 +106,7 @@
                                     </td>
                                     <td>
                                         <span class="badge rounded-pill"
-                                            th:classappend="${servicio.estado == T(com.facturaar.facturaAR.model.enums.Estado).ACTIVO} ? ' badge-success' : ' badge-danger'"
+                                            th:classappend="${servicio.estado.name() == 'ACTIVO'} ? ' badge-success' : ' badge-danger'"
                                             th:text="${servicio.estado != null ? servicio.estado : '—'}">
                                             ACTIVO
                                         </span>
