@@ -2,6 +2,7 @@ package com.gpp.servisoft.model.entities;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.gpp.servisoft.model.enums.Estado;
 import com.gpp.servisoft.model.enums.TipoCliente;
 
@@ -91,6 +92,7 @@ public class Cliente {
  * Asociación con la clase Cuenta.
  * Un cliente puede estar asociado con una o muchas cuentas.
  */
+    @JsonIgnore
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true)
     @Valid
     private List<Cuenta> cuentas;

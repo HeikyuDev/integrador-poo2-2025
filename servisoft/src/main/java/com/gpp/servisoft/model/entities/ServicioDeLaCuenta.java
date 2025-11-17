@@ -1,5 +1,6 @@
 package com.gpp.servisoft.model.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.gpp.servisoft.model.enums.EstadoServicio;
 
 import jakarta.persistence.Column;
@@ -13,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -33,6 +35,7 @@ public class ServicioDeLaCuenta {
     private int idServicioDeLaCuenta;
 
     // Relación con Cuenta (muchos servicios pertenecen a una cuenta)
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_cuenta", nullable=false)
     private Cuenta cuenta;
@@ -43,7 +46,16 @@ public class ServicioDeLaCuenta {
     private Servicio servicio;
 
     /**
-     * Estado en el que esta actualmente el servicio que esta asociado a una determinada
+     * Precio del servicio al momento de agregarlo a la cuenta.
+     * Se congela el precio actual del servicio para mantener histórico.
+     */
+    @NotNull(message = "El precio actual no puede ser nulo")
+    @DecimalMin(value = "0.0", inclusive = true, message = "El precio no puede ser negativo")
+    @Column(nullable = false)
+    private Double precioActual;
+
+    /**
+     * Estado en el que está actualmente el servicio que está asociado a una determinada
      * Cuenta
      */
     @Enumerated(EnumType.STRING)

@@ -2,12 +2,14 @@ package com.gpp.servisoft.model.entities;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.gpp.servisoft.model.enums.CondicionFrenteIVA;
 import com.gpp.servisoft.model.enums.Estado;
 
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
@@ -48,6 +50,7 @@ public class Cuenta {
  * Atributo condicionFrenteIVA: Condición frente al IVA de la cuenta.
  * Debe ser uno de los valores del enum "CondicionFrenteIVA".
  */
+    @NotNull(message = "La condición frente al IVA es obligatoria")
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
     private CondicionFrenteIVA condicionFrenteIVA;
@@ -80,6 +83,7 @@ public class Cuenta {
  * Posee cardinalidad uno a muchos, donde una o muchas cuentas 
  * pueden estar asociadas a un solo cliente.
  */
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_cliente", nullable = false)
     private Cliente cliente;
@@ -89,7 +93,8 @@ public class Cuenta {
  * Posee cardinalidad uno a muchos, donde una cuenta puede tener 
  * uno o varios servicios asociados.
  */
-    @OneToMany(mappedBy="cuenta", cascade=CascadeType.ALL, orphanRemoval=true) // si elimino un servicio de la lista de serviciosdelacuenta, automaticamente jpa la elimina de la bd
+    @JsonIgnore
+    @OneToMany(mappedBy="cuenta", cascade=CascadeType.ALL, orphanRemoval=true)
     @Valid
     private List<ServicioDeLaCuenta> serviciosDeLaCuenta;
 }
