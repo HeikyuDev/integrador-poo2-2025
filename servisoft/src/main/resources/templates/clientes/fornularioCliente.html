@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/template :: head">
+    <meta charset="UTF-8">
+    <title>Cliente</title>
+</head>
+<body class="d-flex flex-column min-vh-100">
+    
+    <!-- NAVBAR -->
+    <header th:replace="fragments/template :: navbar"></header>
+    
+    <!--CONTENIDO-->
+    <main class="flex-fill">
+        <div class="container my-5">
+            
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a th:href="@{/clientes}" class="text-decoration-none">
+                            <i class="fas fa-users me-1"></i>Clientes
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page" 
+                        th:text="${cliente.idCliente == 0} ? 'Nuevo Cliente' : 'Editar Cliente'">
+                        Nuevo Cliente
+                    </li>
+                </ol>
+            </nav>
+
+            <!-- Encabezado -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h2 class="fw-bold">
+                        <i th:class="${cliente.idCliente == 0} ? 'fas fa-user-plus me-2 text-success' : 'fas fa-user-edit me-2 text-warning'"></i>
+                        <span th:text="${cliente.idCliente == 0} ? 'Nuevo Cliente' : 'Editar Cliente'">Nuevo Cliente</span>
+                    </h2>
+                    <p class="text-muted">Complete los datos del cliente</p>
+                </div>
+            </div>
+
+            <!-- Formulario -->
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card shadow-3-strong">
+                        <div class="card-body p-4">
+                            <form th:action="${cliente.idCliente == 0} ? @{/clientes/guardar} : @{/clientes/actualizar}" 
+                                  th:object="${cliente}" 
+                                  method="post">
+
+                                <!-- Mensajes de error -->
+                                <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                                    <i class="fas fa-exclamation-circle me-2"></i>
+                                    <strong>Error en el formulario:</strong>
+                                    <ul class="mb-0 mt-2">
+                                        <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
+                                    </ul>
+                                    <button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button>
+                                </div>
+
+                                <!-- Mensaje de error general -->
+                                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                                    <i class="fas fa-exclamation-circle me-2"></i>
+                                    <span th:text="${error}"></span>
+                                    <button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                                
+                                <!-- ID oculto para edición -->
+                                <input type="hidden" th:field="*{idCliente}">
+
+                                <!-- Tipo de Cliente -->
+                                <h5 class="mb-3 fw-bold text-primary">
+                                    <i class="fas fa-id-card me-2"></i>Tipo de Cliente
+                                </h5>
+
+                                <div class="row">
+                                    <div class="col-md-12 mb-4">
+                                        <label class="form-label" for="tipoCliente">Tipo de Cliente *</label>
+                                        <select th:field="*{tipoCliente}" 
+                                                id="tipoCliente" 
+                                                class="form-select"
+                                                th:classappend="${#fields.hasErrors('tipoCliente')} ? 'is-invalid' : ''"
+                                                required>
+                                            <option value="">Seleccione un tipo</option>
+                                                <option th:each="tipo : ${tiposCliente}" 
+                                                    th:value="${tipo}" 
+                                                    th:text="${tipo == T(com.gpp.servisoft.model.enums.TipoCliente).FISICO} ? 'Persona Física' : 'Persona Jurídica'">
+                                            </option>
+                                        </select>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('tipoCliente')}" 
+                                             th:errors="*{tipoCliente}">
+                                        </div>
+                                        <small class="text-muted">
+                                            <i class="fas fa-info-circle me-1"></i>Persona Física: Individuos | Persona Jurídica: Empresas
+                                        </small>
+                                    </div>
+                                </div>
+
+                                <hr class="my-4">
+
+                                <!-- Información Personal -->
+                                <h5 class="mb-3 fw-bold text-success">
+                                    <i class="fas fa-user me-2"></i>Información Personal
+                                </h5>
+
+                                <div class="row">
+                                    <!-- Nombre -->
+                                    <div class="col-md-6 mb-4">
+                                        <div data-mdb-input-init class="form-outline">
+                                            <input type="text" 
+                                                   th:field="*{nombre}" 
+                                                   id="nombre" 
+                                                   class="form-control" 
+                                                   th:classappend="${#fields.hasErrors('nombre')} ? 'is-invalid' : ''"
+                                                   maxlength="50"
+                                                   required>
+                                            <label class="form-label" for="nombre">Nombre Completo *</label>
+                                            <div class="invalid-feedback" th:if="${#fields.hasErrors('nombre')}" 
+                                                 th:errors="*{nombre}">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Dirección -->
+                                    <div class="col-md-6 mb-4">
+                                        <div data-mdb-input-init class="form-outline">
+                                            <input type="text" 
+                                                   th:field="*{direccion}" 
+                                                   id="direccion" 
+                                                   class="form-control"
+                                                   th:classappend="${#fields.hasErrors('direccion')} ? 'is-invalid' : ''"
+                                                   maxlength="50"
+                                                   required>
+                                            <label class="form-label" for="direccion">Dirección *</label>
+                                            <div class="invalid-feedback" th:if="${#fields.hasErrors('direccion')}" 
+                                                 th:errors="*{direccion}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <hr class="my-4">
+
+                                <!-- Información de Contacto -->
+                                <h5 class="mb-3 fw-bold text-info">
+                                    <i class="fas fa-address-book me-2"></i>Información de Contacto
+                                </h5>
+
+                                <div class="row">
+                                    <!-- Teléfono -->
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label" for="telefono">Teléfono *</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="fas fa-phone"></i>
+                                            </span>
+                                            <input type="tel" 
+                                                   th:field="*{telefono}" 
+                                                   id="telefono" 
+                                                   class="form-control"
+                                                   th:classappend="${#fields.hasErrors('telefono')} ? 'is-invalid' : ''"
+                                                   maxlength="20"
+                                                   placeholder="Ej: 3764-123456"
+                                                   required>
+                                            <div class="invalid-feedback" th:if="${#fields.hasErrors('telefono')}" 
+                                                 th:errors="*{telefono}">
+                                            </div>
+                                        </div>
+                                        <small class="text-muted">
+                                            <i class="fas fa-info-circle me-1"></i>Formato: números, espacios y guiones
+                                        </small>
+                                    </div>
+
+                                    <!-- Correo Electrónico -->
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label" for="correoElectronico">Correo Electrónico *</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="fas fa-envelope"></i>
+                                            </span>
+                                            <input type="email" 
+                                                   th:field="*{correoElectronico}" 
+                                                   id="correoElectronico" 
+                                                   class="form-control"
+                                                   th:classappend="${#fields.hasErrors('correoElectronico')} ? 'is-invalid' : ''"
+                                                   maxlength="50"
+                                                   placeholder="ejemplo@correo.com"
+                                                   required>
+                                            <div class="invalid-feedback" th:if="${#fields.hasErrors('correoElectronico')}" 
+                                                 th:errors="*{correoElectronico}">
+                                            </div>
+                                        </div>
+                                        <small class="text-muted">
+                                            <i class="fas fa-info-circle me-1"></i>Debe ser un correo válido y único
+                                        </small>
+                                    </div>
+                                </div>
+
+                                <hr class="my-4">
+
+                                <!-- Estado -->
+                                <h5 class="mb-3 fw-bold text-warning">
+                                    <i class="fas fa-toggle-on me-2"></i>Estado del Cliente
+                                </h5>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label" for="estado">Estado *</label>
+                                        <select th:field="*{estado}" 
+                                                id="estado" 
+                                                class="form-select"
+                                                required>
+                                            <option th:each="est : ${estados}" 
+                                                    th:value="${est}" 
+                                                    th:text="${est}">
+                                            </option>
+                                        </select>
+                                        <small class="text-muted">
+                                            <i class="fas fa-info-circle me-1"></i>Los clientes inactivos no pueden realizar operaciones
+                                        </small>
+                                    </div>
+                                </div>
+
+                                <hr class="my-4">
+
+                                <!-- Botones de Acción -->
+                                <div class="d-flex justify-content-between mt-4">
+                                    <a th:href="@{/clientes}" class="btn btn-secondary btn-lg" data-mdb-ripple-init>
+                                        <i class="fas fa-times me-2"></i>Cancelar
+                                    </a>
+                                    <button type="submit" class="btn btn-primary btn-lg" data-mdb-ripple-init>
+                                        <i th:class="${cliente.idCliente == 0} ? 'fas fa-save me-2' : 'fas fa-check me-2'"></i>
+                                        <span th:text="${cliente.idCliente == 0} ? 'Guardar Cliente' : 'Actualizar Cliente'">Guardar</span>
+                                    </button>
+                                </div>
+
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Información Adicional -->
+                    <div class="card shadow-2-strong mt-3">
+                        <div class="card-body">
+                            <h6 class="fw-bold mb-3">
+                                <i class="fas fa-lightbulb me-2 text-warning"></i>Información Importante
+                            </h6>
+                            <ul class="list-unstyled mb-0">
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Los campos marcados con * son obligatorios
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    El correo electrónico debe ser único para cada cliente
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Los clientes inactivos no podrán tener cuentas activas asociadas
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Persona Física: Para individuos | Persona Jurídica: Para empresas
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- PIE DE PÁGINA -->
+    <footer th:replace="fragments/template :: footer"></footer>
+    
+    <!-- ⚡ SCRIPTS -->
+    <div th:replace="fragments/template :: scripts"></div>
+    
+</body>
+</html>

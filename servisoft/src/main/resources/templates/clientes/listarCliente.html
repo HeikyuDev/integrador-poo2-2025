@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="fragments/template :: head">
+    <meta charset="UTF-8">
+    <title>Clientes</title>
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+
+    <!-- NAVBAR reutilizada desde la plantilla base -->
+    <header th:replace="fragments/template :: navbar"></header>
+
+    <!--CONTENIDO-->
+    <main class="flex-fill">
+        <div class="container my-5">
+
+            <!-- Encabezado -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h2 class="fw-bold">
+                        <i class="fas fa-users me-2 text-primary"></i>Gestión de Clientes
+                    </h2>
+                    <p class="text-muted">Administra los clientes de la empresa</p>
+                </div>
+            </div>
+
+            <!-- Alertas de éxito o error -->
+            <div th:if="${success}" class="alert alert-success alert-dismissible fade show shadow-2-strong" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                <span th:text="${success}"></span>
+                <button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show shadow-2-strong" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <span th:text="${error}"></span>
+                <button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            <!-- Tarjeta principal con tabla y acciones de clientes -->
+            <div class="card shadow-3-strong">
+                <div class="card-header d-flex justify-content-between align-items-center py-3">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fas fa-table me-2"></i>Listado de Clientes
+                    </h5>
+                    <a th:href="@{/clientes/nuevo}" class="btn btn-primary btn-rounded shadow-2-strong"
+                        data-mdb-ripple-init>
+                        <i class="fas fa-plus me-2"></i>Nuevo Cliente
+                    </a>
+                </div>
+
+                <div class="card-body">
+                    <!-- Panel de filtros y búsqueda -->
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <div data-mdb-input-init class="form-outline">
+                                <input type="text" id="searchInput" class="form-control" onkeyup="filtrarTabla()">
+                                <label class="form-label" for="searchInput">Buscar cliente...</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-select" id="filtroEstado" onchange="filtrarTabla()">
+                                <option value="">Todos los estados</option>
+                                <option value="ACTIVO">Activos</option>
+                                <option value="INACTIVO">Inactivos</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-select" id="filtroTipo" onchange="filtrarTabla()">
+                                <option value="">Todos los tipos</option>
+                                <option value="FISICO">Persona Física</option>
+                                <option value="JURIDICO">Persona Jurídica</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Tabla responsive que lista los clientes cargados -->
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle" id="tablaClientes">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Tipo</th>
+                                    <th scope="col">Nombre</th>
+                                    <th scope="col">Dirección</th>
+                                    <th scope="col">Teléfono</th>
+                                    <th scope="col">Correo</th>
+                                    <th scope="col">Estado</th>
+                                    <th scope="col" class="text-center">Acciones</th>
+                                </tr>
+                            </thead>
+
+                            <!-- Mensaje cuando no hay clientes registrados -->
+                            <tbody th:if="${#lists.isEmpty(clientes)}">
+                                <tr>
+                                    <td colspan="8" class="text-center text-muted py-4">
+                                        <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
+                                        No hay clientes registrados
+                                    </td>
+                                </tr>
+                            </tbody>
+
+                            <!-- Filas iteradas con datos de cada cliente -->
+                            <tbody th:unless="${#lists.isEmpty(clientes)}">
+                                <tr th:each="cliente, iter : ${clientes}">
+                                    <td th:text="${iter.count}">1</td>
+                                    <td>
+                                        <span class="badge rounded-pill"
+                                            th:classappend="${cliente.tipoCliente == T(com.gpp.servisoft.model.enums.TipoCliente).FISICO} ? ' badge-info' : ' badge-primary'"
+                                            th:text="${cliente.tipoCliente == T(com.gpp.servisoft.model.enums.TipoCliente).FISICO} ? 'Persona Física' : 'Persona Jurídica'">
+                                            Tipo
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <strong th:text="${cliente.nombre}">Nombre</strong>
+                                    </td>
+                                    <td th:text="${cliente.direccion}">Dirección</td>
+                                    <td>
+                                        <i class="fas fa-phone me-1 text-muted"></i>
+                                        <span th:text="${cliente.telefono}">Teléfono</span>
+                                    </td>
+                                    <td>
+                                        <i class="fas fa-envelope me-1 text-muted"></i>
+                                        <span th:text="${cliente.correoElectronico}">Correo</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge rounded-pill"
+                                            th:classappend="${cliente.estado == T(com.gpp.servisoft.model.enums.Estado).ACTIVO} ? ' badge-success' : ' badge-danger'"
+                                            th:text="${cliente.estado != null ? cliente.estado : '—'}">
+                                            ACTIVO
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <!-- Botones para editar y eliminar cliente -->
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a th:href="@{/clientes/editar/{id}(id=${cliente.idCliente})}"
+                                                class="btn btn-warning btn-sm btn-rounded" data-mdb-ripple-init
+                                                title="Editar">
+                                                <i class="fas fa-edit" aria-hidden="true"></i>
+                                                <span class="visually-hidden">Editar</span>
+                                            </a>
+                                            <!-- Botón para eliminar cliente -->
+                                            <button type="button" class="btn btn-danger btn-sm btn-rounded"
+                                                data-mdb-ripple-init
+                                                th:attr="data-idcliente=${cliente.idCliente}, data-nombrecliente=${cliente.nombre}"
+                                                onclick="abrirModal(this)" title="Eliminar">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal de confirmación de eliminación de clientes -->
+    <div class="modal fade" id="modalEliminar" tabindex="-1" aria-labelledby="modalEliminarLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="modalEliminarLabel">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Confirmar Eliminación
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-mdb-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Está seguro que desea eliminar el cliente <strong id="nombreClienteEliminar"></strong>?</p>
+                    <p class="text-danger small mb-0">
+                        <i class="fas fa-info-circle me-1"></i>Esta acción no se puede deshacer.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-mdb-dismiss="modal"
+                        data-mdb-ripple-init>Cancelar</button>
+                    <form id="formEliminar" method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-danger" data-mdb-ripple-init>
+                            <i class="fas fa-trash me-2"></i>Eliminar
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PIE DE PÁGINA -->
+    <footer th:replace="fragments/template :: footer"></footer>
+
+    <!-- ⚡ SCRIPTS -->
+    <div th:replace="fragments/template :: scripts"></div>
+
+    <!-- Script para abrir el modal y configurar la acción de eliminación -->
+    <script>
+        function abrirModal(btn) {
+            const id = btn.getAttribute("data-idcliente");
+            const nombre = btn.getAttribute("data-nombrecliente");
+            confirmarEliminacion(id, nombre);
+        }
+
+        function confirmarEliminacion(id, nombre) {
+            document.getElementById('nombreClienteEliminar').textContent = nombre;
+            document.getElementById('formEliminar').action = '/clientes/eliminar/' + id;
+            const modal = new mdb.Modal(document.getElementById('modalEliminar'));
+            modal.show();
+        }
+
+        function filtrarTabla() {
+            const texto = document.getElementById('searchInput').value.toLowerCase();
+            const estado = document.getElementById('filtroEstado').value;
+            const tipo = document.getElementById('filtroTipo').value;
+            const filas = document.querySelectorAll('#tablaClientes tbody tr');
+
+            filas.forEach(fila => {
+                // Evitar filtrar la fila de "no hay clientes"
+                if (fila.querySelector('td[colspan]')) {
+                    return;
+                }
+
+                const nombre = fila.querySelector('td:nth-child(3)').textContent.toLowerCase();
+                const estadoFila = fila.querySelector('td:nth-child(7) span').textContent.trim();
+                const tipoFila = fila.querySelector('td:nth-child(2) span').textContent.trim();
+                
+                const coincideTexto = nombre.includes(texto);
+                const coincideEstado = !estado || estado === estadoFila;
+                const coincideTipo = !tipo || 
+                    (tipo === 'FISICO' && tipoFila === 'Persona Física') ||
+                    (tipo === 'JURIDICO' && tipoFila === 'Persona Jurídica');
+                
+                fila.style.display = (coincideTexto && coincideEstado && coincideTipo) ? '' : 'none';
+            });
+        }
+    </script>
+</body>
+</html>

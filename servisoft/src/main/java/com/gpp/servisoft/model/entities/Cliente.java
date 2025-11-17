@@ -1,10 +1,8 @@
 package com.gpp.servisoft.model.entities;
 
 import java.util.List;
-
 import com.gpp.servisoft.model.enums.Estado;
 import com.gpp.servisoft.model.enums.TipoCliente;
-
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
