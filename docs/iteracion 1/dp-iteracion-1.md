@@ -196,3 +196,40 @@ Para el desarrollo de la iteracion 1 se dividió el trabajo de la siguiente mane
 ## Poscondiciones
 * El administrador visualiza el listado de facturas filtradas y paginadas.
 * El administrador puede acceder al detalle de cualquier factura seleccionada.
+---
+
+# Backlog de iteraciones
+
+* Las historias de usuario que se van a implementar en esta iteracion son:
+
+### 1. Gestión de clientes
+- **Como** administrador
+- **Quiero** registrar, consultar, editar y dar de baja clientes que estén registrados en el sistema
+- **Para** asociar cuentas a los clientes registrados, mantener su registro actualizado, emitir facturas solo a clientes activos y disponer de su información fiscal y de contacto para las operaciones.
+
+### 2. Gestión de servicios
+- **Como** administrador
+- **Quiero** registrar, consultar, editar y dar de baja servicios que estén registrados en el sistema
+- **Para** contar con un catálogo de servicios actualizado con sus costos y alícuotas de IVA correctas, para brindar la facturación precisa de los mismos.
+
+### 3. Gestión de cuentas
+- **Como** administrador
+- **Quiero** registrar, consultar, modificar y dar de baja las cuentas de los clientes
+- **Para** vincular los servicios contratados al cliente, mantener su estado actualizado (activo o de baja), impidiendo que las cuentas dadas de baja sean incluidas en la facturación.
+
+### 4. Facturación individual
+- **Como** administrador
+- **Quiero** emitir una factura individual y que el sistema calcule el IVA según la alícuota del servicio y la condición fiscal del cliente
+- **Para** para registrar los servicios contratados y pendientes de pago, asegurando el cálculo correcto de impuestos.
+
+### 5. Registro de pago total
+- **Como** administrador 
+- **Quiero** registrar el pago total de una determinada factura 
+- **Para** reflejar correctamente las operaciones canceladas y evitar que facturas pagadas se consideren vencidas.
+
+### 6. Facturación Masiva
+- **Como** administrador 
+- **Quiero** quiero presionar el botón **“FACTURAR MASIVO”** y que el sistema genere facturas de todos los servicios aún no facturados, correspondientes a **clientes activos** y que registre la cantidad total de facturas generadas y el monto total facturado.
+- **Para** registrar automáticamente los servicios pendientes de pago dentro del sistema.
+
+
