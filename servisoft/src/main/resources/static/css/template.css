@@ -115,21 +115,3 @@ footer a:hover {
   background-color: #2a003d; /* Tu morado oscuro */
   border-color: #2a003d; /* Borde del mismo color */
 }
-
-/* 3. Ocultar las flechas (spin buttons) en los inputs de tipo número */
-/* Para Chrome, Safari, Edge */
-input[type=number]::-webkit-inner-spin-button,
-input[type=number]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-/* Para Firefox */
-input[type=number] {
-  -moz-appearance: textfield;
-}
-
-/* 4. Regla específica para el encabezado de la tabla de consulta */
-.table thead.bg-purple-dark {
-    background-color: #2a003d !important;
-    color: white !important;
-}
