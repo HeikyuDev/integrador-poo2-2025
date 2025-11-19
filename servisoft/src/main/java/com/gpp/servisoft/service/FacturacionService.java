@@ -574,4 +574,15 @@ public class FacturacionService {
                 ));
     }
 
+    /**
+     * Obtiene la nota de crédito asociada a una factura anulada.
+     * 
+     * @param idFactura ID de la factura
+     * @return NotaDeCredito encontrada, o null si no existe
+     */
+    public Object obtenerNotaDeCreditoPorFactura(Integer idFactura) {
+        Factura factura = obtenerFactura(idFactura);
+        return factura.getNotaDeCredito();
+    }
+
 }

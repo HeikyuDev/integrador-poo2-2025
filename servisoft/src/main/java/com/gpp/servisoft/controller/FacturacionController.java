@@ -298,4 +298,16 @@ public class FacturacionController {
 
         return "facturacion/facturacion-anulacion";
     }
+
+    @GetMapping("/nota-credito/{id}")
+    public String verNotaCredito(@PathVariable Integer id, Model model) {
+        Object notaDeCredito = facturacionService.obtenerNotaDeCreditoPorFactura(id);
+
+        if (notaDeCredito == null) {
+            throw new IllegalArgumentException("Nota de crédito no encontrada para la factura");
+        }
+
+        model.addAttribute("notaDeCredito", notaDeCredito);
+        return "facturacion/facturacion-nota-credito";
+    }
 }
