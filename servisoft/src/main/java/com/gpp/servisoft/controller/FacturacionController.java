@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.gpp.servisoft.model.dto.AnulacionDto;
 import com.gpp.servisoft.model.dto.FacturacionDTO;
 import com.gpp.servisoft.model.dto.FacturacionFormDto;
 import com.gpp.servisoft.model.dto.FacturacionMasivaDto;
@@ -233,5 +234,68 @@ public class FacturacionController {
         
         model.addAttribute("facturacionMasiva", facturacionMasivaDto);
         return "facturacion/facturacion-masiva-detalle";
+    }
+
+    // ===== ANULACION =====
+
+    @PostMapping("/procesar/anulacion")
+    public String anularFactura(
+            @ModelAttribute("anulacionForm") AnulacionDto anulacionForm,
+            RedirectAttributes redirectAttributes) {
+
+                // Cuando se hace submit // Se envai el formulario, y se crea por asi decirlo el modle atribute
+        try {
+            // Validamos que el id seleccionado sea Valido
+            if (anulacionForm.getIdFactura() == null) {
+                redirectAttributes.addFlashAttribute("error", "Debe Seleccionar una Factura Valida");
+                return "redirect:/facturacion/anulacion";
+            }
+
+            // Validamos que se haya ingresado un Motivo desde el Formulario
+            if (anulacionForm.getMotivo() == null || anulacionForm.getMotivo().isBlank()) {
+                redirectAttributes.addFlashAttribute("error", "El motivo ingresado es invalido!!!");
+                return "redirect:/facturacion/anulacion";
+            }
+
+            // Validamos que el estado tenga entre 10 a 100 caracteres
+            if (anulacionForm.getMotivo().length() < 10 || anulacionForm.getMotivo().length() > 100) {
+                redirectAttributes.addFlashAttribute("error", "El motivo tiene que tener entre 10 a 100 caracteres!!!");
+                return "redirect:/facturacion/anulacion";
+            }
+            // Anulamos la factura
+            facturacionService.anularFactura(anulacionForm);
+
+            // 5. Mensaje de éxito
+            redirectAttributes.addFlashAttribute("success", "Facturación Anulada correctamente");
+            return "redirect:/facturacion/anulacion";
+            
+        } catch (Exception e) {
+            // Capturar cualquier excepción y mostrar mensaje de error
+            redirectAttributes.addFlashAttribute("error", "Error al procesar la facturación: " + e.getMessage());
+            return "redirect:/facturacion/individual";
+        }
+    }
+
+    @GetMapping("/anulacion")
+    public String anulacionFactura(
+            @RequestParam(name = "cuentaId", required = false) Integer cuentaId,
+            @RequestParam(name = "comprobante", required = false) String comprobante,
+            @PageableDefault(size = 10, sort = "fechaEmision", direction = Sort.Direction.DESC) Pageable pageable,
+            Model model) {
+
+        // 2. Cargar datos para los filtros (el dropdown de cuentas)
+        model.addAttribute("cuentas", cuentaServicio.obtenerCuentas());
+
+        // 3. Cargar la PÁGINA de facturas filtrada
+        Page<FacturacionDTO> paginaDto = facturacionService.obtenerFacturasPendientes(cuentaId, comprobante, pageable);
+
+        // 4. Pasar el objeto PAGE (no una List) a la vista
+        model.addAttribute("paginaDeFacturas", paginaDto);
+
+        // (Opcional pero recomendado: pasa los filtros para los links de paginación)
+        model.addAttribute("cuentaId", cuentaId);
+        model.addAttribute("comprobante", comprobante);
+
+        return "facturacion/facturacion-anulacion";
     }
 }

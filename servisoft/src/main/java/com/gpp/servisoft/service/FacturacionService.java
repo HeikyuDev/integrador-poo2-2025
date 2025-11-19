@@ -1,6 +1,5 @@
 package com.gpp.servisoft.service;
 
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +11,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.gpp.servisoft.exceptions.ExcepcionNegocio;
 import com.gpp.servisoft.mapper.Mapper;
+import com.gpp.servisoft.model.dto.AnulacionDto;
 import com.gpp.servisoft.model.dto.FacturacionDTO;
 import com.gpp.servisoft.model.dto.FacturacionMasivaDto;
 import com.gpp.servisoft.model.dto.ServicioSeleccionadoDto;
@@ -22,6 +23,7 @@ import com.gpp.servisoft.model.entities.DatosServicioFactura;
 import com.gpp.servisoft.model.entities.DetalleFactura;
 import com.gpp.servisoft.model.entities.Factura;
 import com.gpp.servisoft.model.entities.FacturacionMasiva;
+import com.gpp.servisoft.model.entities.NotaDeCredito;
 import com.gpp.servisoft.model.entities.Servicio;
 import com.gpp.servisoft.model.entities.ServicioDeLaCuenta;
 import com.gpp.servisoft.model.enums.CondicionFrenteIVA;
@@ -32,6 +34,7 @@ import com.gpp.servisoft.model.enums.TipoComprobante;
 import com.gpp.servisoft.repository.CuentaRepository;
 import com.gpp.servisoft.repository.FacturacionMasivaRepository;
 import com.gpp.servisoft.repository.FacturacionRepository;
+import com.gpp.servisoft.repository.NotaDeCreditoRepository;
 import com.gpp.servisoft.repository.ServicioDeLaCuentaRepository;
 
 @Service
@@ -53,32 +56,40 @@ public class FacturacionService {
     @Autowired
     public FacturacionMasivaRepository facturacionMasivaRepository;
 
+    @Autowired
+    public NotaDeCreditoRepository notaDeCreditoRepository;
+
     /**
-     * Obtiene una lista paginada de facturas, permitiendo filtrar por el ID de la cuenta
+     * Obtiene una lista paginada de facturas, permitiendo filtrar por el ID de la
+     * cuenta
      * y/o por una búsqueda parcial del número de comprobante.
      *
-     * @param idCuenta    El mismo tiene que ser Integer, ya que se acepta que el valor
-     * puede ser nulo (Todas las Cuentas)
+     * @param idCuenta    El mismo tiene que ser Integer, ya que se acepta que el
+     *                    valor
+     *                    puede ser nulo (Todas las Cuentas)
      * @param comprobante Representa el Comprobante "0001-000000004" de una factura,
-     * se utiliza el LIKE para filtrar
+     *                    se utiliza el LIKE para filtrar
      * @param pageable    Objeto de pregunta generado por Spring
-     * @return Un objeto Page de FacturacionDTO con los datos de paginación preservados.
+     * @return Un objeto Page de FacturacionDTO con los datos de paginación
+     *         preservados.
      */
     public Page<FacturacionDTO> obtenerFacturas(Integer idCuenta, String comprobante, Pageable pageable) {
-        
+
         // 1. Llama al repositorio y obtienes la página de ENTIDADES (Factura)
         Page<Factura> paginaDeEntidades = facturacionRepository.findFacturasByFilters(idCuenta, comprobante, pageable);
 
         // 2. Mapea la página de Entidades a una página de DTOs
-        //    Esto aplica "Mapper::toDto" a cada ítem Y MANTIENE la paginación.
+        // Esto aplica "Mapper::toDto" a cada ítem Y MANTIENE la paginación.
         return paginaDeEntidades.map(Mapper::toDto);
     }
 
     public Page<FacturacionDTO> obtenerFacturasPendientes(Integer idCuenta, String comprobante, Pageable pageable) {
         // Obtener la página de facturas pendientes usando el repositorio
-        // Una factura se considera pendiente si no tiene pagos o el total pagado es menor al monto total
-        Page<Factura> paginaDeFacturasPendientes = facturacionRepository.findFacturasPendientesByFilters(idCuenta, comprobante, pageable);
-        
+        // Una factura se considera pendiente si no tiene pagos o el total pagado es
+        // menor al monto total
+        Page<Factura> paginaDeFacturasPendientes = facturacionRepository.findFacturasPendientesByFilters(idCuenta,
+                comprobante, pageable);
+
         // Mapear cada factura de la página a su correspondiente DTO
         return paginaDeFacturasPendientes.map(Mapper::toDto);
     }
@@ -87,8 +98,7 @@ public class FacturacionService {
      * 
      * @return
      */
-    public Page<FacturacionMasivaDto> obtenerFacturacionesMasivas(Pageable pageable)
-    {
+    public Page<FacturacionMasivaDto> obtenerFacturacionesMasivas(Pageable pageable) {
         // Llamo al repositorio y obtengo la pagina de Entidades (Facturaciones Masivas)
         Page<FacturacionMasiva> paginaDeEntidades = facturacionMasivaRepository.findAll(pageable);
         // 2. Mapea la página de Entidades a una página de DTOs
@@ -100,12 +110,12 @@ public class FacturacionService {
      * 
      * @param idFactura ID de la factura a buscar
      * @return FacturacionDTO con los datos de la factura
-     * @throws IllegalArgumentException si no se encuentra una factura con el ID proporcionado
+     * @throws IllegalArgumentException si no se encuentra una factura con el ID
+     *                                  proporcionado
      */
     public FacturacionDTO obtenerFacturaPorId(Integer idFactura) {
-        Factura factura = facturacionRepository.findById(idFactura)
-                .orElseThrow(() -> new IllegalArgumentException("Factura con ID " + idFactura + " no encontrada"));
-        
+        Factura factura = obtenerFactura(idFactura);
+
         return Mapper.toDto(factura);
     }
 
@@ -153,10 +163,10 @@ public class FacturacionService {
         // Creamos una instancia Vacia de la Facturacion Masiva
         FacturacionMasiva facturacionMasiva = new FacturacionMasiva();
 
-        // Creamos una lista donde la cual vamos a obtener todas las facturas generadas en el proceso
+        // Creamos una lista donde la cual vamos a obtener todas las facturas generadas
+        // en el proceso
 
         List<Factura> facturas = new ArrayList<>();
-
 
         List<Cuenta> cuentasActivas = cuentaRepository.findByEstado(Estado.ACTIVO);
 
@@ -457,6 +467,11 @@ public class FacturacionService {
 
         CondicionFrenteIVA condicion = sdc.getCuenta().getCondicionFrenteIVA();
 
+        return determinarTipoComprobantePorCondicion(condicion);
+    }
+
+    private TipoComprobante determinarTipoComprobantePorCondicion(CondicionFrenteIVA condicion)
+    {
         // Mapeo por defecto (estas reglas son asumidas; revisar legislación /
         // requisitos del negocio
         // si hay que mapear de forma distinta)
@@ -481,7 +496,6 @@ public class FacturacionService {
                 // Consumidor Final o No Responsable → Factura B (IVA incluido)
                 return TipoComprobante.B;
         }
-
     }
 
     /**
@@ -494,6 +508,70 @@ public class FacturacionService {
         return facturacionMasivaRepository.findById(idFacturacionMasiva)
                 .map(Mapper::toDto)
                 .orElse(null);
+    }
+
+    /**
+     * Anula una factura creando una nota de crédito asociada.
+     * 
+     * Este método realiza las siguientes operaciones:
+     * 1. Valida que el ID de la factura sea válido
+     * 2. Valida que el DTO contenga un motivo válido
+     * 3. Obtiene la factura del repositorio
+     * 4. Verifica que la factura no esté ya anulada (no tenga nota de crédito)
+     * 5. Crea una nota de crédito con los datos de la factura
+     * 6. Persiste la nota de crédito de forma transaccional
+     * 
+     * Nota: La factura se considera anulada cuando tiene asociada una NotaDeCredito.
+     * 
+     * @param idFactura ID de la factura a anular
+     * @param anulacionDto DTO con el motivo de anulación
+     * @throws ExcepcionNegocio si el ID es inválido, falta motivo, factura no existe o ya está anulada
+     */
+    @Transactional
+    public void anularFactura(AnulacionDto anulacionDto) {
+
+        // Validar que el DTO y motivo sean válidos
+        if (anulacionDto == null || anulacionDto.getMotivo() == null || 
+            anulacionDto.getMotivo().isBlank() || anulacionDto.getIdFactura() == null) {
+            throw new ExcepcionNegocio("Debe proporcionar un motivo y un ID de factura válidos para anular");
+        }
+        
+        // Obtener la factura
+        Factura factura = obtenerFactura(anulacionDto.getIdFactura());
+        
+        // Verificar que la factura no esté ya anulada
+        if (factura.getNotaDeCredito() != null) {
+            throw new ExcepcionNegocio("No se puede anular una factura que ya está anulada");
+        }
+        
+        // Crear nota de crédito
+        NotaDeCredito notaDeCredito = new NotaDeCredito();
+        notaDeCredito.setFactura(factura); // Mapea la relacion (Bidireccionalidad)
+        notaDeCredito.setFechaEmision(LocalDate.now());
+        notaDeCredito.setMonto(factura.getMontoTotal());
+        notaDeCredito.setMotivo(anulacionDto.getMotivo());
+        notaDeCredito.setTipoComprobante(
+            determinarTipoComprobantePorCondicion(
+                factura.getDatosClienteFactura().getCondicionFrenteIVA()
+            )
+        );
+        
+        // Persistir la nota de crédito (la relación con factura se mantiene automáticamente)
+        notaDeCreditoRepository.save(notaDeCredito);
+    }
+
+    /**
+     * Obtiene una factura por su ID.
+     * 
+     * @param idFactura ID de la factura a obtener
+     * @return Factura encontrada
+     * @throws ExcepcionNegocio si la factura no existe
+     */
+    private Factura obtenerFactura(Integer idFactura) {
+        return facturacionRepository.findById(idFactura)
+                .orElseThrow(() -> new ExcepcionNegocio(
+                    "Factura con ID " + idFactura + " no encontrada"
+                ));
     }
 
 }

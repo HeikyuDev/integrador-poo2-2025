@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/template :: head}">
+    <meta charset="UTF-8">
+    <title>Anulación de Facturación</title>
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+
+    <header th:replace="~{fragments/template :: navbar}"></header>
+
+    <main class="flex-fill">
+        <div class="container my-5">
+
+            <h2 class="mb-4">Anulación de Facturación</h2>
+
+            <div th:if="${error}" class="alert alert-danger" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <span th:text="${error}"></span>
+            </div>
+            <div th:if="${success}" class="alert alert-success" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                <span th:text="${success}"></span>
+            </div>
+
+            <div class="card shadow-2-strong">
+                <div class="card-body p-4 p-md-5">
+
+                    <!-- Formulario de Filtros -->
+                    <form th:action="@{/facturacion/anulacion}" method="get" class="mb-4">
+                        <div class="row">
+                            <!-- Combo de Selección de Cuenta -->
+                            <div class="col-12 col-md-5 mb-3 mb-md-0">
+                                <label for="cuentaId" class="form-label">Seleccione la Cuenta</label>
+                                <select class="form-select" name="cuentaId" id="cuentaId" onchange="this.form.submit()">
+                                    <option value="">Todas las Cuentas</option>
+                                    <option th:each="cuenta : ${cuentas}" th:value="${cuenta.idCuenta}"
+                                        th:text="${cuenta.razonSocial}"
+                                        th:selected="${cuentaId != null && cuentaId == cuenta.idCuenta}">
+                                    </option>
+                                </select>
+                            </div>
+
+                            <!-- Cuadro de Texto para Comprobante -->
+                            <div class="col-12 col-md-7">
+                                <label for="comprobante" class="form-label">Comprobante de Factura</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" name="comprobante" id="comprobante"
+                                        placeholder="Ej: 0001-00000006" th:value="${param.comprobante}" />
+                                    <button class="btn btn-primary" type="submit">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+
+                    <hr class="my-4">
+
+                    <!-- Tabla de Facturas Pendientes -->
+                    <div id="tabla-facturas-container">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th scope="col">Comprobante</th>
+                                        <th scope="col">Cuenta</th>
+                                        <th scope="col">Fecha Emisión</th>
+                                        <th scope="col">Fecha Vencimiento</th>
+                                        <th scope="col" class="text-end">Monto</th>
+                                        <th scope="col" class="text-center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="factura : ${paginaDeFacturas.content}">
+                                        <td th:text="${factura.nroComprobante}">0001-00000006</td>
+                                        <td th:text="${factura.razonSocial}">CTA-01</td>
+                                        <td th:text="${#temporals.format(factura.fechaEmision, 'dd/MM/yyyy')}">01/01/2025</td>
+                                        <td th:text="${#temporals.format(factura.fechaVencimiento, 'dd/MM/yyyy')}">31/01/2025</td>
+                                        <td class="text-end"
+                                            th:text="'$' + ${#numbers.formatDecimal(factura.montoTotal, 1, 'POINT', 2, 'COMMA')}">
+                                            $1,500.00
+                                        </td>
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-danger btn-sm" onclick="abrirAnulacion(this)">
+                                                <i class="fas fa-ban me-1"></i>Anular
+                                            </button>
+                                        </td>
+                                        <input type="hidden" class="factura-id" th:value="${factura.idFactura}" />
+                                        <input type="hidden" class="factura-comprobante" th:value="${factura.nroComprobante}" />
+                                    </tr>
+
+                                    <tr th:if="${paginaDeFacturas.empty}">
+                                        <td colspan="6" class="text-center text-muted p-4">
+                                            <i class="fas fa-inbox fa-2x mb-2"></i><br>
+                                            No se encontraron facturas pendientes para los filtros seleccionados.
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Paginación -->
+                    <nav aria-label="Page navigation" th:if="${paginaDeFacturas.totalPages > 1}" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item" th:classappend="${!paginaDeFacturas.hasPrevious()} ? 'disabled' : ''">
+                                <a class="page-link" 
+                                    th:href="@{/facturacion/anulacion(page=${paginaDeFacturas.number - 1}, cuentaId=${cuentaId}, comprobante=${comprobante})}"
+                                    th:if="${paginaDeFacturas.hasPrevious()}">
+                                    Anterior
+                                </a>
+                                <span class="page-link" th:unless="${paginaDeFacturas.hasPrevious()}">Anterior</span>
+                            </li>
+
+                            <li class="page-item" th:each="pageNum : ${#numbers.sequence(0, paginaDeFacturas.totalPages - 1)}"
+                                th:classappend="${pageNum == paginaDeFacturas.number} ? 'active' : ''">
+                                <a class="page-link" 
+                                    th:href="@{/facturacion/anulacion(page=${pageNum}, cuentaId=${cuentaId}, comprobante=${comprobante})}"
+                                    th:text="${pageNum + 1}">1</a>
+                            </li>
+
+                            <li class="page-item" th:classappend="${!paginaDeFacturas.hasNext()} ? 'disabled' : ''">
+                                <a class="page-link" 
+                                    th:href="@{/facturacion/anulacion(page=${paginaDeFacturas.number + 1}, cuentaId=${cuentaId}, comprobante=${comprobante})}"
+                                    th:if="${paginaDeFacturas.hasNext()}">
+                                    Siguiente
+                                </a>
+                                <span class="page-link" th:unless="${paginaDeFacturas.hasNext()}">Siguiente</span>
+                            </li>
+                        </ul>
+                    </nav>
+
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Modal Anulación -->
+    <div id="anulacionModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+        <div style="background:white; border-radius:8px; padding:30px; width:90%; max-width:500px; box-shadow:0 4px 6px rgba(0,0,0,0.1);">
+            <h5 style="margin-bottom:20px; color:#333;">Confirmar Anulación de Factura</h5>
+            
+            <div style="margin-bottom:15px;">
+                <label style="display:block; margin-bottom:5px; font-weight:500; color:#666;">Comprobante</label>
+                <input type="text" id="modalComprobante" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:4px; background:#f5f5f5;" readonly />
+            </div>
+
+            <div style="margin-bottom:15px;">
+                <label style="display:block; margin-bottom:5px; font-weight:500; color:#666;">Motivo de Anulación <span style="color:red;">*</span></label>
+                <textarea id="modalMotivo" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:4px; font-family:Arial; resize:vertical; height:100px;" 
+                    placeholder="Ingrese el motivo (mínimo 10 caracteres, máximo 100)"></textarea>
+                <small style="color:#999; display:block; margin-top:5px;">Entre 10 y 100 caracteres</small>
+            </div>
+
+            <div style="margin-top:25px; display:flex; gap:10px; justify-content:flex-end;">
+                <button onclick="cerrarAnulacion()" style="padding:10px 20px; background:#6c757d; color:white; border:none; border-radius:4px; cursor:pointer;">Cancelar</button>
+                <button onclick="confirmarAnulacion()" style="padding:10px 20px; background:#dc3545; color:white; border:none; border-radius:4px; cursor:pointer;">Confirmar Anulación</button>
+            </div>
+        </div>
+    </div>
+
+    <footer th:replace="~{fragments/template :: footer}"></footer>
+
+    <div th:replace="~{fragments/template :: scripts}"></div>
+
+    <script>
+        let idFacturaActual = null;
+
+        function abrirAnulacion(button) {
+            const row = button.closest('tr');
+            const idFactura = row.querySelector('.factura-id').value;
+            const comprobante = row.querySelector('.factura-comprobante').value;
+            
+            idFacturaActual = idFactura;
+            document.getElementById('modalComprobante').value = comprobante;
+            document.getElementById('modalMotivo').value = '';
+            document.getElementById('anulacionModal').style.display = 'flex';
+        }
+
+        function cerrarAnulacion() {
+            document.getElementById('anulacionModal').style.display = 'none';
+            idFacturaActual = null;
+        }
+
+        function confirmarAnulacion() {
+            const motivo = document.getElementById('modalMotivo').value.trim();
+
+            if (!motivo) {
+                alert('Por favor ingrese un motivo');
+                return;
+            }
+            if (motivo.length < 10) {
+                alert('El motivo debe tener al menos 10 caracteres');
+                return;
+            }
+            if (motivo.length > 100) {
+                alert('El motivo no puede exceder 100 caracteres');
+                return;
+            }
+
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/facturacion/procesar/anulacion';
+
+            const inputId = document.createElement('input');
+            inputId.type = 'hidden';
+            inputId.name = 'idFactura';
+            inputId.value = idFacturaActual;
+
+            const inputMotivo = document.createElement('input');
+            inputMotivo.type = 'hidden';
+            inputMotivo.name = 'motivo';
+            inputMotivo.value = motivo;
+
+            form.appendChild(inputId);
+            form.appendChild(inputMotivo);
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                cerrarAnulacion();
+            }
+        });
+    </script>
+
+</body>
+
+</html>
