@@ -139,4 +139,37 @@ public class Factura {
         // Obtiene el id autogenerado recién antes de persistir
         this.nroComprobante = String.format("%s-%08d", PUNTO_VENTA, idFactura);
     }
+
+    // METODOS
+
+    // DETERMINACION DE SALDO
+
+    /**
+     * Calcula el monto total pagado de una factura.
+     * Suma todos los montos de los pagos asociados a la factura.
+     * Si no hay pagos o la factura es nula, retorna 0.
+     * 
+     * @param factura la factura para la cual calcular el saldo pagado
+     * @return la suma total de los montos pagados, o 0 si no hay pagos
+     * @throws IllegalArgumentException si la factura es nula
+     */
+    private double calcularTotalPagado() {
+        // Si la factura no tiene pagos, retorna 0
+        if (this.getPagos() == null || this.getPagos().isEmpty()) {
+            return 0.0;
+        }
+
+        // Suma todos los montos de los pagos
+        return this.getPagos()
+                .stream()
+                .mapToDouble(p -> {
+                    Double monto = p.getMonto();
+                    return monto != null ? monto : 0.0;
+                })
+                .sum();
+    }
+
+    public double getSaldo() {
+        return this.getMontoTotal() - calcularTotalPagado();
+    }
 }

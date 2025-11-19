@@ -36,6 +36,8 @@ public class FacturacionDTO {
 
     private double totalIva;
 
+    private double saldo;
+
     // Estados y tipos
     private TipoComprobante tipo;
 

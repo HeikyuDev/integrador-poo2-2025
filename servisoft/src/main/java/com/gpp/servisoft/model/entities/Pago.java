@@ -3,7 +3,6 @@ package com.gpp.servisoft.model.entities;
 import java.time.LocalDate;
 
 import com.gpp.servisoft.model.enums.MetodoPago;
-import com.gpp.servisoft.model.enums.TipoPago;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -59,13 +58,6 @@ public class Pago {
     @Enumerated(EnumType.STRING)
     @NotNull(message = "El metodo de Pago es obligatorio")
     private MetodoPago metodoPago;
-
-    /**
-     * Tipo de pago {PARCIAL/TOTAL/ADELANTADO}
-     */
-    @Enumerated(EnumType.STRING)
-    @NotNull(message = "El Tipo de Pago es obligatorio")
-    private TipoPago tipoPago;
 
     /**
      * Un pago esta relacionado con una sola factura

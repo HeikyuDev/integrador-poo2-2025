@@ -68,14 +68,12 @@
                                         <th scope="col">Fecha Emisión</th>
                                         <th scope="col">Fecha Vencimiento</th>
                                         <th scope="col" class="text-end">Monto</th>
+                                        <th scope="col" class="text-end">Saldo</th>
                                         <th scope="col" class="text-center">Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr th:each="factura : ${paginaDeFacturas.content}"
-                                        th:classappend="${factura.estado.name() == 'PAGADA'} ? 'table-success' : 
-                                                         (${factura.estado.name() == 'VENCIDA'} ? 'table-danger' : 
-                                                          (${factura.estado.name() == 'ANULADA'} ? 'table-secondary' : ''))">
+                                    <tr th:each="factura : ${paginaDeFacturas.content}">>
                                         <td th:text="${factura.nroComprobante}">0001-00000006</td>
                                         <td th:text="${factura.razonSocial}">CTA-01</td>
                                         <td th:text="${#temporals.format(factura.fechaEmision, 'dd/MM/yyyy')}">
@@ -86,6 +84,10 @@
                                             th:text="'$' + ${#numbers.formatDecimal(factura.montoTotal, 1, 'POINT', 2, 'COMMA')}">
                                             $1,500.00
                                         </td>
+                                        <td class="text-end"
+                                            th:text="'$' + ${#numbers.formatDecimal(factura.saldo, 1, 'POINT', 2, 'COMMA')}">
+                                            $500.00
+                                        </td>
                                         <td class="text-center">
                                             <!-- Botones de Pago: Total y Parcial -->
                                             <div class="btn-group" role="group">
@@ -94,17 +96,17 @@
                                                     class="btn btn-success btn-sm" data-mdb-ripple-init title="Procesar pago total">
                                                     <i class="fas fa-money-bill me-1"></i>Total
                                                 </a>
-                                                <!-- Botón Pago Parcial (Deshabilitado) -->
-                                                <button type="button" class="btn btn-warning btn-sm" disabled 
-                                                    data-mdb-ripple-init title="Funcionalidad próximamente disponible">
+                                                <!-- Botón Pago Parcial -->
+                                                <a th:href="@{/pago/parcial/{id}(id=${factura.idFactura})}"
+                                                    class="btn btn-warning btn-sm" data-mdb-ripple-init title="Procesar pago parcial">
                                                     <i class="fas fa-split me-1"></i>Parcial
-                                                </button>
+                                                </a>
                                             </div>
                                         </td>
                                     </tr>
 
                                     <tr th:if="${paginaDeFacturas.empty}">
-                                        <td colspan="6" class="text-center text-muted p-4">
+                                        <td colspan="7" class="text-center text-muted p-4">
                                             <i class="fas fa-inbox fa-2x mb-2"></i><br>
                                             No se encontraron facturas para los filtros seleccionados.
                                         </td>

@@ -75,7 +75,8 @@
                                     <tr th:each="factura : ${paginaDeFacturas.content}"
                                         th:classappend="${factura.estado.name() == 'PAGADA'} ? 'table-success' : 
                                                          (${factura.estado.name() == 'VENCIDA'} ? 'table-danger' : 
-                                                          (${factura.estado.name() == 'ANULADA'} ? 'table-secondary' : ''))">
+                                                          (${factura.estado.name() == 'ANULADA'} ? 'table-secondary' :
+                                                           (${factura.estado.name() == 'PARCIALMENTE_PAGADA'} ? 'table-warning' : '')))">>
                                         <td th:text="${factura.nroComprobante}">0001-00000006</td>
                                         <td th:text="${factura.razonSocial}">CTA-01</td>
                                         <td th:text="${#temporals.format(factura.fechaEmision, 'dd/MM/yyyy')}">

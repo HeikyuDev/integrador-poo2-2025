@@ -470,8 +470,7 @@ public class FacturacionService {
         return determinarTipoComprobantePorCondicion(condicion);
     }
 
-    private TipoComprobante determinarTipoComprobantePorCondicion(CondicionFrenteIVA condicion)
-    {
+    private TipoComprobante determinarTipoComprobantePorCondicion(CondicionFrenteIVA condicion) {
         // Mapeo por defecto (estas reglas son asumidas; revisar legislación /
         // requisitos del negocio
         // si hay que mapear de forma distinta)
@@ -521,29 +520,31 @@ public class FacturacionService {
      * 5. Crea una nota de crédito con los datos de la factura
      * 6. Persiste la nota de crédito de forma transaccional
      * 
-     * Nota: La factura se considera anulada cuando tiene asociada una NotaDeCredito.
+     * Nota: La factura se considera anulada cuando tiene asociada una
+     * NotaDeCredito.
      * 
-     * @param idFactura ID de la factura a anular
+     * @param idFactura    ID de la factura a anular
      * @param anulacionDto DTO con el motivo de anulación
-     * @throws ExcepcionNegocio si el ID es inválido, falta motivo, factura no existe o ya está anulada
+     * @throws ExcepcionNegocio si el ID es inválido, falta motivo, factura no
+     *                          existe o ya está anulada
      */
     @Transactional
     public void anularFactura(AnulacionDto anulacionDto) {
 
         // Validar que el DTO y motivo sean válidos
-        if (anulacionDto == null || anulacionDto.getMotivo() == null || 
-            anulacionDto.getMotivo().isBlank() || anulacionDto.getIdFactura() == null) {
+        if (anulacionDto == null || anulacionDto.getMotivo() == null ||
+                anulacionDto.getMotivo().isBlank() || anulacionDto.getIdFactura() == null) {
             throw new ExcepcionNegocio("Debe proporcionar un motivo y un ID de factura válidos para anular");
         }
-        
+
         // Obtener la factura
         Factura factura = obtenerFactura(anulacionDto.getIdFactura());
-        
+
         // Verificar que la factura no esté ya anulada
         if (factura.getNotaDeCredito() != null) {
             throw new ExcepcionNegocio("No se puede anular una factura que ya está anulada");
         }
-        
+
         // Crear nota de crédito
         NotaDeCredito notaDeCredito = new NotaDeCredito();
         notaDeCredito.setFactura(factura); // Mapea la relacion (Bidireccionalidad)
@@ -551,12 +552,11 @@ public class FacturacionService {
         notaDeCredito.setMonto(factura.getMontoTotal());
         notaDeCredito.setMotivo(anulacionDto.getMotivo());
         notaDeCredito.setTipoComprobante(
-            determinarTipoComprobantePorCondicion(
-                factura.getDatosClienteFactura().getCondicionFrenteIVA()
-            )
-        );
-        
-        // Persistir la nota de crédito (la relación con factura se mantiene automáticamente)
+                determinarTipoComprobantePorCondicion(
+                        factura.getDatosClienteFactura().getCondicionFrenteIVA()));
+
+        // Persistir la nota de crédito (la relación con factura se mantiene
+        // automáticamente)
         notaDeCreditoRepository.save(notaDeCredito);
     }
 
@@ -570,8 +570,7 @@ public class FacturacionService {
     private Factura obtenerFactura(Integer idFactura) {
         return facturacionRepository.findById(idFactura)
                 .orElseThrow(() -> new ExcepcionNegocio(
-                    "Factura con ID " + idFactura + " no encontrada"
-                ));
+                        "Factura con ID " + idFactura + " no encontrada"));
     }
 
     /**
@@ -584,5 +583,4 @@ public class FacturacionService {
         Factura factura = obtenerFactura(idFactura);
         return factura.getNotaDeCredito();
     }
-
 }

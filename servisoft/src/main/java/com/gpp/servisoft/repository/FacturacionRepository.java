@@ -42,19 +42,19 @@ public interface FacturacionRepository extends JpaRepository<Factura, Integer> {
     /**
      * Busca facturas pendientes (sin pagos y no anuladas) usando filtros condicionales y paginación.
      * Una factura se considera pendiente si:
-     * - Aún no tiene pagos registrados
+     * - Aún no tiene pagos registrados O tiene pagos pero saldo pendiente
      * - No ha sido anulada (notaDeCredito es null)
      */
     @Query(value = "SELECT f FROM Factura f " +
             "WHERE (:idCuenta IS NULL OR f.datosClienteFactura.idCuenta = :idCuenta) " +
             "AND (:comprobante IS NULL OR :comprobante = '' OR f.nroComprobante LIKE CONCAT('%', :comprobante, '%')) " +
-            "AND f.idFactura NOT IN (SELECT DISTINCT p.factura.idFactura FROM Pago p) " +
-            "AND f.notaDeCredito IS NULL",
+            "AND f.notaDeCredito IS NULL " +
+            "AND (f.montoTotal > COALESCE((SELECT SUM(p.monto) FROM Pago p WHERE p.factura.idFactura = f.idFactura), 0))",
             countQuery = "SELECT count(f) FROM Factura f " +
                     "WHERE (:idCuenta IS NULL OR f.datosClienteFactura.idCuenta = :idCuenta) " +
                     "AND (:comprobante IS NULL OR :comprobante = '' OR f.nroComprobante LIKE CONCAT('%', :comprobante, '%')) " +
-                    "AND f.idFactura NOT IN (SELECT DISTINCT p.factura.idFactura FROM Pago p) " +
-                    "AND f.notaDeCredito IS NULL")
+                    "AND f.notaDeCredito IS NULL " +
+                    "AND (f.montoTotal > COALESCE((SELECT SUM(p.monto) FROM Pago p WHERE p.factura.idFactura = f.idFactura), 0))")
     Page<Factura> findFacturasPendientesByFilters(
             @Param("idCuenta") Integer idCuenta,
             @Param("comprobante") String comprobante,

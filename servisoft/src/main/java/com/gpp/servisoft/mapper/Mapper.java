@@ -43,6 +43,7 @@ public class Mapper {
                 .fechaEmision(factura.getFechaEmision())
                 .fechaVencimiento(factura.getFechaVencimiento())
                 .montoTotal(factura.getMontoTotal() != null ? (double)factura.getMontoTotal() : 0.0)
+                .saldo(factura.getSaldo())
                 .totalIva(
                         factura.getDetallesFacturas()
                                 .stream()

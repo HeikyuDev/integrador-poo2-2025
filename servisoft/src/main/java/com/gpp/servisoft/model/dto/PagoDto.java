@@ -3,7 +3,6 @@ package com.gpp.servisoft.model.dto;
 import java.time.LocalDate;
 
 import com.gpp.servisoft.model.enums.MetodoPago;
-import com.gpp.servisoft.model.enums.TipoPago;
 
 import lombok.Builder;
 import lombok.Data;
@@ -12,16 +11,16 @@ import lombok.Data;
 @Data
 public class PagoDto {
 
+    
     private Integer idPago;
 
-    private Double monto;
+    private MetodoPago metodoPago; // Dato de Entrada
+
+    private Double monto; // Dato de Entrada (Si es Parcial) // Salida trae el saldo de la factura
 
     private LocalDate fechaPago;
 
-    private MetodoPago metodoPago;
 
-    private TipoPago tipoPago;
-
-    private Integer idFacturacion;
+    private Integer idFacturacion; // Dato de Entrada
     
 }
