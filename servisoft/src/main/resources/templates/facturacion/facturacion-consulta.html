@@ -76,7 +76,7 @@
                                         th:classappend="${factura.estado.name() == 'PAGADA'} ? 'table-success' : 
                                                          (${factura.estado.name() == 'VENCIDA'} ? 'table-danger' : 
                                                           (${factura.estado.name() == 'ANULADA'} ? 'table-secondary' :
-                                                           (${factura.estado.name() == 'PARCIALMENTE_PAGADA'} ? 'table-warning' : '')))">>
+                                                           (${factura.estado.name() == 'PARCIALMENTE_PAGADA'} ? 'table-warning' : '')))">
                                         <td th:text="${factura.nroComprobante}">0001-00000006</td>
                                         <td th:text="${factura.razonSocial}">CTA-01</td>
                                         <td th:text="${#temporals.format(factura.fechaEmision, 'dd/MM/yyyy')}">
@@ -93,11 +93,12 @@
                                                 class="btn btn-sm btn-purple" data-mdb-ripple-init title="Ver factura">
                                                 <i class="fas fa-file-invoice"></i>
                                             </a>
-                                            
+
                                             <!-- Botón para ver nota de crédito (solo si está anulada) -->
                                             <th:block th:if="${factura.estado.name() == 'ANULADA'}">
                                                 <a th:href="@{/facturacion/nota-credito/{id}(id=${factura.idFactura})}"
-                                                    class="btn btn-sm btn-outline-purple" data-mdb-ripple-init title="Ver nota de crédito">
+                                                    class="btn btn-sm btn-outline-purple" data-mdb-ripple-init
+                                                    title="Ver nota de crédito">
                                                     <i class="fas fa-undo"></i>
                                                 </a>
                                             </th:block>

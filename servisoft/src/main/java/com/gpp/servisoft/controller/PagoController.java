@@ -109,15 +109,15 @@ public class PagoController {
             // Obtener la factura para conseguir el monto
             FacturacionDTO factura = facturacionService.obtenerFacturaPorId(pagoDto.getIdFacturacion());
             
-            // Asignar el monto de la factura al DTO
-            pagoDto.setMonto(factura.getMontoTotal());
+            // Asignar el saldo pendiente (puede ser total o parcial si ya tiene pagos) al DTO
+            pagoDto.setMonto(factura.getSaldo());
             
             // Procesar el pago usando el servicio
             pagoService.procesarPagoTotal(pagoDto);
             
-            // Mensaje de éxito
+            // Mensaje de éxito con el monto pagado
             redirectAttributes.addFlashAttribute("success", 
-                "Pago procesado exitosamente. Monto: $" + String.format("%.2f", pagoDto.getMonto()));
+                "Pago procesado exitosamente. Monto pagado: $" + String.format("%.2f", pagoDto.getMonto()));
             
             return "redirect:/pago/vista";
         } catch (IllegalArgumentException e) {

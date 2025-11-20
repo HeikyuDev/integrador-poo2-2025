@@ -1,17 +1,24 @@
 package com.gpp.servisoft.controller;
 
+import java.util.Optional;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import com.gpp.servisoft.model.entities.Cliente;
 import com.gpp.servisoft.model.enums.Estado;
 import com.gpp.servisoft.model.enums.TipoCliente;
 import com.gpp.servisoft.service.ClienteService;
-import jakarta.validation.Valid;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.Optional;
+import jakarta.validation.Valid;
 
 @Controller
 @RequestMapping("/clientes")
@@ -41,7 +48,7 @@ public class ClienteController {
         model.addAttribute("cliente", cliente);
         model.addAttribute("tiposCliente", TipoCliente.values());
         model.addAttribute("estados", Estado.values());
-        return "clientes/fornularioCliente";
+        return "clientes/formularioCliente";
     }
     
     /**
@@ -59,7 +66,7 @@ public class ClienteController {
         model.addAttribute("cliente", clienteOpt.get());
         model.addAttribute("tiposCliente", TipoCliente.values());
         model.addAttribute("estados", Estado.values());
-        return "clientes/fornularioCliente";
+        return "clientes/formularioCliente";
     }
     
     /**
@@ -74,7 +81,7 @@ public class ClienteController {
         if (result.hasErrors()) {
             model.addAttribute("tiposCliente", TipoCliente.values());
             model.addAttribute("estados", Estado.values());
-            return "clientes/fornularioCliente";
+            return "clientes/formularioCliente";
         }
         
         try {
@@ -85,7 +92,7 @@ public class ClienteController {
             model.addAttribute("error", e.getMessage());
             model.addAttribute("tiposCliente", TipoCliente.values());
             model.addAttribute("estados", Estado.values());
-            return "clientes/fornularioCliente";
+            return "clientes/formularioCliente";
         }
     }
     
@@ -101,7 +108,7 @@ public class ClienteController {
         if (result.hasErrors()) {
             model.addAttribute("tiposCliente", TipoCliente.values());
             model.addAttribute("estados", Estado.values());
-            return "clientes/fornularioCliente";
+            return "clientes/formularioCliente";
         }
         
         try {
@@ -112,7 +119,7 @@ public class ClienteController {
             model.addAttribute("error", e.getMessage());
             model.addAttribute("tiposCliente", TipoCliente.values());
             model.addAttribute("estados", Estado.values());
-            return "clientes/fornularioCliente";
+            return "clientes/formularioCliente";
         }
     }
     
