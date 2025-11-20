@@ -14,7 +14,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -45,14 +44,14 @@ public class ServicioDeLaCuenta {
     @JoinColumn(name = "id_servicio", nullable = false)
     private Servicio servicio;
 
+
     /**
-     * Precio del servicio al momento de agregarlo a la cuenta.
-     * Se congela el precio actual del servicio para mantener histórico.
+     * Cantidad, la cual desea (A modo de preferencia) Facturar un Determinado servicio
+     * Utilidad: (Utilizar ested valor en la facturacion Masiva, para evitar la Facturacion Individual)
      */
-    @NotNull(message = "El precio actual no puede ser nulo")
-    @DecimalMin(value = "0.0", inclusive = true, message = "El precio no puede ser negativo")
     @Column(nullable = false)
-    private Double precioActual;
+    @NotNull(message = "La cantidad de preferencia es Obligatorio!!!")
+    private int cantidadDePreferencia = 1; // 1 por defecto
 
     /**
      * Estado en el que está actualmente el servicio que está asociado a una determinada

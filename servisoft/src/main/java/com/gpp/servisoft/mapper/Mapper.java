@@ -1,6 +1,5 @@
 package com.gpp.servisoft.mapper;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -10,10 +9,10 @@ import com.gpp.servisoft.model.dto.DetalleFacturaDto;
 import com.gpp.servisoft.model.dto.FacturacionDTO;
 import com.gpp.servisoft.model.dto.FacturacionMasivaDto;
 import com.gpp.servisoft.model.dto.ServicioDeLaCuentaDto;
+import com.gpp.servisoft.model.entities.DatosClienteFactura;
 import com.gpp.servisoft.model.entities.Factura;
 import com.gpp.servisoft.model.entities.FacturacionMasiva;
 import com.gpp.servisoft.model.entities.ServicioDeLaCuenta;
-import com.gpp.servisoft.model.enums.EstadoFactura;
 
 public class Mapper {
 
@@ -24,6 +23,7 @@ public class Mapper {
         return ServicioDeLaCuentaDto.builder().idServicioDeLaCuenta(sdc.getIdServicioDeLaCuenta())
                 .cuenta(sdc.getCuenta())
                 .servicio(sdc.getServicio())
+                .cantidadDePreferencia(sdc.getCantidadDePreferencia())
                 .estadoServicio(sdc.getEstadoServicio())
                 .build();
     }
@@ -57,7 +57,7 @@ public class Mapper {
                 .tipo(factura.getTipoComprobante())
                 // Mapear DTOs
                 .serviciosInvolucrados(mapearDatosServicioFactura(factura.getDatosServicioFactura()))
-                .estado(calcularEstado(factura))
+                .estado(factura.calcularEstado())
                 .periodicidad(factura.getPeriodicidad())
                 .detalleFacturas(mapearDetalleFacturas(factura.getDetallesFacturas()))
                 .datosClienteFactura(mapearDatosClienteFactura(factura.getDatosClienteFactura()))
@@ -133,11 +133,9 @@ public class Mapper {
     /**
      * Convierte DatosClienteFactura a DTO
      */
-    private static DatosClienteFacturaDto mapearDatosClienteFactura(
-            com.gpp.servisoft.model.entities.DatosClienteFactura datosCliente) {
-        if (datosCliente == null)
-            return null;
-
+    private static DatosClienteFacturaDto mapearDatosClienteFactura(DatosClienteFactura datosCliente) {
+        if (datosCliente == null) return null;
+        
         return DatosClienteFacturaDto.builder()
                 .idCuenta(datosCliente.getIdCuenta())
                 .domicilioFiscal(datosCliente.getDomicilioFiscal())
@@ -147,65 +145,5 @@ public class Mapper {
                 .build();
     }
 
-    /**
-     * Calcula el estado de la factura basándose en sus pagos, notas de crédito y
-     * fecha de vencimiento.
-     * 
-     * @param factura La entidad Factura con sus datos completos
-     * @return EstadoFactura correspondiente según la lógica de negocio
-     */
-    private static EstadoFactura calcularEstado(Factura factura) {
-        // Validación de entrada
-        if (factura == null) {
-            throw new IllegalArgumentException("La factura no puede ser nula");
-        }
-
-        // --- Lógica 1: ANULADA ---
-        // Si existe nota de crédito, la factura está anulada
-        if (factura.getNotaDeCredito() != null) {
-            return EstadoFactura.ANULADA;
-        }
-
-        // Validar que el monto total sea válido
-        Double montoTotal = factura.getMontoTotal();
-        if (montoTotal == null || montoTotal < 0.0) {
-            throw new IllegalStateException("El monto total de la factura es inválido: " + montoTotal);
-        }
-
-        // --- Lógica 2: PAGADA / PARCIALMENTE PAGADA ---
-        double totalPagado = 0.0;
-
-        if (factura.getPagos() != null && !factura.getPagos().isEmpty()) {
-            totalPagado = factura.getPagos()
-                    .stream()
-                    .mapToDouble(pago -> pago.getMonto() == null ? 0.0d : (double)pago.getMonto())
-                    .sum();
-        }
-
-        // Tolerancia para comparación de doubles (1 centavo)
-        double epsilon = 0.01;
-
-        if (totalPagado >= montoTotal) {
-            return EstadoFactura.PAGADA;
-        }
-
-        // --- Lógica 3: VENCIDA ---
-        // Comparamos contra la fecha actual (HOY)
-        LocalDate hoy = LocalDate.now();
-        boolean estaVencida = factura.getFechaVencimiento() != null &&
-                factura.getFechaVencimiento().isBefore(hoy);
-
-        if (estaVencida) {
-            return EstadoFactura.VENCIDA;
-        }
-
-        // --- Lógica 4: PARCIALMENTE PAGADA ---
-        if (totalPagado > epsilon) {
-            return EstadoFactura.PARCIALMENTE_PAGADA;
-        }
-
-        // --- Lógica 5: PENDIENTE (default) ---
-        return EstadoFactura.PENDIENTE;
-    }
 }
 

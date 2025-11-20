@@ -34,7 +34,7 @@
                 <div class="card-body p-4 p-md-5">
 
                     <!-- FORMULARIO DE PROCESAMIENTO -->
-                    <form th:action="@{/facturacion/procesar/masiva}" th:object="${facturaForm}" method="POST" class="mb-4">
+                    <form id="formFacturacionMasiva" th:action="@{/facturacion/procesar/masiva}" th:object="${facturaForm}" method="POST" class="mb-4">
                         <div class="row g-3 align-items-end">
                             <div class="col-12 col-md-6">
                                 <label for="periodo" class="form-label fw-bold">Selecciona el Período<span class="text-danger">*</span></label>
@@ -44,13 +44,13 @@
                                 </select>
                             </div>
                             <div class="col-12 col-md-6">
-                                <button type="submit" class="btn btn-purple w-100" data-mdb-ripple-init>
+                                <button type="button" id="btnProcesarFacturacion" class="btn btn-purple w-100" data-mdb-ripple-init>
                                     <i class="fas fa-bolt me-2"></i>Procesar Facturación
                                 </button>
                             </div>
                         </div>
                         <small class="form-text text-muted d-block mt-2">
-                            Se procesarán todas las cuentas activas con servicios pendientes.
+                            Se procesarán todas las cuentas activas con servicios pendientes utilizando la cantidad de preferencia establecida.
                         </small>
                     </form>
 
@@ -136,6 +136,80 @@
     <footer th:replace="~{fragments/template :: footer}"></footer>
 
     <div th:replace="~{fragments/template :: scripts}"></div>
+
+    <!-- MODAL CONFIRMACIÓN FACTURACIÓN MASIVA -->
+    <div id="modalFacturacionMasiva" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+        <div style="background:white; border-radius:8px; padding:30px; width:90%; max-width:500px; box-shadow:0 4px 6px rgba(0,0,0,0.1);">
+            <h5 style="margin-bottom:20px; color:#333;">
+                <i class="fas fa-exclamation-triangle" style="color:#ffc107;"></i> Confirmación de Facturación Masiva
+            </h5>
+            
+            <div style="background:#fff3cd; border:1px solid #ffc107; border-radius:4px; padding:15px; margin-bottom:15px;">
+                <i class="fas fa-info-circle" style="color:#ff6b6b;"></i>
+                <strong style="color:#666;">Esta acción procesará la facturación de todas las cuentas activas.</strong>
+            </div>
+
+            <div style="margin-bottom:15px; padding:15px; background:#f8f9fa; border-radius:4px;">
+                <p style="margin:0 0 10px 0; color:#666;">
+                    Se facturarán todos los servicios pendientes utilizando la <strong>cantidad de preferencia</strong> establecida en la gestión de cuentas.
+                </p>
+                <p style="margin:10px 0; color:#666;">
+                    <strong>Período seleccionado:</strong> <span id="periodoMasiva" style="background:#e7f3ff; padding:2px 8px; border-radius:3px; color:#0066cc;"></span>
+                </p>
+                <p style="margin:0; color:#999; font-size:12px;">
+                    <i class="fas fa-shield-alt"></i> Esta operación es transaccional. Si ocurre un error, se revertirán todos los cambios.
+                </p>
+            </div>
+
+            <div style="margin-top:25px; display:flex; gap:10px; justify-content:flex-end;">
+                <button onclick="cerrarFacturacionMasiva()" style="padding:10px 20px; background:#6c757d; color:white; border:none; border-radius:4px; cursor:pointer;">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button onclick="confirmarFacturacionMasiva()" style="padding:10px 20px; background:#6f42c1; color:white; border:none; border-radius:4px; cursor:pointer;">
+                    <i class="fas fa-check"></i> Aceptar y Procesar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function abrirFacturacionMasiva(button) {
+            const periodo = document.getElementById('periodo').value;
+
+            if (!periodo) {
+                alert('Por favor selecciona un período antes de procesar.');
+                return;
+            }
+
+            const textoOption = document.getElementById('periodo').options[document.getElementById('periodo').selectedIndex].text;
+            document.getElementById('periodoMasiva').textContent = textoOption;
+            
+            document.getElementById('modalFacturacionMasiva').style.display = 'flex';
+        }
+
+        function cerrarFacturacionMasiva() {
+            document.getElementById('modalFacturacionMasiva').style.display = 'none';
+        }
+
+        function confirmarFacturacionMasiva() {
+            document.getElementById('formFacturacionMasiva').submit();
+        }
+
+        // Cerrar modal con ESC
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                cerrarFacturacionMasiva();
+            }
+        });
+
+        // Conectar botón con función
+        document.addEventListener('DOMContentLoaded', function() {
+            const btnProcesar = document.getElementById('btnProcesarFacturacion');
+            if (btnProcesar) {
+                btnProcesar.onclick = abrirFacturacionMasiva;
+            }
+        });
+    </script>
 
 </body>
 

@@ -17,5 +17,7 @@ public class ServicioDeLaCuentaDto {
 
     private Servicio servicio;
 
+    private int cantidadDePreferencia;
+
     private EstadoServicio estadoServicio;
 }

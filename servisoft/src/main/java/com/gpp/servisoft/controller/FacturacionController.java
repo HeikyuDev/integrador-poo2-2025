@@ -59,14 +59,13 @@ public class FacturacionController {
 
         // 2. Si se seleccionó una cuenta, cargar sus servicios
         if (cuentaId != null) {
-            List<ServicioDeLaCuentaDto> servicios = servicioDeLaCuentaServicio
-                    .obtenerServiciosPorCuentaPendiente(cuentaId);
+            List<ServicioDeLaCuentaDto> servicios = servicioDeLaCuentaServicio.obtenerServiciosPorCuentaPendiente(cuentaId);
             // Convertir a DTOs para el formulario
             List<ServicioSeleccionadoDto> serviciosDTO = new ArrayList<>();
             for (ServicioDeLaCuentaDto sdc : servicios) {
                 ServicioSeleccionadoDto dto = new ServicioSeleccionadoDto();
                 dto.setIdServicio(sdc.getIdServicioDeLaCuenta());
-                dto.setCantidad(1);
+                dto.setCantidad(sdc.getCantidadDePreferencia());
                 dto.setMontoUnitario(sdc.getServicio().getMontoServicio());
                 dto.setNombreServicio(sdc.getServicio().getNombreServicio());
                 dto.setSeleccionado(false);

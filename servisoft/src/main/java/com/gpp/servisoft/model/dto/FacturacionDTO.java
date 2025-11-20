@@ -19,30 +19,69 @@ import lombok.Data;
 public class FacturacionDTO {
 
     // Datos principales
+
+    /**
+     * Entrada: Necesario para saber, la factura que se va a facturar
+     */
     private int idFactura;
 
+    /**
+     * Salida: Necesario Para mostrar al usuario el Nro De Comprobante de la Factura
+     *  Ej: 0001-00000001
+     */
     private String nroComprobante;
-
+    
+    /**
+     * Salida: Necesario para mostrar la razon social de la Facturacion.
+     */
     private String razonSocial;
 
+    /**
+     * Salida: Necesario para mostrar la fecha en la que se emitio la factura
+     */
     private LocalDate fechaEmision;
 
+    /**
+     * Salida: Necesario para mostrar la fecha en la que se emitio la factura
+     */
     private LocalDate fechaVencimiento;
 
-    // Montos
+    /**
+     * Salida: Necesario para mostrar el Monto total de la factura
+     */
     private double montoTotal;
 
+    /**
+     * Salida: Necesario para mostrar el Subtotal de la factura 
+     * Suma de todos los montos * Cantidad de los detalles
+     */
     private double subtotal;
 
+    /**
+     * Salida: Necesario para mostrar, el iva total de los detalles
+     * de todas las facturas
+     */
     private double totalIva;
 
+    /**
+     * Salida: Necesario para mostrar el saldo a pagar, de la factura
+     * (Monto Total - Monto Pagado)
+     */
     private double saldo;
 
-    // Estados y tipos
+    /**
+     * Salida: Necesario para determinar el tipo de Comprobante que tiene la factura
+     */
     private TipoComprobante tipo;
 
+    /**
+     * Salida: Necesario para mostrar, los estados de forma grafica utilizando th:if
+     */
     private EstadoFactura estado;
 
+    /**
+     * Salida
+     */
     private Periodicidad periodicidad;
 
     // DTOs en lugar de entidades

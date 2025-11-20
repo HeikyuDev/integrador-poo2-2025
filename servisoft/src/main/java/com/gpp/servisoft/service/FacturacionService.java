@@ -11,6 +11,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.gpp.servisoft.domain.facturacion.factory.ReglaFacturaFactory;
+import com.gpp.servisoft.domain.facturacion.strategy.ReglaFacturaStrategy;
 import com.gpp.servisoft.exceptions.ExcepcionNegocio;
 import com.gpp.servisoft.mapper.Mapper;
 import com.gpp.servisoft.model.dto.AnulacionDto;
@@ -41,8 +43,7 @@ import com.gpp.servisoft.repository.ServicioDeLaCuentaRepository;
 @SuppressWarnings("null")
 public class FacturacionService {
 
-    // Utilizamos Autowired para poder inyectar la dependencia del repositorio
-    // A la clase, service
+    private static final CondicionFrenteIVA CONDICION_EMPRESA = CondicionFrenteIVA.RESPONSABLE_INSCRIPTO;
 
     @Autowired
     public FacturacionRepository facturacionRepository;
@@ -83,20 +84,19 @@ public class FacturacionService {
         return paginaDeEntidades.map(Mapper::toDto);
     }
 
+    /**
+     * obtiene una lista Paginada de Facturas, en el estado de Pendiente Y ParcialmentePagado
+     * Utilizada para mostrar en la lista de gestion de Pagos
+     */
     public Page<FacturacionDTO> obtenerFacturasPendientes(Integer idCuenta, String comprobante, Pageable pageable) {
-        // Obtener la página de facturas pendientes usando el repositorio
-        // Una factura se considera pendiente si no tiene pagos o el total pagado es
-        // menor al monto total
         Page<Factura> paginaDeFacturasPendientes = facturacionRepository.findFacturasPendientesByFilters(idCuenta,
                 comprobante, pageable);
-
-        // Mapear cada factura de la página a su correspondiente DTO
         return paginaDeFacturasPendientes.map(Mapper::toDto);
     }
 
     /**
-     * 
-     * @return
+     * Obtnego las facturaciones Masivas realizadas
+     * @return Lista de Facturaciones Masivas
      */
     public Page<FacturacionMasivaDto> obtenerFacturacionesMasivas(Pageable pageable) {
         // Llamo al repositorio y obtengo la pagina de Entidades (Facturaciones Masivas)
@@ -115,7 +115,6 @@ public class FacturacionService {
      */
     public FacturacionDTO obtenerFacturaPorId(Integer idFactura) {
         Factura factura = obtenerFactura(idFactura);
-
         return Mapper.toDto(factura);
     }
 
@@ -163,11 +162,11 @@ public class FacturacionService {
         // Creamos una instancia Vacia de la Facturacion Masiva
         FacturacionMasiva facturacionMasiva = new FacturacionMasiva();
 
-        // Creamos una lista donde la cual vamos a obtener todas las facturas generadas
-        // en el proceso
-
+        // Creamos una lista en la cual vamos a agregartodas las facturas generadas en
+        // Este proceso
         List<Factura> facturas = new ArrayList<>();
 
+        // Obtengo todas las cuentas que esten en el estado de activo.
         List<Cuenta> cuentasActivas = cuentaRepository.findByEstado(Estado.ACTIVO);
 
         if (cuentasActivas.isEmpty()) {
@@ -175,9 +174,13 @@ public class FacturacionService {
         }
 
         for (Cuenta cuenta : cuentasActivas) {
+            // Si hay cuentas activas
             if (cuenta.getServiciosDeLaCuenta() != null && !cuenta.getServiciosDeLaCuenta().isEmpty()) {
+                // Creamos la lista de detalles de cada cuenta.
                 List<DetalleFactura> detalles = crearDetallesFacturaDesdeServicios(cuenta.getServiciosDeLaCuenta());
                 if (!detalles.isEmpty()) {
+                    // Si se generan detalles para una determinada cuenta, Procedo 
+                    // A realzar la Facturacion, Utilizando la lista de detalles, y el periodo
                     facturas.add(procesarFacturacion(detalles, periodicidad));
                 }
             }
@@ -202,6 +205,7 @@ public class FacturacionService {
      * @param periodicidad     Período de vigencia de la factura
      */
     private Factura procesarFacturacion(List<DetalleFactura> detallesFacturas, Periodicidad periodicidad) {
+        // Si los detalles son vacios o null -> Excepcion
         validarDetallesNoVacios(detallesFacturas);
 
         // Crear la factura con todos sus datos
@@ -222,22 +226,25 @@ public class FacturacionService {
      * de cliente y servicios.
      */
     private Factura construirFactura(List<DetalleFactura> detallesFacturas, Periodicidad periodicidad) {
+        // Creo  una nueva instancia de Factura
         Factura factura = new Factura();
 
         // Establecer bidireccionalidad: cada detalle debe conocer su factura
         detallesFacturas.forEach(detalle -> detalle.setFactura(factura));
 
         factura.setDetallesFacturas(detallesFacturas);
-        factura.setMontoTotal(calcularMontoTotalFactura(detallesFacturas));
+        factura.setMontoTotal(factura.calcularMontoTotalFactura());
         factura.setFechaEmision(LocalDate.now());
         factura.setPeriodicidad(periodicidad);
         factura.setFechaVencimiento(factura.getFechaEmision().plusDays(periodicidad.getDias()));
-        factura.setTipoComprobante(determinarComprobante(detallesFacturas.get(0)));
 
         // Datos históricos del cliente y servicios
         factura.setDatosClienteFactura(extraerDatosCliente(detallesFacturas.get(0)));
         factura.setDatosServicioFactura(extraerDatosServicios(detallesFacturas));
 
+        // Determinamos el Tipo del Comprobante
+        factura.setTipoComprobante(determinarTipoComprobantePorCondicion(factura.getDatosClienteFactura().getCondicionFrenteIVA()));
+        
         return factura;
     }
 
@@ -294,6 +301,7 @@ public class FacturacionService {
                     datosServicio.setNombreServicio(servicio.getNombreServicio());
                     datosServicio.setDescripcionServicio(servicio.getDescripcionServicio());
                     datosServicio.setPrecioActual(servicio.getMontoServicio());
+                    datosServicio.setAlicuotaActual(servicio.getAlicuota());
 
                     return datosServicio;
                 })
@@ -326,15 +334,17 @@ public class FacturacionService {
     /**
      * Crea detalles de factura a partir de servicios de cuenta (facturación
      * masiva).
-     * Se asume cantidad = 1.
+     * Utiliza la cantidad de preferencia definida en cada ServicioDeLaCuenta.
      * Filtra solo los servicios en estado PENDIENTE.
      */
     private List<DetalleFactura> crearDetallesFacturaDesdeServicios(List<ServicioDeLaCuenta> servicios) {
         return servicios.stream()
                 .filter(servicio -> servicio.getEstadoServicio() == EstadoServicio.PENDIENTE)
-                .map(this::crearDetalleFacturaConCantidadUnitaria)
+                .map(servicio -> construirDetalleFactura(servicio, servicio.getCantidadDePreferencia()))
                 .collect(Collectors.toList());
     }
+
+    
 
     /**
      * Valida que la lista de servicios seleccionados no sea nula o vacía.
@@ -381,23 +391,6 @@ public class FacturacionService {
         return construirDetalleFactura(servicioDeLaCuenta, cantidad);
     }
 
-    /**
-     * Crear un detalle de factura a partir de un ServicioDeLaCuenta (EN MEMORIA).
-     * Se utiliza en facturación masiva donde se asume cantidad = 1.
-     * El servicio se factura una sola vez por período.
-     * 
-     * NOTA: El llamador debe garantizar que el servicio está en estado PENDIENTE.
-     * 
-     * @param servicio ServicioDeLaCuenta a facturar con cantidad = 1
-     * @return DetalleFactura creado en memoria (sin persistir)
-     */
-    private DetalleFactura crearDetalleFacturaConCantidadUnitaria(ServicioDeLaCuenta servicio) {
-        if (servicio == null) {
-            throw new IllegalArgumentException("servicio no puede ser nulo");
-        }
-
-        return construirDetalleFactura(servicio, 1);
-    }
 
     /**
      * Método auxiliar que construye un DetalleFactura con los cálculos necesarios.
@@ -408,16 +401,19 @@ public class FacturacionService {
             throw new IllegalArgumentException("servicioDeLaCuenta no puede ser nulo");
         }
 
+        // Obtengo el Precio Total del Servicio
         Double precioUnitario = servicioDeLaCuenta.getServicio().getMontoServicio();
         if (precioUnitario == null) {
             throw new IllegalStateException("No hay precio definido para el servicio");
         }
 
+        // Obtengo la alicuota asignada al servicio.
         Double alicuota = servicioDeLaCuenta.getServicio().getAlicuota();
         if (alicuota == null) {
             throw new IllegalStateException("No hay alícuota definida para el servicio");
         }
 
+        // Realizamos calculos para determinar el Subtotal y el Iva calculado
         Double subtotal = precioUnitario * cantidad;
         Double ivaCalculado = subtotal * alicuota;
 
@@ -429,72 +425,6 @@ public class FacturacionService {
         detalleFactura.setServicioDeLaCuenta(servicioDeLaCuenta);
 
         return detalleFactura;
-    }
-
-    /**
-     * Calcula el monto total de la factura (subtotal + IVA)
-     * 
-     * @param detalles Lista de detalles de la factura
-     * @return Monto total incluyendo subtotales e IVA
-     * @throws IllegalArgumentException si la lista es nula o está vacía
-     */
-    private Double calcularMontoTotalFactura(List<DetalleFactura> detalles) {
-        if (detalles == null || detalles.isEmpty()) {
-            throw new IllegalArgumentException("La lista de detalles no puede ser nula o estar vacía");
-        }
-
-        return detalles.stream()
-                .mapToDouble(detalle -> detalle.getSubtotal() + detalle.getIvaCalculado())
-                .sum();
-    }
-
-    /**
-     * Metodo el cual pasandole un detalleDeFactura, accede a los datos de la
-     * cuenta, para
-     * determinar el tipo de la factura (ABCME)
-     */
-
-    private TipoComprobante determinarComprobante(DetalleFactura detalleFactura) {
-        // Validaciones básicas
-        if (detalleFactura == null) {
-            throw new IllegalArgumentException("detalleFactura no puede ser nulo");
-        }
-
-        ServicioDeLaCuenta sdc = detalleFactura.getServicioDeLaCuenta();
-        if (sdc == null || sdc.getCuenta() == null) {
-            throw new IllegalStateException("ServicioDeLaCuenta o Cuenta asociada no encontrada en el detalle");
-        }
-
-        CondicionFrenteIVA condicion = sdc.getCuenta().getCondicionFrenteIVA();
-
-        return determinarTipoComprobantePorCondicion(condicion);
-    }
-
-    private TipoComprobante determinarTipoComprobantePorCondicion(CondicionFrenteIVA condicion) {
-        // Mapeo por defecto (estas reglas son asumidas; revisar legislación /
-        // requisitos del negocio
-        // si hay que mapear de forma distinta)
-        switch (condicion) {
-            case RESPONSABLE_INSCRIPTO:
-                // Si el cliente también es Responsable Inscripto → corresponde emitir Factura A
-                // (con IVA discriminado)
-                return TipoComprobante.A;
-
-            case MONOTRIBUTISTA:
-                // Si el cliente es Monotributista → el emisor (R.I.) debe emitir Factura B (IVA
-                // incluido)
-                return TipoComprobante.B;
-
-            case EXENTO:
-                // Si el cliente es Exento → también recibe Factura B (ya que el emisor es R.I.)
-                return TipoComprobante.B;
-
-            case CONSUMIDOR_FINAL:
-            case NO_RESPONSABLE:
-            default:
-                // Consumidor Final o No Responsable → Factura B (IVA incluido)
-                return TipoComprobante.B;
-        }
     }
 
     /**
@@ -511,15 +441,6 @@ public class FacturacionService {
 
     /**
      * Anula una factura creando una nota de crédito asociada.
-     * 
-     * Este método realiza las siguientes operaciones:
-     * 1. Valida que el ID de la factura sea válido
-     * 2. Valida que el DTO contenga un motivo válido
-     * 3. Obtiene la factura del repositorio
-     * 4. Verifica que la factura no esté ya anulada (no tenga nota de crédito)
-     * 5. Crea una nota de crédito con los datos de la factura
-     * 6. Persiste la nota de crédito de forma transaccional
-     * 
      * Nota: La factura se considera anulada cuando tiene asociada una
      * NotaDeCredito.
      * 
@@ -528,14 +449,25 @@ public class FacturacionService {
      * @throws ExcepcionNegocio si el ID es inválido, falta motivo, factura no
      *                          existe o ya está anulada
      */
+    /**
+     * Anula una factura creando una nota de crédito asociada y revirtiendo 
+     * los servicios a estado PENDIENTE para permitir refacturación.
+     * 
+     * Operaciones realizadas:
+     * 1. Valida DTO y motivo
+     * 2. Obtiene y valida la factura
+     * 3. Crea nota de crédito
+     * 4. Revierte estado de servicios a PENDIENTE
+     * 5. Persiste cambios de forma transaccional
+     * 
+     * @param anulacionDto DTO con idFactura y motivo de anulación
+     * @throws ExcepcionNegocio si datos son inválidos, factura no existe o ya está anulada
+     */
     @Transactional
     public void anularFactura(AnulacionDto anulacionDto) {
 
         // Validar que el DTO y motivo sean válidos
-        if (anulacionDto == null || anulacionDto.getMotivo() == null ||
-                anulacionDto.getMotivo().isBlank() || anulacionDto.getIdFactura() == null) {
-            throw new ExcepcionNegocio("Debe proporcionar un motivo y un ID de factura válidos para anular");
-        }
+        validarAnulacionDto(anulacionDto);
 
         // Obtener la factura
         Factura factura = obtenerFactura(anulacionDto.getIdFactura());
@@ -546,18 +478,54 @@ public class FacturacionService {
         }
 
         // Crear nota de crédito
+        crearNotaDeCredito(factura, anulacionDto.getMotivo());
+
+        // Revertir servicios a PENDIENTE para permitir refacturación
+        revertirServiciosAPendiente(factura.getDetallesFacturas());
+    }
+
+    /**
+     * Valida que el DTO de anulación contenga datos válidos.
+     */
+    private void validarAnulacionDto(AnulacionDto anulacionDto) {
+        if (anulacionDto == null || anulacionDto.getIdFactura() == null) {
+            throw new ExcepcionNegocio("El ID de factura es obligatorio para anular");
+        }
+
+        if (anulacionDto.getMotivo() == null || anulacionDto.getMotivo().isBlank()) {
+            throw new ExcepcionNegocio("El motivo de anulación es obligatorio");
+        }
+    }
+
+    /**
+     * Crea y persiste una nota de crédito asociada a una factura.
+     */
+    private void crearNotaDeCredito(Factura factura, String motivo) {
         NotaDeCredito notaDeCredito = new NotaDeCredito();
-        notaDeCredito.setFactura(factura); // Mapea la relacion (Bidireccionalidad)
+        notaDeCredito.setFactura(factura); // Bidireccionalidad
         notaDeCredito.setFechaEmision(LocalDate.now());
         notaDeCredito.setMonto(factura.getMontoTotal());
-        notaDeCredito.setMotivo(anulacionDto.getMotivo());
-        notaDeCredito.setTipoComprobante(
-                determinarTipoComprobantePorCondicion(
-                        factura.getDatosClienteFactura().getCondicionFrenteIVA()));
+        notaDeCredito.setMotivo(motivo);
+        notaDeCredito.setTipoComprobante(determinarTipoComprobantePorCondicion(factura.getDatosClienteFactura().getCondicionFrenteIVA()));
 
-        // Persistir la nota de crédito (la relación con factura se mantiene
-        // automáticamente)
         notaDeCreditoRepository.save(notaDeCredito);
+    }
+
+    /**
+     * Revierte el estado de todos los servicios de una factura anulada a PENDIENTE.
+     * Permite que se puedan volver a facturar en el futuro.
+     */
+    private void revertirServiciosAPendiente(List<DetalleFactura> detallesFacturas) {
+        if (detallesFacturas == null || detallesFacturas.isEmpty()) {
+            return;
+        }
+
+        List<ServicioDeLaCuenta> serviciosARevertir = detallesFacturas.stream()
+                .map(DetalleFactura::getServicioDeLaCuenta)
+                .peek(sdc -> sdc.setEstadoServicio(EstadoServicio.PENDIENTE))
+                .collect(Collectors.toList());
+
+        servicioDeLaCuentaRepository.saveAll((Iterable<ServicioDeLaCuenta>) serviciosARevertir);
     }
 
     /**
@@ -582,5 +550,21 @@ public class FacturacionService {
     public Object obtenerNotaDeCreditoPorFactura(Integer idFactura) {
         Factura factura = obtenerFactura(idFactura);
         return factura.getNotaDeCredito();
+    }
+
+
+    /**
+     * Obtiene el Tipo de Comprobante de la Factura/NotaDeCredito, Dependiendo
+     * de la condicion frente al iva del Emisor (Empresa: Por ahora Hardckodeado con R.I)
+     * y la condicion del Receptor (CLIENTE)
+     * @param condicionReceptor Condicion Frente al iva del Receptor
+     * @return El Tipo de COmprobante de la factura/nota (A,B,C,D,E)
+     */
+    private TipoComprobante determinarTipoComprobantePorCondicion(CondicionFrenteIVA condicionReceptor) {
+
+        ReglaFacturaStrategy regla = ReglaFacturaFactory.getStrategy(CONDICION_EMPRESA);
+
+        // Delego la decisión a la regla seleccionada
+        return regla.determinar(CONDICION_EMPRESA, condicionReceptor);
     }
 }

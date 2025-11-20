@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -66,4 +67,14 @@ public class DatosServicioFactura {
     @DecimalMin(value = "0.0", inclusive = true, message = "El monto no puede ser negativo")
     @Column(nullable = false)
     private Double precioActual;
+
+    /**
+     * Alícuota Actual, representa la alicuota que utilizo el servicio
+     * Cuando se realizo la factura
+     */
+    @NotNull(message = "La alícuota no puede ser nula")
+    @DecimalMin(value = "0.0", inclusive = true, message = "La alícuota no puede ser negativa")
+    @DecimalMax(value = "1.0", inclusive = true, message = "La alícuota no puede ser mayor a 1.0")
+    @Column(nullable = false)
+    private Double alicuotaActual;
 }

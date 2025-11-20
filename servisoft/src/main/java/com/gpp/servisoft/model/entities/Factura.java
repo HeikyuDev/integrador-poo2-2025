@@ -3,6 +3,7 @@ package com.gpp.servisoft.model.entities;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.gpp.servisoft.model.enums.EstadoFactura;
 import com.gpp.servisoft.model.enums.Periodicidad;
 import com.gpp.servisoft.model.enums.TipoComprobante;
 
@@ -43,6 +44,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Factura {
 
+    // COSNTANTES
     private static final String PUNTO_VENTA = "0001";
     /**
      * Identificador único de la factura. Se genera automáticamente.
@@ -142,8 +144,6 @@ public class Factura {
 
     // METODOS
 
-    // DETERMINACION DE SALDO
-
     /**
      * Calcula el monto total pagado de una factura.
      * Suma todos los montos de los pagos asociados a la factura.
@@ -172,4 +172,82 @@ public class Factura {
     public double getSaldo() {
         return this.getMontoTotal() - calcularTotalPagado();
     }
+
+    // Determinacion del Estado de Una Factura
+
+    /**
+     * Calcula el estado de la factura basándose en sus pagos, notas de crédito y
+     * fecha de vencimiento.
+     * 
+     * @param factura La entidad Factura con sus datos completos
+     * @return EstadoFactura correspondiente según la lógica de negocio
+     */
+    public  EstadoFactura calcularEstado() {
+        
+        // --- Lógica 1: ANULADA ---
+        // Si existe nota de crédito, la factura está anulada
+        if (this.getNotaDeCredito() != null) {
+            return EstadoFactura.ANULADA;
+        }
+
+        // Validar que el monto total sea válido
+        Double monto = this.getMontoTotal();
+
+        if (monto == null || monto < 0.0) {
+            throw new IllegalStateException("El monto total de la factura es inválido: " + montoTotal);
+        }
+
+        // --- Lógica 2: PAGADA ---
+        double totalPagado = 0.0;
+
+        // Si existen pagos asociados a una factura, a totalPagado le asigno
+        // el total del monto pagado de cada pago
+        if (this.getPagos() != null && !this.getPagos().isEmpty()) {
+            totalPagado = calcularTotalPagado();
+        }
+
+        // Tolerancia para comparación de doubles (1 centavo)
+        double epsilon = 0.01;
+
+        if (totalPagado >= montoTotal) {
+            return EstadoFactura.PAGADA;
+        }
+
+        // --- Lógica 3: VENCIDA ---
+        // Comparamos contra la fecha actual (HOY)
+        LocalDate hoy = LocalDate.now();
+        boolean estaVencida = this.getFechaVencimiento() != null &&
+                this.getFechaVencimiento().isBefore(hoy);
+
+        if (estaVencida) {
+            return EstadoFactura.VENCIDA;
+        }
+
+        // --- Lógica 4: PARCIALMENTE PAGADA ---
+        if (totalPagado > epsilon) {
+            return EstadoFactura.PARCIALMENTE_PAGADA;
+        }
+
+        // --- Lógica 5: PENDIENTE (default) ---
+        return EstadoFactura.PENDIENTE;
+    }
+
+    /**
+     * Calcula el monto total de la factura (subtotal + IVA)
+     * 
+     * @param detalles Lista de detalles de la factura
+     * @return Monto total incluyendo subtotales e IVA
+     * @throws IllegalArgumentException si no tiene asociado Detalles
+     */
+
+    public Double calcularMontoTotalFactura() {
+        if (this.detallesFacturas == null || this.detallesFacturas.isEmpty()) {
+            throw new IllegalArgumentException("No hay Detalles Asociados a la Factura");
+        }
+
+        return detallesFacturas.stream()
+                .mapToDouble(detalle -> detalle.getSubtotal() + detalle.getIvaCalculado())
+                .sum();
+    }
+
 }

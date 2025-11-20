@@ -53,7 +53,7 @@ public class ServicioDeLaCuentaService {
         ServicioDeLaCuenta servicioCuenta = new ServicioDeLaCuenta();
         servicioCuenta.setCuenta(cuenta);
         servicioCuenta.setServicio(servicio);
-        servicioCuenta.setPrecioActual(servicio.getMontoServicio());
+        // servicioCuenta.setCantidadDePreferencia(idServicio);
         servicioCuenta.setEstadoServicio(EstadoServicio.PENDIENTE);
 
         return servicioDeLaCuentaRepository.save(servicioCuenta);
