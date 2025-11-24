@@ -27,6 +27,7 @@ public class ServicioSeleccionadoDto {
     private String nombreServicio;
     private Double montoUnitario;
     private boolean tieneCantidad;
+    private Integer cantidadDePreferencia;
 
 
 

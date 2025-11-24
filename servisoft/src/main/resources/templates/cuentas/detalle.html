@@ -41,7 +41,7 @@
                                     <p class="text-muted mb-1">Estado</p>
                                     <p>
                                         <span class="badge" 
-                                              th:classappend="${cuenta.estado.name() == 'ACTIVO' ? 'bg-success' : 'bg-danger'}"
+                                              th:classappend="${cuenta.estado.name() == 'ACTIVO' ? 'bg-success' : (cuenta.estado.name() == 'SUSPENDIDO' ? 'bg-warning' : 'bg-danger')}"
                                               th:text="${cuenta.estado}">
                                         </span>
                                     </p>
@@ -109,9 +109,13 @@
                                             <tr th:each="servicioCuenta : ${cuenta.serviciosDeLaCuenta}">
                                                 <td th:if="${servicioCuenta.servicio != null}" 
                                                     th:text="${servicioCuenta.servicio.nombreServicio}"></td>
-                                                <td th:text="${'$' + servicioCuenta.precioActual}"></td>
+                                                <td th:if="${servicioCuenta.servicio != null}" 
+                                                    th:text="${'$' + servicioCuenta.servicio.montoServicio}"></td>
                                                 <td>
-                                                    <span class="badge bg-success">Activo</span>
+                                                    <span class="badge" 
+                                                          th:classappend="${servicioCuenta.estadoServicio.name() == 'ACTIVO' ? 'bg-success' : 'bg-warning'}"
+                                                          th:text="${servicioCuenta.estadoServicio}">
+                                                    </span>
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -173,15 +177,6 @@
                                     <i class="fas fa-edit me-2"></i>Editar Cuenta
                                 </a>
                                 
-                                <button class="btn btn-danger btn-baja" 
-                                        data-mdb-ripple-init
-                                        th:data-id="${cuenta.idCuenta}"
-                                        th:data-razon-social="${cuenta.razonSocial}">
-                                    <i class="fas fa-trash me-2"></i>Dar de Baja
-                                </button>
-                                
-                                <hr>
-                                
                                 <a th:href="@{/cuentas}" 
                                    class="btn btn-secondary" 
                                    data-mdb-ripple-init>
@@ -198,111 +193,6 @@
     <footer th:replace="~{fragments/template :: footer}"></footer>
 
     <th:block th:replace="~{fragments/template :: scripts}"></th:block>
-
-    <!-- Modal para mensajes de confirmación y respuestas -->
-    <div class="modal fade" id="modalMensaje" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header border-0">
-                    <h5 class="modal-title fw-bold" id="modalTitulo">
-                        <i class="fas fa-info-circle me-2 text-info"></i>Información
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
-                <div class="modal-body">
-                    <p id="modalCuerpo">¿Desea continuar?</p>
-                </div>
-                <div class="modal-footer border-0">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        Cancelar
-                    </button>
-                    <button type="button" class="btn btn-primary" id="btnModalAceptar">
-                        Aceptar
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Función para mostrar modal de confirmación
-        function mostrarModalConfirmacion(mensaje, callback) {
-            const modal = document.getElementById('modalMensaje');
-            document.getElementById('modalTitulo').innerHTML = '<i class="fas fa-question-circle me-2 text-warning"></i>Confirmación';
-            document.getElementById('modalCuerpo').textContent = mensaje;
-            
-            const btnAceptar = document.getElementById('btnModalAceptar');
-            btnAceptar.onclick = function() {
-                bootstrap.Modal.getInstance(modal).hide();
-                callback();
-            };
-            
-            const bsModal = new bootstrap.Modal(modal);
-            bsModal.show();
-        }
-
-        // Función para mostrar modal de éxito
-        function mostrarModalExito(mensaje) {
-            const modal = document.getElementById('modalMensaje');
-            document.getElementById('modalTitulo').innerHTML = '<i class="fas fa-check-circle me-2 text-success"></i>Éxito';
-            document.getElementById('modalCuerpo').textContent = mensaje;
-            document.getElementById('btnModalAceptar').textContent = 'Aceptar';
-            
-            const btnAceptar = document.getElementById('btnModalAceptar');
-            btnAceptar.onclick = function() {
-                window.location.href = '/cuentas';
-            };
-            
-            const bsModal = new bootstrap.Modal(modal);
-            bsModal.show();
-        }
-
-        // Función para mostrar modal de error
-        function mostrarModalError(mensaje) {
-            const modal = document.getElementById('modalMensaje');
-            document.getElementById('modalTitulo').innerHTML = '<i class="fas fa-exclamation-circle me-2 text-danger"></i>Error';
-            document.getElementById('modalCuerpo').textContent = mensaje;
-            
-            const bsModal = new bootstrap.Modal(modal);
-            bsModal.show();
-        }
-
-        // Inicializar event listeners para botones de baja
-        document.addEventListener('DOMContentLoaded', function() {
-            const botonesBaja = document.querySelectorAll('.btn-baja');
-            
-            botonesBaja.forEach(function(boton) {
-                boton.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const id = this.getAttribute('data-id');
-                    const razonSocial = this.getAttribute('data-razon-social');
-                    
-                    console.log('ID:', id, 'Razón Social:', razonSocial);
-                    
-                    mostrarModalConfirmacion(
-                        `¿Está seguro de dar de baja la cuenta "${razonSocial}"?\n\nEsta acción cambiará el estado a INACTIVO.`,
-                        function() {
-                            fetch('/cuentas/baja/' + id, {
-                                method: 'POST'
-                            })
-                            .then(response => {
-                                console.log('Response status:', response.status);
-                                if (response.ok) {
-                                    mostrarModalExito('Cuenta dada de baja exitosamente');
-                                } else {
-                                    mostrarModalError('Error al dar de baja la cuenta');
-                                }
-                            })
-                            .catch(error => {
-                                console.error('Error:', error);
-                                mostrarModalError('Error al procesar la solicitud: ' + error.message);
-                            });
-                        }
-                    );
-                });
-            });
-        });
-    </script>
 </body>
 
 </html>

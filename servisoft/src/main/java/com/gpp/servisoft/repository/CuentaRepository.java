@@ -32,6 +32,7 @@ public interface CuentaRepository extends JpaRepository<Cuenta, Integer> {
      * Buscar una cuenta por ID con JOIN FETCH para eager loading de relaciones lazy.
      * Esto evita problemas de LazyLoadingException al acceder a cliente y servicios
      * después de que se cierre la sesión de Hibernate.
+     * Solo busca cuentas que NO estén inactivas.
      */
     @Query("SELECT DISTINCT c FROM Cuenta c " +
            "LEFT JOIN FETCH c.cliente " +
@@ -39,4 +40,16 @@ public interface CuentaRepository extends JpaRepository<Cuenta, Integer> {
            "LEFT JOIN FETCH s.servicio " +
            "WHERE c.idCuenta = :idCuenta AND c.estado != 'INACTIVO'")
     Optional<Cuenta> findByIdConRelaciones(@Param("idCuenta") Integer idCuenta);
+    
+    /**
+     * Buscar una cuenta por ID con JOIN FETCH para eager loading de relaciones lazy.
+     * Este método busca la cuenta SIN restricción de estado (incluyendo inactivas).
+     * Útil para ver detalles y editar cuentas inactivas.
+     */
+    @Query("SELECT DISTINCT c FROM Cuenta c " +
+           "LEFT JOIN FETCH c.cliente " +
+           "LEFT JOIN FETCH c.serviciosDeLaCuenta s " +
+           "LEFT JOIN FETCH s.servicio " +
+           "WHERE c.idCuenta = :idCuenta")
+    Optional<Cuenta> findByIdConRelacionesSinFiltro(@Param("idCuenta") Integer idCuenta);
 }

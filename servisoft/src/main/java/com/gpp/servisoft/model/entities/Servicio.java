@@ -70,6 +70,4 @@ public class Servicio {
     private Estado estado = Estado.ACTIVO;
 
     private boolean tieneCantidad;
-
-
 }

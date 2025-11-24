@@ -20,9 +20,15 @@ public interface ServicioDeLaCuentaRepository extends JpaRepository<ServicioDeLa
     Optional<ServicioDeLaCuenta> findByCuentaAndServicio(@Param("idCuenta") int idCuenta, @Param("idServicio") int idServicio);
     
     /**
-     * Obtiene todos los servicios asociados a una cuenta específica
+     * Verifica si ya existe una relación entre una cuenta y un servicio específico
      */
-    @Query("SELECT s FROM ServicioDeLaCuenta s WHERE s.cuenta.idCuenta = :idCuenta")
+    @Query("SELECT CASE WHEN COUNT(s) > 0 THEN true ELSE false END FROM ServicioDeLaCuenta s WHERE s.cuenta = :cuenta AND s.servicio = :servicio")
+    boolean existsByCuentaAndServicio(@Param("cuenta") com.gpp.servisoft.model.entities.Cuenta cuenta, @Param("servicio") com.gpp.servisoft.model.entities.Servicio servicio);
+    
+    /**
+     * Obtiene todos los servicios asociados a una cuenta específica con eager loading del servicio
+     */
+    @Query("SELECT s FROM ServicioDeLaCuenta s LEFT JOIN FETCH s.servicio WHERE s.cuenta.idCuenta = :idCuenta")
     List<ServicioDeLaCuenta> findByCuenta(@Param("idCuenta") int idCuenta);
     
     /**

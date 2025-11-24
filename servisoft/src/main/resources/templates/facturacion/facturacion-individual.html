@@ -111,8 +111,10 @@
                                             <!-- Cuadro numerico, para que ingrese la cantidad-->
                                             <td class="text-center">
                                                 <input type="number" class="form-control form-control-sm mx-auto"
-                                                    th:field="*{items[__${stat.index}__].cantidad}" min="1"
-                                                    style="width: 90px;" th:readonly="${!item.tieneCantidad}" />
+                                                    th:field="*{items[__${stat.index}__].cantidad}" 
+                                                    min="1"
+                                                    style="width: 90px;" 
+                                                    th:readonly="${!item.tieneCantidad}" />
                                             </td>
 
                                             <!--Etiqueta que muestra el Monto del servicio-->

@@ -36,6 +36,14 @@ public class CuentaService {
     }
 
 /**
+    * Obtener listado de TODAS las cuentas (activas, suspendidas e inactivas).
+    * @return Lista de todas las cuentas.
+*/
+    public List<Cuenta> obtenerTodasLasCuentas() {
+        return cuentaRepository.findAll();
+    }
+
+/**
      * Alta de una nueva cuenta asociada a un cliente.
      * @param cuenta Datos de la cuenta a crear.
      * @param idCliente ID del cliente al que se asociará.
@@ -52,14 +60,14 @@ public class CuentaService {
     }
 
 /**
-    * Obtener una cuenta específica por ID (que no esté dada de baja).
+    * Obtener una cuenta específica por ID (incluyendo inactivas).
     * Usa JOIN FETCH para cargar eagerly las relaciones lazy (cliente y servicios).
     * @param idCuenta ID de la cuenta.
     * @return Cuenta encontrada con sus relaciones cargadas.
 */
 public Cuenta obtenerPorId(int idCuenta) {
-    return cuentaRepository.findByIdConRelaciones(idCuenta)
-            .orElseThrow(() -> new RuntimeException("No existe la cuenta activa con ID: " + idCuenta));
+    return cuentaRepository.findByIdConRelacionesSinFiltro(idCuenta)
+            .orElseThrow(() -> new RuntimeException("No existe la cuenta con ID: " + idCuenta));
 }
 
 /**

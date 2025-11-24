@@ -40,6 +40,10 @@
                                     <label for="cliente" class="form-label">
                                         <i class="fas fa-user me-2"></i>Cliente *
                                     </label>
+                                    <input type="text" class="form-control mb-2" id="buscarCliente" 
+                                           placeholder="Buscar cliente..." 
+                                           th:disabled="${cuenta != null}"
+                                           style="display: none;">
                                     <select class="form-select" id="cliente" name="idCliente" required
                                             th:disabled="${cuenta != null}">
                                         <option value="">Seleccione un cliente...</option>
@@ -114,72 +118,99 @@
                                               th:text="${cuenta?.domicilioFiscal}"></textarea>
                                 </div>
 
-                                <!-- Estado (solo en edición) -->
+                                <!-- Estado Actual (solo en edición - solo informativo) -->
                                 <div class="mb-3" th:if="${cuenta != null}">
-                                    <label for="estado" class="form-label">
-                                        <i class="fas fa-toggle-on me-2"></i>Estado
+                                    <label class="form-label">
+                                        <i class="fas fa-info-circle me-2"></i>Estado Actual
                                     </label>
-                                    <select class="form-select" id="estado" name="estado">
-                                        <option value="ACTIVO" 
-                                                th:selected="${cuenta?.estado.name() == 'ACTIVO'}">
-                                            ACTIVO
-                                        </option>
-                                        <option value="INACTIVO"
-                                                th:selected="${cuenta?.estado.name() == 'INACTIVO'}">
-                                            INACTIVO
-                                        </option>
-                                    </select>
+                                    <div>
+                                        <span class="badge fs-6" 
+                                              th:classappend="${cuenta?.estado.name() == 'ACTIVO' ? 'bg-success' : (cuenta?.estado.name() == 'INACTIVO' ? 'bg-danger' : 'bg-warning')}"
+                                              th:text="${cuenta?.estado}">
+                                        </span>
+                                    </div>
+                                    <small class="text-muted">Use los botones en el panel de Acciones para cambiar el estado</small>
                                 </div>
                             </form>
                         </div>
                     </div>
                 </div>
 
-                <!-- Panel Lateral - Servicios -->
                 <div class="col-lg-4">
-                    <div class="card shadow-4 mb-4">
-                        <div class="card-header bg-info text-white">
-                            <h5 class="mb-0">
-                                <i class="fas fa-cogs me-2"></i>Servicios
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <p class="text-muted small mb-3">
-                                Seleccione los servicios que desea asociar a esta cuenta:
-                            </p>
-                            
-                            <div id="listaServicios" class="list-group">
-                                <div th:each="servicio : ${servicios}" class="list-group-item">
-                                    <div class="form-check">
-                                        <input class="form-check-input servicio-checkbox" 
-                                               type="checkbox" 
-                                               th:id="'servicio_' + ${servicio.idServicio}"
-                                               th:value="${servicio.idServicio}"
-                                               th:checked="${cuenta != null && cuenta.serviciosDeLaCuenta != null && #lists.contains(cuenta.serviciosDeLaCuenta.![servicio.idServicio], servicio.idServicio)}">
-                                        <label class="form-check-label w-100" 
-                                               th:for="'servicio_' + ${servicio.idServicio}">
-                                            <div class="d-flex justify-content-between align-items-start">
-                                                <div>
-                                                    <strong th:text="${servicio.nombreServicio}"></strong>
-                                                    <br>
-                                                    <small class="text-muted" 
-                                                           th:text="${servicio.descripcionServicio}"></small>
-                                                </div>
-                                                <span class="badge bg-success" 
-                                                      th:text="'$ ' + ${servicio.montoServicio}"></span>
-                                            </div>
-                                        </label>
-                                    </div>
+    <div class="card shadow-4 mb-4">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-cogs me-2"></i>Servicios
+            </h5>
+        </div>
+        <div class="card-body">
+            <p class="text-muted small mb-3">
+                Seleccione los servicios y configure la cantidad de preferencia:
+            </p>
+            
+            <div id="listaServicios" class="list-group" style="max-height: 400px; overflow-y: auto;">
+                <div th:each="servicio : ${servicios}" class="list-group-item">
+                    <div class="form-check mb-2">
+                        <input class="form-check-input servicio-checkbox" 
+                               type="checkbox" 
+                               th:id="'servicio_' + ${servicio.idServicio}"
+                               th:value="${servicio.idServicio}"
+                               th:data-tiene-cantidad="${servicio.tieneCantidad}"
+                               th:checked="${cuenta != null && cuenta.serviciosDeLaCuenta != null && #lists.contains(cuenta.serviciosDeLaCuenta.![servicio.idServicio], servicio.idServicio)}">
+                        <label class="form-check-label w-100" 
+                               th:for="'servicio_' + ${servicio.idServicio}">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <strong th:text="${servicio.nombreServicio}"></strong>
+                                    <br>
+                                    <small class="text-muted" 
+                                           th:text="${servicio.descripcionServicio}"></small>
                                 </div>
+                                <span class="badge bg-success" 
+                                      th:text="'$ ' + ${servicio.montoServicio}"></span>
                             </div>
-
-                            <div th:if="${servicios == null || #lists.isEmpty(servicios)}" 
-                                 class="text-center py-3">
-                                <i class="fas fa-inbox fa-2x text-muted mb-2"></i>
-                                <p class="text-muted">No hay servicios disponibles</p>
-                            </div>
+                        </label>
+                    </div>
+                    
+                    <!-- Campo de cantidad (solo si el servicio admite cantidad) -->
+                    <div th:if="${servicio.tieneCantidad}" 
+                         th:id="'cantidad-container-' + ${servicio.idServicio}"
+                         class="cantidad-container mb-3"
+                         style="display: none;">
+                        <label class="form-label small text-muted">
+                            <i class="fas fa-hashtag me-1"></i>Cantidad de Preferencia
+                        </label>
+                        <div class="input-group input-group-sm">
+                            <button class="btn btn-outline-secondary btn-decrementar" 
+                                    type="button"
+                                    th:data-servicio="${servicio.idServicio}">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <input type="number" 
+                                   class="form-control text-center cantidad-input" 
+                                   th:id="'cantidad_' + ${servicio.idServicio}"
+                                   th:data-servicio="${servicio.idServicio}"
+                                   min="1" 
+                                   step="1" 
+                                   value="1"
+                                   style="font-weight: bold;">
+                            <button class="btn btn-outline-secondary btn-incrementar" 
+                                    type="button"
+                                    th:data-servicio="${servicio.idServicio}">
+                                <i class="fas fa-plus"></i>
+                            </button>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <div th:if="${servicios == null || #lists.isEmpty(servicios)}" 
+                 class="text-center py-3">
+                <i class="fas fa-inbox fa-2x text-muted mb-2"></i>
+                <p class="text-muted">No hay servicios disponibles</p>
+            </div>
+        </div>
+    </div>
 
                     <!-- Botones de Acción -->
                     <div class="card shadow-4">
@@ -195,6 +226,31 @@
                                     <span th:text="${cuenta != null ? 'Actualizar Cuenta' : 'Crear Cuenta'}"></span>
                                 </button>
                                 
+                                <!-- Botones de cambio de estado (solo en edición) -->
+                                <div th:if="${cuenta != null}" class="mt-3">
+                                    <hr>
+                                    <p class="text-muted small mb-2">
+                                        <i class="fas fa-exchange-alt me-2"></i>Cambiar Estado:
+                                    </p>
+                                    
+                                    <button type="button" class="btn btn-warning w-100 mb-2" id="btnSuspender"
+                                            th:if="${cuenta?.estado.name() != 'SUSPENDIDO'}">
+                                        <i class="fas fa-pause-circle me-2"></i>Marcar como Suspendida
+                                    </button>
+                                    
+                                    <button type="button" class="btn btn-danger w-100 mb-2" id="btnInactivar"
+                                            th:if="${cuenta?.estado.name() != 'INACTIVO'}">
+                                        <i class="fas fa-ban me-2"></i>Marcar como Inactiva
+                                    </button>
+                                    
+                                    <button type="button" class="btn btn-success w-100 mb-2" id="btnActivar"
+                                            th:if="${cuenta?.estado.name() != 'ACTIVO'}">
+                                        <i class="fas fa-check-circle me-2"></i>Marcar como Activa
+                                    </button>
+                                </div>
+                                
+                                <hr th:if="${cuenta != null}">
+                                
                                 <a th:href="@{/cuentas}" class="btn btn-secondary">
                                     <i class="fas fa-times me-2"></i>Cancelar
                                 </a>
@@ -207,6 +263,115 @@
     </main>
 
     <footer th:replace="~{fragments/template :: footer}"></footer>
+<script>
+    // Manejar la visualización de los campos de cantidad
+    document.addEventListener('DOMContentLoaded', function() {
+        // Función para mostrar/ocultar campos de cantidad
+        function toggleCantidadField(checkbox) {
+            const idServicio = checkbox.value;
+            const tieneCantidad = checkbox.dataset.tieneCantidad === 'true';
+            const container = document.getElementById(`cantidad-container-${idServicio}`);
+            
+            if (container && tieneCantidad) {
+                container.style.display = checkbox.checked ? 'block' : 'none';
+            }
+        }
+        
+        // Inicializar estado de los campos de cantidad
+        document.querySelectorAll('.servicio-checkbox').forEach(checkbox => {
+            toggleCantidadField(checkbox);
+            
+            // Escuchar cambios en los checkboxes
+            checkbox.addEventListener('change', function() {
+                toggleCantidadField(this);
+            });
+        });
+        
+        // Manejar botones de incremento/decremento
+        document.querySelectorAll('.btn-decrementar').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const idServicio = this.dataset.servicio;
+                const input = document.getElementById(`cantidad_${idServicio}`);
+                const valor = parseInt(input.value) || 1;
+                if (valor > 1) {
+                    input.value = valor - 1;
+                }
+            });
+        });
+        
+        document.querySelectorAll('.btn-incrementar').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const idServicio = this.dataset.servicio;
+                const input = document.getElementById(`cantidad_${idServicio}`);
+                const valor = parseInt(input.value) || 1;
+                input.value = valor + 1;
+            });
+        });
+        
+        // Validar entrada manual en campos de cantidad
+        document.querySelectorAll('.cantidad-input').forEach(input => {
+            input.addEventListener('input', function() {
+                let valor = this.value.replace(/[^0-9]/g, '');
+                if (valor === '' || parseInt(valor) < 1) {
+                    this.value = '1';
+                } else {
+                    this.value = valor;
+                }
+            });
+            
+            input.addEventListener('keypress', function(e) {
+                if (!/[0-9]/.test(e.key)) {
+                    e.preventDefault();
+                }
+            });
+        });
+        
+        // Cargar cantidades existentes al editar
+        if (esEdicion) {
+            cargarCantidadesExistentes();
+        }
+    });
+    
+    // Función para cargar las cantidades cuando se edita una cuenta
+    async function cargarCantidadesExistentes() {
+        try {
+            const response = await fetch(`/cuentas/${idCuentaActual}/servicios`);
+            if (response.ok) {
+                const serviciosCuenta = await response.json();
+                
+                serviciosCuenta.forEach(sdc => {
+                    // sdc es ServicioDeLaCuenta entity: tiene idServicioDeLaCuenta, cantidad, cantidadDePreferencia
+                    let idServicio = null;
+                    
+                    // Si es DTO con propiedad 'servicio' con objetos anidados
+                    if (sdc.servicio && sdc.servicio.idServicio) {
+                        idServicio = sdc.servicio.idServicio;
+                    } else if (sdc.idServicio) {
+                        // Si es entidad con idServicio directamente
+                        idServicio = sdc.idServicio;
+                    }
+                    
+                    if (idServicio) {
+                        // Marcar checkbox como checked
+                        const checkbox = document.getElementById(`servicio_${idServicio}`);
+                        if (checkbox) {
+                            checkbox.checked = true;
+                            checkbox.dispatchEvent(new Event('change'));
+                        }
+                        
+                        // Cargar cantidad de preferencia
+                        const inputCantidad = document.getElementById(`cantidad_${idServicio}`);
+                        if (inputCantidad) {
+                            inputCantidad.value = sdc.cantidadDePreferencia || 1;
+                        }
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('Error al cargar cantidades existentes:', error);
+        }
+    }
+</script>
 
     <!-- Modal para mensajes -->
     <div class="modal fade" id="modalMensaje" tabindex="-1" aria-hidden="true">
@@ -231,16 +396,76 @@
         </div>
     </div>
 
+    <!-- Modal de confirmación para cambio de estado -->
+    <div class="modal fade" id="modalConfirmacion" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold">
+                        <i class="fas fa-question-circle me-2 text-warning"></i>Confirmación
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="modalConfirmacionCuerpo">¿Está seguro de realizar esta acción?</p>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+                    <button type="button" class="btn btn-primary" id="btnConfirmar">
+                        Confirmar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <th:block th:replace="~{fragments/template :: scripts}"></th:block>
 
     <script th:inline="javascript">
         const esEdicion = /*[[${cuenta != null}]]*/ false;
         const idCuentaActual = /*[[${cuenta?.idCuenta}]]*/ null;
+        const estadoActual = /*[[${cuenta?.estado?.name()}]]*/ null;
 
         // Filtrar solo números en CUIT al escribir
         document.getElementById('cuit').addEventListener('input', function(e) {
             this.value = this.value.replace(/[^0-9]/g, '');
         });
+
+        // Implementar búsqueda de clientes
+        function inicializarBuscadorClientes() {
+            const selectCliente = document.getElementById('cliente');
+            const inputBuscar = document.getElementById('buscarCliente');
+            const options = Array.from(selectCliente.options);
+            
+            // Mostrar input de búsqueda solo si no está en edición y hay clientes
+            if (!esEdicion && options.length > 1) {
+                inputBuscar.style.display = 'block';
+                
+                inputBuscar.addEventListener('input', function(e) {
+                    const textoLower = e.target.value.toLowerCase();
+                    
+                    // Filtrar opciones
+                    options.forEach(option => {
+                        if (option.value === '') {
+                            option.style.display = '';
+                        } else {
+                            const coincide = option.text.toLowerCase().includes(textoLower);
+                            option.style.display = coincide ? '' : 'none';
+                        }
+                    });
+                    
+                    // Si el texto está vacío, resetear
+                    if (textoLower === '') {
+                        selectCliente.value = '';
+                    }
+                });
+            }
+        }
+
+        // Inicializar cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', inicializarBuscadorClientes);
 
         // Función para mostrar modal
         function mostrarModal(titulo, mensaje, callback, errores = null) {
@@ -273,6 +498,87 @@
             new bootstrap.Modal(modal).show();
         }
 
+        // Función para mostrar modal de confirmación
+        function mostrarModalConfirmacion(mensaje, callback) {
+            const modal = document.getElementById('modalConfirmacion');
+            document.getElementById('modalConfirmacionCuerpo').textContent = mensaje;
+            
+            const btnConfirmar = document.getElementById('btnConfirmar');
+            btnConfirmar.onclick = function() {
+                bootstrap.Modal.getInstance(modal).hide();
+                callback();
+            };
+            
+            new bootstrap.Modal(modal).show();
+        }
+
+        // Función para cambiar estado de la cuenta
+        async function cambiarEstado(nuevoEstado, nombreEstado) {
+            mostrarModalConfirmacion(
+                `¿Está seguro de cambiar el estado de la cuenta a ${nombreEstado}?`,
+                async function() {
+                    try {
+                        const response = await fetch(`/cuentas/${idCuentaActual}`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                razonSocial: document.getElementById('razonSocial').value,
+                                cuit: document.getElementById('cuit').value,
+                                condicionFrenteIVA: document.getElementById('condicionFrenteIVA').value,
+                                domicilioFiscal: document.getElementById('domicilioFiscal').value,
+                                estado: nuevoEstado
+                            })
+                        });
+
+                        if (!response.ok) {
+                            const errorData = await response.json();
+                            throw { status: response.status, data: errorData };
+                        }
+
+                        mostrarModal(
+                            '<i class="fas fa-check-circle me-2 text-success"></i>Éxito',
+                            `Estado cambiado a ${nombreEstado} exitosamente`,
+                            () => window.location.reload()
+                        );
+
+                    } catch (error) {
+                        console.error('Error:', error);
+                        let mensaje = 'Ocurrió un error al cambiar el estado';
+                        
+                        if (error.data?.mensaje) {
+                            mensaje = error.data.mensaje;
+                        } else if (error.message) {
+                            mensaje = error.message;
+                        }
+
+                        mostrarModal(
+                            '<i class="fas fa-exclamation-circle me-2 text-danger"></i>Error',
+                            mensaje,
+                            null
+                        );
+                    }
+                }
+            );
+        }
+
+        // Event listeners para botones de cambio de estado
+        if (esEdicion) {
+            const btnSuspender = document.getElementById('btnSuspender');
+            if (btnSuspender) {
+                btnSuspender.addEventListener('click', () => cambiarEstado('SUSPENDIDO', 'SUSPENDIDO'));
+            }
+
+            const btnInactivar = document.getElementById('btnInactivar');
+            if (btnInactivar) {
+                btnInactivar.addEventListener('click', () => cambiarEstado('INACTIVO', 'INACTIVO'));
+            }
+
+            const btnActivar = document.getElementById('btnActivar');
+            if (btnActivar) {
+                btnActivar.addEventListener('click', () => cambiarEstado('ACTIVO', 'ACTIVO'));
+            }
+        }
+
         // Guardar cuenta
         document.getElementById('btnGuardar').addEventListener('click', async function() {
             const form = document.getElementById('formCuenta');
@@ -290,8 +596,12 @@
                 domicilioFiscal: formData.get('domicilioFiscal')
             };
 
-            if (esEdicion) {
-                cuentaData.estado = formData.get('estado');
+            // Al crear una nueva cuenta, siempre establecer estado como ACTIVO
+            if (!esEdicion) {
+                cuentaData.estado = 'ACTIVO';
+            } else {
+                // Al editar, mantener el estado actual
+                cuentaData.estado = estadoActual;
             }
 
             const idCliente = formData.get('idCliente');
@@ -324,20 +634,62 @@
                 const cuenta = await response.json();
                 const idCuenta = cuenta.idCuenta;
 
-                // Obtener servicios seleccionados
+                // Obtener servicios seleccionados actualmente
                 const checkboxes = document.querySelectorAll('.servicio-checkbox:checked');
                 const serviciosSeleccionados = Array.from(checkboxes).map(cb => parseInt(cb.value));
+
+                // Si estamos editando, eliminar servicios que fueron desmarcados
+                if (esEdicion) {
+                    try {
+                        // Obtener servicios actualmente asociados
+                        const serviciosResponse = await fetch(`/cuentas/${idCuentaActual}/servicios`);
+                        if (!serviciosResponse.ok) {
+                            console.warn('Error al obtener servicios:', serviciosResponse.status);
+                            throw new Error('No se pudo obtener la lista de servicios');
+                        }
+                        
+                        const serviciosActuales = await serviciosResponse.json();
+                        
+                        // Identificar servicios a eliminar (que estaban antes pero no están marcados ahora)
+                        const serviciosAEliminar = serviciosActuales.filter(sdc => 
+                            !serviciosSeleccionados.includes(sdc.servicio.idServicio)
+                        );
+                        
+                        // Eliminar servicios desmarcados
+                        for (const servicioDeLaCuenta of serviciosAEliminar) {
+                            const deleteResponse = await fetch(`/cuentas/servicios/${servicioDeLaCuenta.idServicioDeLaCuenta}`, {
+                                method: 'DELETE'
+                            });
+                            
+                            if (!deleteResponse.ok) {
+                                console.warn(`Error al eliminar servicio ${servicioDeLaCuenta.idServicioDeLaCuenta}:`, deleteResponse.status);
+                            }
+                        }
+                    } catch (error) {
+                        console.warn('Error al procesar eliminación de servicios:', error);
+                    }
+                }
 
                 // Agregar servicios si hay seleccionados
                 if (serviciosSeleccionados.length > 0) {
                     const params = new URLSearchParams();
-                    serviciosSeleccionados.forEach(id => params.append('servicios', id));
+                    const cantidades = [];
                     
-                    const serviciosResponse = await fetch(`/cuentas/${idCuenta}/servicios/multiple?${params}`, {
+                    serviciosSeleccionados.forEach(id => {
+                        params.append('servicios', id);
+                        const inputCantidad = document.getElementById(`cantidad_${id}`);
+                        const cantidad = (inputCantidad && inputCantidad.value) ? parseInt(inputCantidad.value) : 1;
+                        cantidades.push(cantidad);
+                    });
+                    
+                    // Agregar cantidades a los parámetros
+                    cantidades.forEach(cant => params.append('cantidades', cant));
+                    
+                    const serviciosPostResponse = await fetch(`/cuentas/${idCuenta}/servicios/multiple?${params}`, {
                         method: 'POST'
                     });
 
-                    if (!serviciosResponse.ok) {
+                    if (!serviciosPostResponse.ok) {
                         console.warn('Algunos servicios no pudieron agregarse');
                     }
                 }

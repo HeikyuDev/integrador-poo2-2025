@@ -66,6 +66,7 @@ public class FacturacionController {
                 ServicioSeleccionadoDto dto = new ServicioSeleccionadoDto();
                 dto.setIdServicio(sdc.getIdServicioDeLaCuenta());
                 dto.setCantidad(sdc.getCantidadDePreferencia());
+                dto.setCantidadDePreferencia(sdc.getCantidadDePreferencia());
                 dto.setMontoUnitario(sdc.getServicio().getMontoServicio());
                 dto.setNombreServicio(sdc.getServicio().getNombreServicio());
                 dto.setSeleccionado(false);

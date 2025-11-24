@@ -48,11 +48,11 @@ public class CuentaController {
     private ServicioDeLaCuentaService servicioDeLaCuentaService;
 
     /**
-     * Muestra el listado de todas las cuentas no eliminadas.
+     * Muestra el listado de todas las cuentas (activas, suspendidas e inactivas).
      */
     @GetMapping
     public String listarCuentas(Model model) {
-        model.addAttribute("cuentas", cuentaService.obtenerCuentasActivas());
+        model.addAttribute("cuentas", cuentaService.obtenerTodasLasCuentas());
         return "cuentas/lista";
     }
 
@@ -162,15 +162,20 @@ public class CuentaController {
     }
 
     /**
-     * Agrega un servicio a una cuenta existente
+     * Agrega un servicio a una cuenta existente con cantidad específica
      */
     @PostMapping("/{idCuenta}/servicios/{idServicio}")
     @ResponseBody
     public ResponseEntity<ServicioDeLaCuenta> agregarServicio(
             @PathVariable int idCuenta,
-            @PathVariable int idServicio) {
+            @PathVariable int idServicio,
+            @RequestParam(defaultValue = "1") int cantidad) {
         try {
-            ServicioDeLaCuenta servicioCuenta = servicioDeLaCuentaService.agregarServicioACuenta(idCuenta, idServicio);
+            ServicioDeLaCuenta servicioCuenta = servicioDeLaCuentaService.agregarServicioACuenta(
+                idCuenta, 
+                idServicio, 
+                cantidad
+            );
             return ResponseEntity.ok(servicioCuenta);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
@@ -184,9 +189,10 @@ public class CuentaController {
     @ResponseBody
     public ResponseEntity<?> agregarMultiplesServicios(
             @PathVariable int idCuenta,
-            @RequestParam List<Integer> servicios) {
+            @RequestParam List<Integer> servicios,
+            @RequestParam(required = false) List<Integer> cantidades) {
         try {
-            servicioDeLaCuentaService.agregarMultiplesServicios(idCuenta, servicios);
+            servicioDeLaCuentaService.agregarMultiplesServicios(idCuenta, servicios, cantidades);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -201,9 +207,9 @@ public class CuentaController {
     public ResponseEntity<?> eliminarServicio(@PathVariable int idServicioCuenta) {
         try {
             servicioDeLaCuentaService.eliminarServicioDeCuenta(idServicioCuenta);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok().body("{\"mensaje\": \"Servicio eliminado exitosamente\"}");
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body("{\"error\": \"" + e.getMessage() + "\"}");
         }
     }
 
@@ -212,6 +218,7 @@ public class CuentaController {
      */
     @GetMapping("/{idCuenta}/servicios")
     @ResponseBody
+    @Transactional
     public ResponseEntity<List<ServicioDeLaCuenta>> obtenerServiciosDeCuenta(@PathVariable int idCuenta) {
         return ResponseEntity.ok(servicioDeLaCuentaService.obtenerServiciosDeCuenta(idCuenta));
     }

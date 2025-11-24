@@ -14,10 +14,42 @@
                 <h2 class="fw-bold">
                     <i class="fas fa-wallet me-2 text-primary"></i>Gestión de Cuentas
                 </h2>
-                <a th:href="@{/cuentas/nueva}" class="btn btn-primary" data-mdb-ripple-init>
+                <a th:href="@{/cuentas/nueva}" class="btn btn-primary rounded-pill" data-mdb-ripple-init>
                     <i class="fas fa-plus me-2"></i>Nueva Cuenta
                 </a>
             </div>
+
+            <!-- Tabs para filtrar por estado -->
+            <ul class="nav nav-tabs mb-3" id="tabsEstado" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="tab-activas" data-bs-toggle="tab" 
+                            data-filter="ACTIVAS" type="button" role="tab">
+                        <i class="fas fa-check-circle me-2 text-success"></i>Activas
+                        <span class="badge bg-success ms-2" id="count-activas">0</span>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-suspendidas" data-bs-toggle="tab" 
+                            data-filter="SUSPENDIDO" type="button" role="tab">
+                        <i class="fas fa-pause-circle me-2 text-warning"></i>Suspendidas
+                        <span class="badge bg-warning ms-2" id="count-suspendidas">0</span>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-inactivas" data-bs-toggle="tab" 
+                            data-filter="INACTIVO" type="button" role="tab">
+                        <i class="fas fa-ban me-2 text-danger"></i>Inactivas
+                        <span class="badge bg-danger ms-2" id="count-inactivas">0</span>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-todas" data-bs-toggle="tab" 
+                            data-filter="TODAS" type="button" role="tab">
+                        <i class="fas fa-list me-2 text-primary"></i>Todas
+                        <span class="badge bg-primary ms-2" id="count-todas">0</span>
+                    </button>
+                </li>
+            </ul>
 
             <!-- Tabla de Cuentas -->
             <div class="card shadow-4">
@@ -35,8 +67,9 @@
                                     <th class="text-center">Acciones</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr th:each="cuenta : ${cuentas}">
+                            <tbody id="tablaCuentas">
+                                <tr th:each="cuenta : ${cuentas}" 
+                                    th:data-estado="${cuenta.estado.name()}">
                                     <td th:text="${cuenta.idCuenta}"></td>
                                     <td th:text="${cuenta.razonSocial}"></td>
                                     <td th:text="${cuenta.cuit}"></td>
@@ -46,7 +79,7 @@
                                     <td th:text="${cuenta.domicilioFiscal}"></td>
                                     <td>
                                         <span class="badge" 
-                                              th:classappend="${cuenta.estado.name() == 'ACTIVO' ? 'bg-success' : 'bg-danger'}"
+                                              th:classappend="${cuenta.estado.name() == 'ACTIVO' ? 'bg-success' : (cuenta.estado.name() == 'SUSPENDIDO' ? 'bg-warning' : 'bg-danger')}"
                                               th:text="${cuenta.estado}">
                                         </span>
                                     </td>
@@ -66,14 +99,6 @@
                                                title="Editar">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <button class="btn btn-sm btn-danger btn-baja" 
-                                                    data-mdb-ripple-init
-                                                    data-mdb-tooltip-init 
-                                                    title="Dar de baja"
-                                                    th:data-id="${cuenta.idCuenta}"
-                                                    th:data-razon-social="${cuenta.razonSocial}">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -81,10 +106,17 @@
                         </table>
                     </div>
                     
+                    <!-- Paginación -->
+                    <nav aria-label="Paginación de cuentas" class="mt-4">
+                        <ul class="pagination justify-content-center" id="paginacion">
+                            <!-- Los botones de paginación se generarán dinámicamente -->
+                        </ul>
+                    </nav>
+                    
                     <!-- Mensaje cuando no hay cuentas -->
-                    <div th:if="${#lists.isEmpty(cuentas)}" class="text-center py-5">
+                    <div id="mensajeVacio" class="text-center py-5" style="display: none;">
                         <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
-                        <p class="text-muted">No hay cuentas registradas</p>
+                        <p class="text-muted" id="textoMensajeVacio">No hay cuentas para mostrar</p>
                     </div>
                 </div>
             </div>
@@ -95,108 +127,227 @@
 
     <th:block th:replace="~{fragments/template :: scripts}"></th:block>
 
-    <!-- Modal para mensajes de confirmación y respuestas -->
-    <div class="modal fade" id="modalMensaje" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header border-0">
-                    <h5 class="modal-title fw-bold" id="modalTitulo">
-                        <i class="fas fa-info-circle me-2 text-info"></i>Información
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
-                <div class="modal-body">
-                    <p id="modalCuerpo">¿Desea continuar?</p>
-                </div>
-                <div class="modal-footer border-0">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        Cancelar
-                    </button>
-                    <button type="button" class="btn btn-primary" id="btnModalAceptar">
-                        Aceptar
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script>
-        // Función para mostrar modal de confirmación
-        function mostrarModalConfirmacion(mensaje, callback) {
-            const modal = document.getElementById('modalMensaje');
-            document.getElementById('modalTitulo').innerHTML = '<i class="fas fa-question-circle me-2 text-warning"></i>Confirmación';
-            document.getElementById('modalCuerpo').textContent = mensaje;
-            
-            const btnAceptar = document.getElementById('btnModalAceptar');
-            btnAceptar.onclick = function() {
-                bootstrap.Modal.getInstance(modal).hide();
-                callback();
-            };
-            
-            const bsModal = new bootstrap.Modal(modal);
-            bsModal.show();
-        }
+        // Variables de paginación y filtrado
+        let paginaActual = 1;
+        const registrosPorPagina = 5;
+        let totalRegistros = 0;
+        let filtroActual = 'ACTIVAS'; // Por defecto mostrar activas
+        let todasLasFilas = [];
 
-        // Función para mostrar modal de éxito
-        function mostrarModalExito(mensaje) {
-            const modal = document.getElementById('modalMensaje');
-            document.getElementById('modalTitulo').innerHTML = '<i class="fas fa-check-circle me-2 text-success"></i>Éxito';
-            document.getElementById('modalCuerpo').textContent = mensaje;
-            document.getElementById('btnModalAceptar').textContent = 'Aceptar';
+        // Función para inicializar
+        function inicializar() {
+            // Guardar todas las filas
+            todasLasFilas = Array.from(document.querySelectorAll('#tablaCuentas tr'));
             
-            const btnAceptar = document.getElementById('btnModalAceptar');
-            btnAceptar.onclick = function() {
-                window.location.reload();
-            };
+            // Actualizar contadores
+            actualizarContadores();
             
-            const bsModal = new bootstrap.Modal(modal);
-            bsModal.show();
-        }
-
-        // Función para mostrar modal de error
-        function mostrarModalError(mensaje) {
-            const modal = document.getElementById('modalMensaje');
-            document.getElementById('modalTitulo').innerHTML = '<i class="fas fa-exclamation-circle me-2 text-danger"></i>Error';
-            document.getElementById('modalCuerpo').textContent = mensaje;
+            // Aplicar filtro inicial
+            aplicarFiltro(filtroActual);
             
-            const bsModal = new bootstrap.Modal(modal);
-            bsModal.show();
-        }
-
-        // Inicializar event listeners para botones de baja
-        document.addEventListener('DOMContentLoaded', function() {
-            const botonesAJRLo  = document.querySelectorAll('.btn-baja');
-            
-            botonesAJRLo.forEach(function(boton) {
-                boton.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const id = this.getAttribute('data-id');
-                    const razonSocial = this.getAttribute('data-razon-social');
-                    
-                    console.log('ID:', id, 'Razón Social:', razonSocial);
-                    
-                    mostrarModalConfirmacion(
-                        `¿Está seguro de dar de baja la cuenta "${razonSocial}"?\n\nEsta acción cambiará el estado a INACTIVO.`,
-                        function() {
-                            fetch('/cuentas/baja/' + id, {
-                                method: 'POST'
-                            })
-                            .then(response => {
-                                console.log('Response status:', response.status);
-                                if (response.ok) {
-                                    mostrarModalExito('Cuenta dada de baja exitosamente');
-                                } else {
-                                    mostrarModalError('Error al dar de baja la cuenta');
-                                }
-                            })
-                            .catch(error => {
-                                console.error('Error:', error);
-                                mostrarModalError('Error al procesar la solicitud: ' + error.message);
-                            });
-                        }
-                    );
+            // Configurar event listeners para tabs
+            document.querySelectorAll('#tabsEstado button').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    filtroActual = this.getAttribute('data-filter');
+                    aplicarFiltro(filtroActual);
                 });
             });
+        }
+
+        // Función para actualizar contadores en los tabs
+        function actualizarContadores() {
+            let countActivas = 0;
+            let countSuspendidas = 0;
+            let countInactivas = 0;
+            
+            todasLasFilas.forEach(fila => {
+                const estado = fila.getAttribute('data-estado');
+                if (estado === 'ACTIVO') countActivas++;
+                else if (estado === 'SUSPENDIDO') countSuspendidas++;
+                else if (estado === 'INACTIVO') countInactivas++;
+            });
+            
+            document.getElementById('count-activas').textContent = countActivas;
+            document.getElementById('count-suspendidas').textContent = countSuspendidas;
+            document.getElementById('count-inactivas').textContent = countInactivas;
+            document.getElementById('count-todas').textContent = todasLasFilas.length;
+        }
+
+        // Función para aplicar filtro
+        function aplicarFiltro(filtro) {
+            const tbody = document.getElementById('tablaCuentas');
+            const mensajeVacio = document.getElementById('mensajeVacio');
+            const textoMensaje = document.getElementById('textoMensajeVacio');
+            
+            // Limpiar tbody
+            tbody.innerHTML = '';
+            
+            // Filtrar filas según el estado seleccionado
+            let filasFiltradas = [];
+            
+            if (filtro === 'TODAS') {
+                filasFiltradas = todasLasFilas;
+                textoMensaje.textContent = 'No hay cuentas registradas';
+            } else if (filtro === 'ACTIVAS') {
+                filasFiltradas = todasLasFilas.filter(fila => 
+                    fila.getAttribute('data-estado') === 'ACTIVO'
+                );
+                textoMensaje.textContent = 'No hay cuentas activas';
+            } else if (filtro === 'SUSPENDIDO') {
+                filasFiltradas = todasLasFilas.filter(fila => 
+                    fila.getAttribute('data-estado') === 'SUSPENDIDO'
+                );
+                textoMensaje.textContent = 'No hay cuentas suspendidas';
+            } else if (filtro === 'INACTIVO') {
+                filasFiltradas = todasLasFilas.filter(fila => 
+                    fila.getAttribute('data-estado') === 'INACTIVO'
+                );
+                textoMensaje.textContent = 'No hay cuentas inactivas';
+            } else {
+                filasFiltradas = todasLasFilas.filter(fila => 
+                    fila.getAttribute('data-estado') === filtro
+                );
+                textoMensaje.textContent = `No hay cuentas en estado ${filtro.toLowerCase()}`;
+            }
+            
+            // Agregar filas filtradas al tbody
+            filasFiltradas.forEach(fila => {
+                tbody.appendChild(fila.cloneNode(true));
+            });
+            
+            // Mostrar mensaje si no hay resultados
+            if (filasFiltradas.length === 0) {
+                mensajeVacio.style.display = 'block';
+                document.querySelector('.table-responsive').style.display = 'none';
+            } else {
+                mensajeVacio.style.display = 'none';
+                document.querySelector('.table-responsive').style.display = 'block';
+            }
+            
+            // Reinicializar paginación
+            totalRegistros = filasFiltradas.length;
+            if (totalRegistros > 0) {
+                paginaActual = 1;
+                mostrarPagina(1);
+                crearBotonesPaginacion();
+            } else {
+                document.getElementById('paginacion').innerHTML = '';
+            }
+        }
+
+        // Función para mostrar una página específica
+        function mostrarPagina(numeroPagina) {
+            paginaActual = numeroPagina;
+            const filas = document.querySelectorAll('#tablaCuentas tr');
+            const inicio = (numeroPagina - 1) * registrosPorPagina;
+            const fin = inicio + registrosPorPagina;
+
+            filas.forEach((fila, index) => {
+                if (index >= inicio && index < fin) {
+                    fila.style.display = '';
+                } else {
+                    fila.style.display = 'none';
+                }
+            });
+
+            actualizarBotonesPaginacion();
+        }
+
+        // Función para crear los botones de paginación
+        function crearBotonesPaginacion() {
+            const totalPaginas = Math.ceil(totalRegistros / registrosPorPagina);
+            const paginacion = document.getElementById('paginacion');
+            
+            if (totalPaginas <= 1) {
+                paginacion.innerHTML = '';
+                return;
+            }
+
+            let html = '';
+
+            // Botón Anterior
+            html += `
+                <li class="page-item" id="btnAnterior">
+                    <a class="page-link" href="#" onclick="cambiarPagina(${paginaActual - 1}); return false;">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+            `;
+
+            // Botones de páginas
+            for (let i = 1; i <= totalPaginas; i++) {
+                html += `
+                    <li class="page-item" id="pagina${i}">
+                        <a class="page-link" href="#" onclick="cambiarPagina(${i}); return false;">${i}</a>
+                    </li>
+                `;
+            }
+
+            // Botón Siguiente
+            html += `
+                <li class="page-item" id="btnSiguiente">
+                    <a class="page-link" href="#" onclick="cambiarPagina(${paginaActual + 1}); return false;">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+            `;
+
+            paginacion.innerHTML = html;
+            actualizarBotonesPaginacion();
+        }
+
+        // Función para actualizar el estado de los botones de paginación
+        function actualizarBotonesPaginacion() {
+            const totalPaginas = Math.ceil(totalRegistros / registrosPorPagina);
+
+            // Actualizar botón anterior
+            const btnAnterior = document.getElementById('btnAnterior');
+            if (btnAnterior) {
+                if (paginaActual <= 1) {
+                    btnAnterior.classList.add('disabled');
+                } else {
+                    btnAnterior.classList.remove('disabled');
+                }
+            }
+
+            // Actualizar botón siguiente
+            const btnSiguiente = document.getElementById('btnSiguiente');
+            if (btnSiguiente) {
+                if (paginaActual >= totalPaginas) {
+                    btnSiguiente.classList.add('disabled');
+                } else {
+                    btnSiguiente.classList.remove('disabled');
+                }
+            }
+
+            // Actualizar páginas activas
+            for (let i = 1; i <= totalPaginas; i++) {
+                const pagina = document.getElementById('pagina' + i);
+                if (pagina) {
+                    if (i === paginaActual) {
+                        pagina.classList.add('active');
+                    } else {
+                        pagina.classList.remove('active');
+                    }
+                }
+            }
+        }
+
+        // Función para cambiar de página
+        function cambiarPagina(numeroPagina) {
+            const totalPaginas = Math.ceil(totalRegistros / registrosPorPagina);
+            
+            if (numeroPagina < 1 || numeroPagina > totalPaginas) {
+                return;
+            }
+            
+            mostrarPagina(numeroPagina);
+        }
+
+        // Inicializar cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', function() {
+            inicializar();
         });
     </script>
 </body>

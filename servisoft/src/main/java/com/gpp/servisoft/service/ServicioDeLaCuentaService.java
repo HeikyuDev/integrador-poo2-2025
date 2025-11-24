@@ -36,41 +36,89 @@ public class ServicioDeLaCuentaService {
      * @return ServicioDeLaCuenta creado
      */
     @Transactional
-    public ServicioDeLaCuenta agregarServicioACuenta(int idCuenta, int idServicio) {
-        // Verificar que no exista ya la relación
-        servicioDeLaCuentaRepository.findByCuentaAndServicio(idCuenta, idServicio)
-            .ifPresent(s -> {
-                throw new RuntimeException("El servicio ya está asociado a esta cuenta");
-            });
-
+    public ServicioDeLaCuenta agregarServicioACuenta(int idCuenta, int idServicio, int cantidad) {
         Cuenta cuenta = cuentaRepository.findById(idCuenta)
-            .orElseThrow(() -> new RuntimeException("No existe la cuenta con ID: " + idCuenta));
-
+            .orElseThrow(() -> new RuntimeException("Cuenta no encontrada"));
+        
         Servicio servicio = servicioRepository.findById(idServicio)
-            .orElseThrow(() -> new RuntimeException("No existe el servicio con ID: " + idServicio));
+            .orElseThrow(() -> new RuntimeException("Servicio no encontrado"));
+        
+        // Verificar si el servicio ya está asociado
+        boolean yaExiste = servicioDeLaCuentaRepository
+            .existsByCuentaAndServicio(cuenta, servicio);
+        
+        if (yaExiste) {
+            throw new RuntimeException("El servicio ya está asociado a esta cuenta");
+        }
+        
+        ServicioDeLaCuenta servicioDeLaCuenta = new ServicioDeLaCuenta();
+        servicioDeLaCuenta.setCuenta(cuenta);
+        servicioDeLaCuenta.setServicio(servicio);
+        servicioDeLaCuenta.setCantidadDePreferencia(cantidad);
+        servicioDeLaCuenta.setEstadoServicio(EstadoServicio.PENDIENTE);
+        
+        return servicioDeLaCuentaRepository.save(servicioDeLaCuenta);
+    }
 
-        // Crear la relación y congelar el precio actual
-        ServicioDeLaCuenta servicioCuenta = new ServicioDeLaCuenta();
-        servicioCuenta.setCuenta(cuenta);
-        servicioCuenta.setServicio(servicio);
-        // servicioCuenta.setCantidadDePreferencia(idServicio);
-        servicioCuenta.setEstadoServicio(EstadoServicio.PENDIENTE);
-
-        return servicioDeLaCuentaRepository.save(servicioCuenta);
+    /**
+     * Agrega un servicio a una cuenta específica con cantidad personalizada
+     * @param idCuenta ID de la cuenta
+     * @param idServicio ID del servicio a agregar
+     * @return ServicioDeLaCuenta creado
+     */
+    // Sobrecarga para mantener compatibilidad (cantidad por defecto = 1)
+    public ServicioDeLaCuenta agregarServicioACuenta(int idCuenta, int idServicio) {
+        return agregarServicioACuenta(idCuenta, idServicio, 1);
     }
     /**
+     * Actualiza la cantidad de un servicio en una cuenta
+     * @param idServicioDeLaCuenta ID de la relación servicio-cuenta
+     * @param nuevaCantidad Nueva cantidad a establecer
+     */
+    @Transactional
+    public void actualizarCantidad(int idServicioDeLaCuenta, int nuevaCantidad) {
+    ServicioDeLaCuenta servicioDeLaCuenta = servicioDeLaCuentaRepository
+        .findById(idServicioDeLaCuenta)
+        .orElseThrow(() -> new RuntimeException("Servicio de cuenta no encontrado"));
+    
+    if (nuevaCantidad < 1) {
+        throw new RuntimeException("La cantidad debe ser al menos 1");
+    }
+    
+    servicioDeLaCuenta.setCantidadDePreferencia(nuevaCantidad);
+    servicioDeLaCuentaRepository.save(servicioDeLaCuenta);
+}
+
+    /**
      * Agrega múltiples servicios a una cuenta
+     * @param idCuenta ID de la cuenta
+     * @param idsServicios Lista de IDs de servicios
+     * @param cantidades Lista opcional de cantidades para cada servicio
+     */
+    @Transactional
+    public void agregarMultiplesServicios(int idCuenta, List<Integer> idsServicios, List<Integer> cantidades) {
+        for (int i = 0; i < idsServicios.size(); i++) {
+            Integer idServicio = idsServicios.get(i);
+            // Obtener cantidad, por defecto 1
+            int cantidad = (cantidades != null && i < cantidades.size() && cantidades.get(i) != null) 
+                ? cantidades.get(i) 
+                : 1;
+            
+            // Verificar si ya existe antes de agregar
+            if (servicioDeLaCuentaRepository.findByCuentaAndServicio(idCuenta, idServicio).isEmpty()) {
+                agregarServicioACuenta(idCuenta, idServicio, cantidad);
+            }
+        }
+    }
+    
+    /**
+     * Agrega múltiples servicios a una cuenta (sobrecarga para compatibilidad)
      * @param idCuenta ID de la cuenta
      * @param idsServicios Lista de IDs de servicios
      */
     @Transactional
     public void agregarMultiplesServicios(int idCuenta, List<Integer> idsServicios) {
-        for (Integer idServicio : idsServicios) {
-            // Verificar si ya existe antes de agregar
-            if (servicioDeLaCuentaRepository.findByCuentaAndServicio(idCuenta, idServicio).isEmpty()) {
-                agregarServicioACuenta(idCuenta, idServicio);
-            }
-        }
+        agregarMultiplesServicios(idCuenta, idsServicios, null);
     }
     /**
      * Elimina un servicio de una cuenta
@@ -87,6 +135,7 @@ public class ServicioDeLaCuentaService {
     /**
      * Obtiene todos los servicios de una cuenta
      */
+    @Transactional(readOnly = true)
     public List<ServicioDeLaCuenta> obtenerServiciosDeCuenta(int idCuenta) {
         return servicioDeLaCuentaRepository.findByCuenta(idCuenta);
     }
@@ -95,6 +144,7 @@ public class ServicioDeLaCuentaService {
      * @param idCuenta ID de la cuenta
      * @return Lista de DTOs de servicios pendientes
      */
+    @Transactional(readOnly = true)
     public List<ServicioDeLaCuentaDto> obtenerServiciosPorCuentaPendiente(Integer idCuenta) {
         return servicioDeLaCuentaRepository
                 .findByCuentaAndEstado(idCuenta, EstadoServicio.PENDIENTE)
