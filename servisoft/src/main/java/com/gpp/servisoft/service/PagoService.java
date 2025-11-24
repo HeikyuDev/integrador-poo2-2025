@@ -3,9 +3,13 @@ package com.gpp.servisoft.service;
 import java.time.LocalDate;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.gpp.servisoft.model.dto.PagoConsultaDto;
 import com.gpp.servisoft.model.dto.PagoDto;
+import com.gpp.servisoft.model.entities.DatosClienteFactura;
 import com.gpp.servisoft.model.entities.Factura;
 import com.gpp.servisoft.model.entities.Pago;
 import com.gpp.servisoft.repository.FacturacionRepository;
@@ -24,6 +28,24 @@ public class PagoService {
     @Autowired
     private PagoRepository pagoRepository;
 
+    /**
+     * Consulta paginada de pagos con filtros opcionales.
+     */
+    public Page<PagoConsultaDto> consultarPagos(Integer cuentaId, String comprobante,
+            LocalDate fechaDesde, LocalDate fechaHasta, Pageable pageable) {
+
+        if (fechaDesde != null && fechaHasta != null && fechaDesde.isAfter(fechaHasta)) {
+            throw new IllegalArgumentException("La fecha desde no puede ser posterior a la fecha hasta");
+        }
+
+        Page<Pago> paginaDePagos = pagoRepository.findByFilters(cuentaId,
+                comprobante != null ? comprobante.trim() : null,
+                fechaDesde,
+                fechaHasta,
+                pageable);
+
+        return paginaDePagos.map(this::mapearPagoConsulta);
+    }
 
     /**
      * Procesa un pago total de una factura.
@@ -44,7 +66,6 @@ public class PagoService {
         if (pagoDto == null) {
             throw new IllegalArgumentException("Pago dto no puede ser nulo");
         }
-
         // PASO 1: Validación de atributos requeridos
         // Verifica que el pagoDto contenga todos los datos necesarios (método de pago, ID de factura válido)
         validarAtributos(pagoDto);
@@ -66,6 +87,26 @@ public class PagoService {
         // No es necesario guardar la factura nuevamente
         pagoRepository.save(pago);
         return pago;
+    }
+
+    private PagoConsultaDto mapearPagoConsulta(Pago pago) {
+        if (pago == null) {
+            throw new IllegalArgumentException("El pago no puede ser nulo");
+        }
+
+        Factura factura = pago.getFactura();
+        DatosClienteFactura datosCliente = factura != null ? factura.getDatosClienteFactura() : null;
+
+        return PagoConsultaDto.builder()
+                .idPago(pago.getIdPago())
+                .monto(pago.getMonto())
+                .fechaPago(pago.getFechaPago())
+                .metodoPago(pago.getMetodoPago())
+                .idFactura(factura != null ? factura.getIdFactura() : null)
+                .nroComprobante(factura != null ? factura.getNroComprobante() : null)
+                .idCuenta(datosCliente != null ? datosCliente.getIdCuenta() : null)
+                .razonSocialCliente(datosCliente != null ? datosCliente.getRazonSocial() : null)
+                .build();
     }
 
     public Pago procesarPagoParcial(PagoDto pagoDto) {

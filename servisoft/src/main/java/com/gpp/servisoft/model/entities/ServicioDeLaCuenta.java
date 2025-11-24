@@ -17,6 +17,7 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -24,6 +25,7 @@ import lombok.Setter;
 @Entity
 @Table(name = "servicios_de_la_cuenta")
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ServicioDeLaCuenta {
@@ -51,6 +53,7 @@ public class ServicioDeLaCuenta {
      */
     @Column(nullable = false)
     @NotNull(message = "La cantidad de preferencia es Obligatorio!!!")
+    @Builder.Default
     private int cantidadDePreferencia = 1; // 1 por defecto
 
     /**
@@ -60,5 +63,6 @@ public class ServicioDeLaCuenta {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @NotNull(message = "El Estado del servicio es obligatorio!!!")
+    @Builder.Default
     private EstadoServicio estadoServicio = EstadoServicio.PENDIENTE;
 }

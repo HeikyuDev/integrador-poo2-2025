@@ -1,10 +1,14 @@
 package com.gpp.servisoft.controller;
 
+import java.time.LocalDate;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.gpp.servisoft.model.dto.FacturacionDTO;
+import com.gpp.servisoft.model.dto.PagoConsultaDto;
 import com.gpp.servisoft.model.dto.PagoDto;
 import com.gpp.servisoft.service.CuentaService;
 import com.gpp.servisoft.service.FacturacionService;
@@ -34,6 +39,43 @@ public class PagoController {
     private PagoService pagoService;
 
     /**
+     * Muestra el historial de pagos con filtros opcionales y ordenamiento.
+     */
+    @GetMapping("/consulta")
+    public String consultaPagos(
+            @RequestParam(name = "cuentaId", required = false) Integer cuentaId,
+            @RequestParam(name = "comprobante", required = false) String comprobante,
+            @RequestParam(name = "fechaDesde", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaDesde,
+            @RequestParam(name = "fechaHasta", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaHasta,
+            @RequestParam(name = "orden", defaultValue = "fechaDesc") String orden,
+            @PageableDefault(size = 10) Pageable pageable,
+            Model model) {
+
+        Sort sort = obtenerSort(orden);
+        Sort sortSeguro = sort != null ? sort : Sort.unsorted();
+        Pageable pageableOrdenado = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sortSeguro);
+
+        try {
+            Page<PagoConsultaDto> paginaDePagos = pagoService.consultarPagos(cuentaId, comprobante,
+                    fechaDesde, fechaHasta, pageableOrdenado);
+
+            model.addAttribute("paginaDePagos", paginaDePagos);
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("paginaDePagos", Page.empty(pageableOrdenado));
+            model.addAttribute("error", e.getMessage());
+        }
+
+        model.addAttribute("cuentas", cuentaServicio.obtenerCuentas());
+        model.addAttribute("cuentaId", cuentaId);
+        model.addAttribute("comprobante", comprobante);
+        model.addAttribute("fechaDesde", fechaDesde);
+        model.addAttribute("fechaHasta", fechaHasta);
+        model.addAttribute("orden", orden);
+
+        return "pagos/consulta";
+    }
+
+    /**
      * Muestra la lista de facturas pendientes de pago con filtros.
      * GET /pago/vista
      */
@@ -49,7 +91,7 @@ public class PagoController {
             model.addAttribute("cuentas", cuentaServicio.obtenerCuentas());
 
             // Cargar la PÁGINA de facturas pendientes filtrada
-            Page<FacturacionDTO> paginaDto = facturacionService.obtenerFacturasPendientes(cuentaId, comprobante, pageable);
+            Page<FacturacionDTO> paginaDto = facturacionService.obtenerFacturasPendientesyParciales(cuentaId, comprobante, pageable);
 
             // Pasar el objeto PAGE a la vista
             model.addAttribute("paginaDeFacturas", paginaDto);
@@ -197,6 +239,19 @@ public class PagoController {
             
             return "redirect:/pago/vista";
         }
+    }
+
+    private Sort obtenerSort(String orden) {
+        if (orden == null) {
+            return Sort.by(Sort.Direction.DESC, "fechaPago");
+        }
+
+        return switch (orden) {
+            case "fechaAsc" -> Sort.by(Sort.Direction.ASC, "fechaPago");
+            case "montoDesc" -> Sort.by(Sort.Direction.DESC, "monto");
+            case "montoAsc" -> Sort.by(Sort.Direction.ASC, "monto");
+            default -> Sort.by(Sort.Direction.DESC, "fechaPago");
+        };
     }
 
 }

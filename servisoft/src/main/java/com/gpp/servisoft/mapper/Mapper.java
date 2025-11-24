@@ -10,6 +10,7 @@ import com.gpp.servisoft.model.dto.FacturacionDTO;
 import com.gpp.servisoft.model.dto.FacturacionMasivaDto;
 import com.gpp.servisoft.model.dto.ServicioDeLaCuentaDto;
 import com.gpp.servisoft.model.entities.DatosClienteFactura;
+import com.gpp.servisoft.model.entities.DetalleFactura;
 import com.gpp.servisoft.model.entities.Factura;
 import com.gpp.servisoft.model.entities.FacturacionMasiva;
 import com.gpp.servisoft.model.entities.ServicioDeLaCuenta;
@@ -113,11 +114,9 @@ public class Mapper {
     /**
      * Convierte una lista de DetalleFactura a DTOs
      */
-    private static List<DetalleFacturaDto> mapearDetalleFacturas(
-            List<com.gpp.servisoft.model.entities.DetalleFactura> detalles) {
-        if (detalles == null || detalles.isEmpty())
-            return List.of();
-
+    private static List<DetalleFacturaDto> mapearDetalleFacturas(List<DetalleFactura> detalles) {
+        if (detalles == null || detalles.isEmpty()) return List.of();
+        
         return detalles.stream()
                 .map(detalle -> DetalleFacturaDto.builder()
                         .idDetalleFactura(detalle.getIdDetalleFactura())

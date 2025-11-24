@@ -6,7 +6,19 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.gpp.servisoft.model.enums.CondicionFrenteIVA;
 import com.gpp.servisoft.model.enums.Estado;
 
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -14,6 +26,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -26,6 +39,7 @@ import lombok.Setter;
 @Entity
 @Table(name = "cuentas")
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Cuenta {
@@ -76,6 +90,7 @@ public class Cuenta {
  */
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Builder.Default
     private Estado estado = Estado.ACTIVO;
 
 /**
