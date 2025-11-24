@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/template :: head}">
+    <meta charset="UTF-8">
+    <title>Historial de Pagos</title>
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+
+    <header th:replace="~{fragments/template :: navbar}"></header>
+
+    <main class="flex-fill">
+        <div class="container my-5">
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1 text-purple-dark">Historial de Pagos</h2>
+                    <p class="text-muted mb-0">Consulta todos los pagos registrados con filtros personalizados.</p>
+                </div>
+                <a class="btn btn-outline-purple" th:href="@{/pago/vista}" data-mdb-ripple-init>
+                    <i class="fas fa-credit-card me-2"></i>Gestionar Pagos Pendientes
+                </a>
+            </div>
+
+            <div th:if="${error}" class="alert alert-danger" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <span th:text="${error}"></span>
+            </div>
+
+            <div class="card shadow-2-strong">
+                <div class="card-body p-4 p-md-5">
+
+                    <form th:action="@{/pago/consulta}" method="get" class="row g-3 mb-4">
+                        <div class="col-12 col-md-4">
+                            <label for="cuentaId" class="form-label">Cliente / Cuenta</label>
+                            <select class="form-select" name="cuentaId" id="cuentaId">
+                                <option value="" th:selected="${cuentaId == null}">Todos los clientes</option>
+                                <option th:each="cuenta : ${cuentas}"
+                                        th:value="${cuenta.idCuenta}"
+                                        th:text="${cuenta.razonSocial}"
+                                        th:selected="${cuentaId != null && cuentaId == cuenta.idCuenta}">
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <label for="comprobante" class="form-label">Factura (Comprobante)</label>
+                            <input type="text" class="form-control" name="comprobante" id="comprobante"
+                                   placeholder="Ej: 0001-00000001" th:value="${comprobante}">
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <label for="orden" class="form-label">Ordenar por</label>
+                            <select class="form-select" name="orden" id="orden">
+                                <option value="fechaDesc" th:selected="${orden == 'fechaDesc'}">Fecha (más recientes)</option>
+                                <option value="fechaAsc" th:selected="${orden == 'fechaAsc'}">Fecha (más antiguos)</option>
+                                <option value="montoDesc" th:selected="${orden == 'montoDesc'}">Monto (mayor a menor)</option>
+                                <option value="montoAsc" th:selected="${orden == 'montoAsc'}">Monto (menor a mayor)</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <label for="fechaDesde" class="form-label">Fecha desde</label>
+                            <input type="date" class="form-control" name="fechaDesde" id="fechaDesde"
+                                   th:value="${fechaDesde}">
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <label for="fechaHasta" class="form-label">Fecha hasta</label>
+                            <input type="date" class="form-control" name="fechaHasta" id="fechaHasta"
+                                   th:value="${fechaHasta}">
+                        </div>
+
+                        <div class="col-12 col-md-4 d-flex align-items-end">
+                            <button class="btn btn-purple w-100" type="submit" data-mdb-ripple-init>
+                                <i class="fas fa-search me-2"></i>Aplicar filtros
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-purple-dark text-white">
+                                <tr>
+                                    <th scope="col">Fecha</th>
+                                    <th scope="col">Monto</th>
+                                    <th scope="col">Método</th>
+                                    <th scope="col">Cliente</th>
+                                    <th scope="col">Factura</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="pago : ${paginaDePagos.content}">
+                                    <td th:text="${#temporals.format(pago.fechaPago, 'dd/MM/yyyy')}">01/01/2025</td>
+                                    <td th:text="'$' + ${#numbers.formatDecimal(pago.monto, 1, 'POINT', 2, 'COMMA')}">$1.000,00</td>
+                                    <td th:text="${pago.metodoPago}">EFECTIVO</td>
+                                    <td th:text="${pago.razonSocialCliente != null ? pago.razonSocialCliente : 'Sin datos'}">Empresa SA</td>
+                                    <td>
+                                        <span th:text="${pago.nroComprobante}">0001-00000001</span>
+                                        <div class="small text-muted" th:if="${pago.idFactura != null}">
+                                            ID: <span th:text="${pago.idFactura}"></span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr th:if="${paginaDePagos.empty}">
+                                    <td colspan="5" class="text-center text-muted p-4">
+                                        <i class="fas fa-inbox fa-2x mb-2"></i><br>
+                                        No se encontraron pagos con los filtros seleccionados.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <nav th:if="${paginaDePagos.totalPages > 1}" aria-label="Paginación" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item" th:classappend="${paginaDePagos.hasPrevious()} ? '' : 'disabled'">
+                                <a class="page-link"
+                                   th:href="@{/pago/consulta(page=${paginaDePagos.number - 1}, size=${paginaDePagos.size}, cuentaId=${cuentaId}, comprobante=${comprobante}, fechaDesde=${fechaDesde}, fechaHasta=${fechaHasta}, orden=${orden})}">
+                                    Anterior
+                                </a>
+                            </li>
+
+                            <li class="page-item" th:each="i : ${#numbers.sequence(0, paginaDePagos.totalPages - 1)}"
+                                th:classappend="${i == paginaDePagos.number} ? 'active' : ''">
+                                <a class="page-link"
+                                   th:text="${i + 1}"
+                                   th:href="@{/pago/consulta(page=${i}, size=${paginaDePagos.size}, cuentaId=${cuentaId}, comprobante=${comprobante}, fechaDesde=${fechaDesde}, fechaHasta=${fechaHasta}, orden=${orden})}"></a>
+                            </li>
+
+                            <li class="page-item" th:classappend="${paginaDePagos.hasNext()} ? '' : 'disabled'">
+                                <a class="page-link"
+                                   th:href="@{/pago/consulta(page=${paginaDePagos.number + 1}, size=${paginaDePagos.size}, cuentaId=${cuentaId}, comprobante=${comprobante}, fechaDesde=${fechaDesde}, fechaHasta=${fechaHasta}, orden=${orden})}">
+                                    Siguiente
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/template :: footer}"></footer>
+    <div th:replace="~{fragments/template :: scripts}"></div>
+</body>
+
+</html>

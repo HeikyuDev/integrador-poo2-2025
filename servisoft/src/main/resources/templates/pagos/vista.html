@@ -13,7 +13,15 @@
     <main class="flex-fill">
         <div class="container my-5">
 
-            <h2 class="mb-4 text-purple-dark">Gestion de Pagos</h2>
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
+                <div>
+                    <h2 class="mb-2 text-purple-dark">Gestion de Pagos</h2>
+                    <p class="text-muted mb-0">Encuentra facturas con saldo pendiente y registra cobros.</p>
+                </div>
+                <a class="btn btn-outline-purple mt-3 mt-md-0" th:href="@{/pago/consulta}" data-mdb-ripple-init>
+                    <i class="fas fa-list me-2"></i>Ver historial de pagos
+                </a>
+            </div>
 
             <div th:if="${error}" class="alert alert-danger" role="alert">
                 <i class="fas fa-exclamation-triangle me-2"></i>

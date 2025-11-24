@@ -1,9 +1,7 @@
 package com.gpp.servisoft.model.entities;
 
 import java.time.LocalDate;
-
 import com.gpp.servisoft.model.enums.MetodoPago;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
