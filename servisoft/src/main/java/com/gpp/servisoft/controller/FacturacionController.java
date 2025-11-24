@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.gpp.servisoft.exceptions.ExcepcionNegocio;
 import com.gpp.servisoft.model.dto.AnulacionDto;
 import com.gpp.servisoft.model.dto.FacturacionDTO;
 import com.gpp.servisoft.model.dto.FacturacionFormDto;
@@ -128,8 +129,12 @@ public class FacturacionController {
             redirectAttributes.addFlashAttribute("success", "Facturación procesada correctamente");
             return "redirect:/facturacion/individual";
             
+        } catch (ExcepcionNegocio e) {
+            // Capturar errores de negocio específicos
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/facturacion/individual";
         } catch (Exception e) {
-            // Capturar cualquier excepción y mostrar mensaje de error
+            // Capturar cualquier otra excepción
             redirectAttributes.addFlashAttribute("error", "Error al procesar la facturación: " + e.getMessage());
             return "redirect:/facturacion/individual";
         }
@@ -212,13 +217,17 @@ public class FacturacionController {
             redirectAttributes.addFlashAttribute("success", "Facturación masiva procesada correctamente");
             return "redirect:/facturacion/masiva";
             
+        } catch (ExcepcionNegocio e) {
+            // Capturar errores de negocio específicos (no hay cuentas, no hay servicios pendientes, etc.)
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/facturacion/masiva";
         } catch (IllegalArgumentException e) {
             // Capturar errores de validación de negocio
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/facturacion/masiva";
         } catch (Exception e) {
-            // Capturar cualquier otra excepción
-            redirectAttributes.addFlashAttribute("error", "No se pudieron procesar las facturas masivas en este momento");
+            // Capturar cualquier otra excepción inesperada
+            redirectAttributes.addFlashAttribute("error", "No se pudieron procesar las facturas masivas en este momento. Error: " + e.getMessage());
             return "redirect:/facturacion/masiva";
         }
     }
@@ -286,7 +295,7 @@ public class FacturacionController {
         model.addAttribute("cuentas", cuentaServicio.obtenerCuentas());
 
         // 3. Cargar la PÁGINA de facturas filtrada
-        Page<FacturacionDTO> paginaDto = facturacionService.obtenerFacturasPendientes(cuentaId, comprobante, pageable);
+        Page<FacturacionDTO> paginaDto = facturacionService.obtenerFacturasPendientesyParciales(cuentaId, comprobante, pageable);
 
         // 4. Pasar el objeto PAGE (no una List) a la vista
         model.addAttribute("paginaDeFacturas", paginaDto);

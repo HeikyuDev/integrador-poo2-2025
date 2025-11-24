@@ -16,6 +16,8 @@ import org.springframework.web.servlet.FlashMap;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
+import com.gpp.servisoft.exceptions.ExcepcionNegocio;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -51,7 +53,29 @@ public class ControllerAdviceGlobal {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
-    // ==== Excepciones de negocio comunes ====
+    // ==== Excepciones de negocio (ExcepcionNegocio) ====
+    @ExceptionHandler(ExcepcionNegocio.class)
+    public Object handleExcepcionNegocio(ExcepcionNegocio ex, HttpServletRequest request, HttpServletResponse response) {
+        if (isApiRequest(request)) {
+            Map<String, Object> body = baseBody(request, HttpStatus.BAD_REQUEST, ex.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+        }
+
+        // Páginas: usar FlashMap para mostrar mensaje y redirigir al referer o /home
+        FlashMap flash = RequestContextUtils.getOutputFlashMap(request);
+        if (flash != null) {
+            flash.put("error", ex.getMessage() != null ? ex.getMessage() : "Ocurrió un error en el negocio");
+            var manager = RequestContextUtils.getFlashMapManager(request);
+            if (manager != null) {
+                manager.saveOutputFlashMap(flash, request, response);
+            }
+        }
+
+        String target = refererOrDefault(request, "/home");
+        return new ModelAndView("redirect:" + target);
+    }
+
+    // ==== Excepciones comunes (IllegalArgumentException, IllegalStateException, RuntimeException) ====
     @ExceptionHandler({ IllegalArgumentException.class, IllegalStateException.class, RuntimeException.class })
     public Object handleBusiness(Exception ex, HttpServletRequest request, HttpServletResponse response) {
         if (isApiRequest(request)) {

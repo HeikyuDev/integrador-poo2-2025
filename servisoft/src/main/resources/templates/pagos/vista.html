@@ -73,7 +73,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr th:each="factura : ${paginaDeFacturas.content}">>
+                                    <tr th:each="factura : ${paginaDeFacturas.content}">
                                         <td th:text="${factura.nroComprobante}">0001-00000006</td>
                                         <td th:text="${factura.razonSocial}">CTA-01</td>
                                         <td th:text="${#temporals.format(factura.fechaEmision, 'dd/MM/yyyy')}">

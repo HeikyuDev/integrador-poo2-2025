@@ -11,6 +11,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -22,6 +23,7 @@ import lombok.Setter;
 @Entity
 @Table(name = "clientes")
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Cliente {
@@ -83,6 +85,7 @@ public class Cliente {
  */
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Builder.Default
     private Estado estado = Estado.ACTIVO;
 
 /**

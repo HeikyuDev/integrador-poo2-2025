@@ -1,6 +1,7 @@
 package com.gpp.servisoft.model.entities;
 
 import com.gpp.servisoft.model.enums.Estado;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -16,6 +17,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -23,6 +25,7 @@ import lombok.Setter;
 @Entity
 @Table(name = "servicios")
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 
@@ -67,6 +70,7 @@ public class Servicio {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Builder.Default
     private Estado estado = Estado.ACTIVO;
 
     private boolean tieneCantidad;

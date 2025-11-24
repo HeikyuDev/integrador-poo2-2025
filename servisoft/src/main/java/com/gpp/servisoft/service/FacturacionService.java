@@ -88,7 +88,7 @@ public class FacturacionService {
      * obtiene una lista Paginada de Facturas, en el estado de Pendiente Y ParcialmentePagado
      * Utilizada para mostrar en la lista de gestion de Pagos
      */
-    public Page<FacturacionDTO> obtenerFacturasPendientes(Integer idCuenta, String comprobante, Pageable pageable) {
+    public Page<FacturacionDTO> obtenerFacturasPendientesyParciales(Integer idCuenta, String comprobante, Pageable pageable) {
         Page<Factura> paginaDeFacturasPendientes = facturacionRepository.findFacturasPendientesByFilters(idCuenta,
                 comprobante, pageable);
         return paginaDeFacturasPendientes.map(Mapper::toDto);
@@ -128,12 +128,12 @@ public class FacturacionService {
     public ServicioDeLaCuenta obtenerServicioDeLaCuenta(ServicioSeleccionadoDto servicioSeleccionado) {
         // Validamos que no sea null el servicio seleccionado
         if (servicioSeleccionado == null) {
-            throw new IllegalArgumentException("El servicio seleccionado no puede ser nulo");
+            throw new ExcepcionNegocio("El servicio seleccionado no puede ser nulo");
         }
 
         // Obtenemos el servicioDeLaCuenta usando el ID correcto
         return servicioDeLaCuentaRepository.findById(servicioSeleccionado.getIdServicio())
-                .orElseThrow(() -> new IllegalArgumentException(
+                .orElseThrow(() -> new ExcepcionNegocio(
                         "Servicio con ID " + servicioSeleccionado.getIdServicio() + " no encontrado"));
     }
 
@@ -153,16 +153,26 @@ public class FacturacionService {
 
     /**
      * Metodo para realizar facturación masiva. Selecciona automáticamente todos los
-     * servicios
-     * pendientes de todas las cuentas activas y los factura en un único proceso.
+     * servicios pendientes de todas las cuentas activas y los factura en un único proceso.
+     * 
+     * Valida que existan servicios PENDIENTES en las cuentas activas.
+     * Si hay cuentas activas pero ninguna tiene servicios pendientes, lanza ExcepcionNegocio.
+     * 
+     * @param periodicidad Período de vigencia de las facturas
+     * @throws ExcepcionNegocio si la periodicidad es nula, si no hay cuentas activas o no hay servicios pendientes
      */
     @Transactional
     public void facturacionMasiva(Periodicidad periodicidad) {
+        
+        // Validar que la periodicidad no sea nula
+        if (periodicidad == null) {
+            throw new ExcepcionNegocio("La periodicidad es requerida para realizar la facturación masiva");
+        }
 
         // Creamos una instancia Vacia de la Facturacion Masiva
         FacturacionMasiva facturacionMasiva = new FacturacionMasiva();
 
-        // Creamos una lista en la cual vamos a agregartodas las facturas generadas en
+        // Creamos una lista en la cual vamos a agregar todas las facturas generadas en
         // Este proceso
         List<Factura> facturas = new ArrayList<>();
 
@@ -170,20 +180,28 @@ public class FacturacionService {
         List<Cuenta> cuentasActivas = cuentaRepository.findByEstado(Estado.ACTIVO);
 
         if (cuentasActivas.isEmpty()) {
-            throw new IllegalArgumentException("No hay cuentas activas para facturar");
+            throw new ExcepcionNegocio("No hay cuentas activas para facturar");
         }
 
+        // Procesar cada cuenta y recolectar detalles de facturas
         for (Cuenta cuenta : cuentasActivas) {
-            // Si hay cuentas activas
+            // Si hay cuentas activas y tienen servicios
             if (cuenta.getServiciosDeLaCuenta() != null && !cuenta.getServiciosDeLaCuenta().isEmpty()) {
-                // Creamos la lista de detalles de cada cuenta.
+                // Creamos la lista de detalles de cada cuenta (filtra solo PENDIENTES)
                 List<DetalleFactura> detalles = crearDetallesFacturaDesdeServicios(cuenta.getServiciosDeLaCuenta());
                 if (!detalles.isEmpty()) {
                     // Si se generan detalles para una determinada cuenta, Procedo 
-                    // A realzar la Facturacion, Utilizando la lista de detalles, y el periodo
+                    // A realizar la Facturación, utilizando la lista de detalles y el período
                     facturas.add(procesarFacturacion(detalles, periodicidad));
                 }
             }
+        }
+
+        // Validar que se hayan generado facturas (es decir, que haya servicios PENDIENTES)
+        if (facturas.isEmpty()) {
+            throw new ExcepcionNegocio(
+                    "No se pudo realizar la facturación masiva: no hay servicios pendientes de facturación en las cuentas activas"
+            );
         }
 
         // Seteamos los atributos de la facturacion
@@ -258,12 +276,12 @@ public class FacturacionService {
 
         ServicioDeLaCuenta servicioDeLaCuenta = detalleFactura.getServicioDeLaCuenta();
         if (servicioDeLaCuenta == null) {
-            throw new IllegalStateException("ServicioDeLaCuenta no encontrado en el detalle");
+            throw new ExcepcionNegocio("ServicioDeLaCuenta no encontrado en el detalle");
         }
 
         Cuenta cuenta = servicioDeLaCuenta.getCuenta();
         if (cuenta == null) {
-            throw new IllegalStateException("Cuenta no encontrada en ServicioDeLaCuenta");
+            throw new ExcepcionNegocio("Cuenta no encontrada en ServicioDeLaCuenta");
         }
 
         DatosClienteFactura datosCliente = new DatosClienteFactura();
@@ -281,20 +299,20 @@ public class FacturacionService {
      */
     private List<DatosServicioFactura> extraerDatosServicios(List<DetalleFactura> detallesFactura) {
         if (detallesFactura == null || detallesFactura.isEmpty()) {
-            throw new IllegalArgumentException("detallesFactura no puede ser nulo o estar vacío");
+            throw new ExcepcionNegocio("detallesFactura no puede ser nulo o estar vacío");
         }
 
         return detallesFactura.stream()
                 .peek(detalle -> {
                     if (detalle.getServicioDeLaCuenta() == null) {
-                        throw new IllegalStateException("ServicioDeLaCuenta no encontrado en el detalle");
+                        throw new ExcepcionNegocio("ServicioDeLaCuenta no encontrado en el detalle");
                     }
                 })
                 .map(detalle -> {
 
                     Servicio servicio = detalle.getServicioDeLaCuenta().getServicio();
                     if (servicio == null) {
-                        throw new IllegalStateException("Servicio no encontrado en ServicioDeLaCuenta");
+                        throw new ExcepcionNegocio("Servicio no encontrado en ServicioDeLaCuenta");
                     }
 
                     DatosServicioFactura datosServicio = new DatosServicioFactura();
@@ -351,7 +369,7 @@ public class FacturacionService {
      */
     private void validarListaServicios(List<ServicioSeleccionadoDto> listaServicios) {
         if (listaServicios == null || listaServicios.isEmpty()) {
-            throw new IllegalArgumentException("La lista de servicios seleccionados no puede ser nula o estar vacía");
+            throw new ExcepcionNegocio("La lista de servicios seleccionados no puede ser nula o estar vacía");
         }
     }
 
@@ -360,7 +378,7 @@ public class FacturacionService {
      */
     private void validarDetallesNoVacios(List<DetalleFactura> detalles) {
         if (detalles == null || detalles.isEmpty()) {
-            throw new IllegalArgumentException("La lista de detalles no puede ser nula o estar vacía");
+            throw new ExcepcionNegocio("La lista de detalles no puede ser nula o estar vacía");
         }
     }
 
@@ -375,17 +393,17 @@ public class FacturacionService {
      */
     private DetalleFactura crearDetalleFacturaDesdeSeleccion(ServicioSeleccionadoDto servicioSeleccionado) {
         if (servicioSeleccionado == null) {
-            throw new IllegalArgumentException("servicioSeleccionado no puede ser nulo");
+            throw new ExcepcionNegocio("servicioSeleccionado no puede ser nulo");
         }
 
         Integer cantidad = servicioSeleccionado.getCantidad();
         if (cantidad == null || cantidad < 1) {
-            throw new IllegalArgumentException("cantidad inválida: debe ser >= 1");
+            throw new ExcepcionNegocio("cantidad inválida: debe ser >= 1");
         }
 
         ServicioDeLaCuenta servicioDeLaCuenta = obtenerServicioDeLaCuenta(servicioSeleccionado);
         if (servicioDeLaCuenta == null) {
-            throw new IllegalStateException("Servicio de la cuenta no encontrado para el DTO");
+            throw new ExcepcionNegocio("Servicio de la cuenta no encontrado para el DTO");
         }
 
         return construirDetalleFactura(servicioDeLaCuenta, cantidad);
@@ -398,19 +416,19 @@ public class FacturacionService {
      */
     private DetalleFactura construirDetalleFactura(ServicioDeLaCuenta servicioDeLaCuenta, int cantidad) {
         if (servicioDeLaCuenta == null) {
-            throw new IllegalArgumentException("servicioDeLaCuenta no puede ser nulo");
+            throw new ExcepcionNegocio("servicioDeLaCuenta no puede ser nulo");
         }
 
         // Obtengo el Precio Total del Servicio
         Double precioUnitario = servicioDeLaCuenta.getServicio().getMontoServicio();
         if (precioUnitario == null) {
-            throw new IllegalStateException("No hay precio definido para el servicio");
+            throw new ExcepcionNegocio("No hay precio definido para el servicio");
         }
 
         // Obtengo la alicuota asignada al servicio.
         Double alicuota = servicioDeLaCuenta.getServicio().getAlicuota();
         if (alicuota == null) {
-            throw new IllegalStateException("No hay alícuota definida para el servicio");
+            throw new ExcepcionNegocio("No hay alícuota definida para el servicio");
         }
 
         // Realizamos calculos para determinar el Subtotal y el Iva calculado
@@ -463,7 +481,8 @@ public class FacturacionService {
      * @param anulacionDto DTO con idFactura y motivo de anulación
      * @throws ExcepcionNegocio si datos son inválidos, factura no existe o ya está anulada
      */
-    @Transactional
+    
+    @Transactional 
     public void anularFactura(AnulacionDto anulacionDto) {
 
         // Validar que el DTO y motivo sean válidos

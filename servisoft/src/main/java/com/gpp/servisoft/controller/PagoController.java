@@ -49,7 +49,7 @@ public class PagoController {
             model.addAttribute("cuentas", cuentaServicio.obtenerCuentas());
 
             // Cargar la PÁGINA de facturas pendientes filtrada
-            Page<FacturacionDTO> paginaDto = facturacionService.obtenerFacturasPendientes(cuentaId, comprobante, pageable);
+            Page<FacturacionDTO> paginaDto = facturacionService.obtenerFacturasPendientesyParciales(cuentaId, comprobante, pageable);
 
             // Pasar el objeto PAGE a la vista
             model.addAttribute("paginaDeFacturas", paginaDto);

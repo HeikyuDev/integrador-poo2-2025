@@ -80,39 +80,25 @@ public class FacturacionDTO {
     private EstadoFactura estado;
 
     /**
-     * Salida
+     * Salida: Indica el periodo de facturacion del Servicio que se va a facturar
      */
     private Periodicidad periodicidad;
 
-    // DTOs en lugar de entidades
+    /**
+     * Salida: Sirve para mostrar los datos fiscales de un determinado cliente
+     */
     private DatosClienteFacturaDto datosClienteFactura;
 
+    /**
+     * Salida: Sirve para mostrar los datos de los diferentes servicios involucrados
+     * en la facturacion
+     */
     private List<DatosServicioFacturaDto> serviciosInvolucrados;
 
+    /**
+     * Salida: Sirve para mostrar, los datos de cada servicio (Cantidad, IvaCalculado, SubTotal) que 
+     * se va a facturar
+     */
     private List<DetalleFacturaDto> detalleFacturas;
-
-    /**
-     * Obtiene el monto total garantizando que nunca sea nulo.
-     * @return montoTotal siempre es un valor numérico válido (mínimo 0.0)
-     */
-    public double getMontoTotalSafe() {
-        return Double.isFinite(this.montoTotal) ? this.montoTotal : 0.0d;
-    }
-
-    /**
-     * Obtiene el subtotal garantizando que nunca sea nulo.
-     * @return subtotal siempre es un valor numérico válido (mínimo 0.0)
-     */
-    public double getSubtotalSafe() {
-        return Double.isFinite(this.subtotal) ? this.subtotal : 0.0d;
-    }
-
-    /**
-     * Obtiene el IVA total garantizando que nunca sea nulo.
-     * @return totalIva siempre es un valor numérico válido (mínimo 0.0)
-     */
-    public double getTotalIvaSafe() {
-        return Double.isFinite(this.totalIva) ? this.totalIva : 0.0d;
-    }
 
 }

@@ -28,6 +28,8 @@ import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -41,7 +43,9 @@ import lombok.Setter;
 @Entity
 @Data
 @Table(name = "factura")
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class Factura {
 
     // COSNTANTES
