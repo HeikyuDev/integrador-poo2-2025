@@ -11,13 +11,13 @@ Para el desarrollo de la iteracion 1 se dividió el trabajo de la siguiente mane
 - Refactorizacion y mejora del Modulo de Facturacion y Pagos,  desarrollo de la anulacion de facturas (Notas de credito), y testing del modulo de Facturacion
 
 # Diseño OO
-![image](/img/DiagramaClasesPOOII.jpg)
+![image](https://github.com/HeikyuDev/integrador-poo2-2025/blob/ce184cf4b9fa257d109dd1839452390f48a36ee8/docs/iteracion%202/img/DiagramaClasesPOOII.jpg)
 
 ---
 # Anulación de Facturas
 
 ## Wireframe
-![image](img\Modulo-Facturacion\Mockup-Facturacion-Anulacion.jpg)
+![image](https://github.com/HeikyuDev/integrador-poo2-2025/blob/ce184cf4b9fa257d109dd1839452390f48a36ee8/docs/iteracion%202/img/Modulo-Facturacion/Mockup-Facturacion-Anulacion.jpg)
 
 ## Caso de Uso
 
