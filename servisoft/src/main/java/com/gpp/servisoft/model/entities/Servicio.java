@@ -42,6 +42,13 @@ public class Servicio {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Setter(AccessLevel.NONE)
     private int idServicio;
+    
+    /**
+     * Setter manual para el ID del servicio (necesario para la edición)
+     */
+    public void setIdServicio(int idServicio) {
+        this.idServicio = idServicio;
+    }
 
     @NotBlank(message = "El nombre no puede estar vacío")
     @Size(max = 50, message = "El nombre no debe superar los 50 caracteres")
