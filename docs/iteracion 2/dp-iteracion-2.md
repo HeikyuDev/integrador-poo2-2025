@@ -1,5 +1,5 @@
 # Trabajo en equipo
-Para el desarrollo de la iteracion 1 se dividió el trabajo de la siguiente manera:
+Para el desarrollo de la iteracion 2 se dividió el trabajo de la siguiente manera:
 
 ### **Gallo Guillermo**
 - Refactorizacion y mejora del Modulo de Cuentas
