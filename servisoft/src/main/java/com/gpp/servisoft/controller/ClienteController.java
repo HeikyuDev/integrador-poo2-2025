@@ -1,7 +1,6 @@
 package com.gpp.servisoft.controller;
 
 import java.util.Optional;
-
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import com.gpp.servisoft.model.entities.Cliente;
 import com.gpp.servisoft.model.enums.Estado;
 import com.gpp.servisoft.model.enums.TipoCliente;
@@ -70,7 +68,7 @@ public class ClienteController {
     }
     
     /**
-     * Guardar un nuevo cliente
+     * Guardar o actualizar un cliente
      */
     @PostMapping("/guardar")
     public String guardar(@Valid @ModelAttribute Cliente cliente, 
@@ -85,35 +83,15 @@ public class ClienteController {
         }
         
         try {
-            clienteService.guardar(cliente);
-            redirectAttributes.addFlashAttribute("success", "Cliente creado exitosamente");
-            return "redirect:/clientes";
-        } catch (IllegalArgumentException e) {
-            model.addAttribute("error", e.getMessage());
-            model.addAttribute("tiposCliente", TipoCliente.values());
-            model.addAttribute("estados", Estado.values());
-            return "clientes/formularioCliente";
-        }
-    }
-    
-    /**
-     * Actualizar un cliente existente
-     */
-    @PostMapping("/actualizar")
-    public String actualizar(@Valid @ModelAttribute Cliente cliente, 
-                            BindingResult result, 
-                            Model model, 
-                            RedirectAttributes redirectAttributes) {
-        
-        if (result.hasErrors()) {
-            model.addAttribute("tiposCliente", TipoCliente.values());
-            model.addAttribute("estados", Estado.values());
-            return "clientes/formularioCliente";
-        }
-        
-        try {
-            clienteService.actualizar(cliente);
-            redirectAttributes.addFlashAttribute("success", "Cliente actualizado exitosamente");
+            if (cliente.getIdCliente() == 0) {
+                // Es un nuevo cliente
+                clienteService.guardar(cliente);
+                redirectAttributes.addFlashAttribute("success", "Cliente creado exitosamente");
+            } else {
+                // Es una actualización
+                clienteService.actualizar(cliente);
+                redirectAttributes.addFlashAttribute("success", "Cliente actualizado exitosamente");
+            }
             return "redirect:/clientes";
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
