@@ -42,6 +42,7 @@ public class ClienteService {
         return clienteRepository.findById(id);
     }
     
+    @Transactional
     public Cliente guardar(Cliente cliente) {
         // Validar que el correo no exista
         if (existeCorreo(cliente.getCorreoElectronico())) {
@@ -50,26 +51,42 @@ public class ClienteService {
         return clienteRepository.save(cliente);
     }
     
+    @Transactional
     public Cliente actualizar(Cliente cliente) {
         // Verificar que el cliente existe
-        if (!clienteRepository.existsById(cliente.getIdCliente())) {
-            throw new IllegalArgumentException("El cliente no existe");
+        if (cliente.getIdCliente() <= 0) {
+            throw new IllegalArgumentException("ID de cliente inválido");
         }
         
-        // Verificar que el correo no esté en uso por otro cliente
-        Optional<Cliente> clienteExistente = clienteRepository.findByCorreoElectronico(cliente.getCorreoElectronico());
-        if (clienteExistente.isPresent() && clienteExistente.get().getIdCliente() != cliente.getIdCliente()) {
-            throw new IllegalArgumentException("El correo electrónico ya está en uso por otro cliente");
+        Cliente clienteExistente = clienteRepository.findById(cliente.getIdCliente())
+            .orElseThrow(() -> new IllegalArgumentException("El cliente no existe"));
+        
+        // Verificar correo solo si cambió
+        if (!clienteExistente.getCorreoElectronico().equals(cliente.getCorreoElectronico())) {
+            if (clienteRepository.existsByCorreoElectronico(cliente.getCorreoElectronico())) {
+                throw new IllegalArgumentException("El correo electrónico ya está en uso por otro cliente");
+            }
         }
         
-        return clienteRepository.save(cliente);
+        // Actualizar campos directamente en el cliente existente
+        clienteExistente.setTipoCliente(cliente.getTipoCliente());
+        clienteExistente.setNombre(cliente.getNombre());
+        clienteExistente.setDireccion(cliente.getDireccion());
+        clienteExistente.setTelefono(cliente.getTelefono());
+        clienteExistente.setCorreoElectronico(cliente.getCorreoElectronico());
+        clienteExistente.setEstado(cliente.getEstado());
+        
+        return clienteRepository.save(clienteExistente);
     }
     
+    @Transactional
     public void eliminar(int id) {
-        if (!clienteRepository.existsById(id)) {
-            throw new IllegalArgumentException("El cliente no existe");
-        }
-        clienteRepository.deleteById(id);
+        Cliente cliente = clienteRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("El cliente no existe"));
+        
+        // Borrado lógico: cambiar estado a INACTIVO
+        cliente.setEstado(Estado.INACTIVO);
+        clienteRepository.save(cliente);
     }
     
     @Transactional(readOnly = true)
@@ -91,6 +108,8 @@ public class ClienteService {
     public boolean existeCorreo(String correoElectronico) {
         return clienteRepository.existsByCorreoElectronico(correoElectronico);
     }
+    
+
     
     public void cambiarEstado(int id, Estado nuevoEstado) {
         Cliente cliente = clienteRepository.findById(id)

@@ -158,29 +158,29 @@
         </div>
     </main>
 
-    <!-- Modal de confirmación de eliminación de clientes -->
+    <!-- Modal de confirmación de desactivación de clientes -->
     <div class="modal fade" id="modalEliminar" tabindex="-1" aria-labelledby="modalEliminarLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header bg-danger text-white">
+                <div class="modal-header bg-warning text-dark">
                     <h5 class="modal-title" id="modalEliminarLabel">
-                        <i class="fas fa-exclamation-triangle me-2"></i>Confirmar Eliminación
+                        <i class="fas fa-exclamation-triangle me-2"></i>Confirmar Desactivación
                     </h5>
-                    <button type="button" class="btn-close btn-close-white" data-mdb-dismiss="modal"
+                    <button type="button" class="btn-close" data-mdb-dismiss="modal"
                         aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p>¿Está seguro que desea eliminar el cliente <strong id="nombreClienteEliminar"></strong>?</p>
-                    <p class="text-danger small mb-0">
-                        <i class="fas fa-info-circle me-1"></i>Esta acción no se puede deshacer.
+                    <p>¿Está seguro que desea desactivar el cliente <strong id="nombreClienteEliminar"></strong>?</p>
+                    <p class="text-info small mb-0">
+                        <i class="fas fa-info-circle me-1"></i>El cliente será marcado como inactivo y podrá reactivarlo posteriormente.
                     </p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-mdb-dismiss="modal"
                         data-mdb-ripple-init>Cancelar</button>
                     <form id="formEliminar" method="post" style="display: inline;">
-                        <button type="submit" class="btn btn-danger" data-mdb-ripple-init>
-                            <i class="fas fa-trash me-2"></i>Eliminar
+                        <button type="submit" class="btn btn-warning" data-mdb-ripple-init>
+                            <i class="fas fa-user-times me-2"></i>Desactivar
                         </button>
                     </form>
                 </div>

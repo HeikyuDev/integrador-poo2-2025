@@ -48,6 +48,13 @@
                                   th:object="${servicio}" 
                                   method="post">
 
+                                <!-- Alertas de éxito -->
+                                <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show shadow-2-strong" role="alert">
+                                    <i class="fas fa-check-circle me-2"></i>
+                                    <span th:text="${mensaje}"></span>
+                                    <button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button>
+                                </div>
+
                                 <!-- Mensajes de error -->
                                 <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger alert-dismissible fade show" role="alert">
                                     <i class="fas fa-exclamation-circle me-2"></i>
@@ -55,6 +62,13 @@
                                     <ul class="mb-0 mt-2">
                                         <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
                                     </ul>
+                                    <button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button>
+                                </div>
+
+                                <!-- Mensaje de error general -->
+                                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                                    <i class="fas fa-exclamation-circle me-2"></i>
+                                    <span th:text="${error}"></span>
                                     <button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button>
                                 </div>
                                 

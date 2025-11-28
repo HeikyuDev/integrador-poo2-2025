@@ -36,6 +36,13 @@ public class Cliente {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Setter(AccessLevel.NONE)
     private int idCliente;
+    
+    /**
+     * Setter manual para el ID del cliente (necesario para la edición)
+     */
+    public void setIdCliente(int idCliente) {
+        this.idCliente = idCliente;
+    }
 /**
  * Atributo tipoCliente: Constantes que representan los tipos de clientes.
  * Debe ser uno de los valores del enum "TipoCliente".

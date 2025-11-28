@@ -142,25 +142,28 @@ public class ServicioController {
     }
 
     /**
-     * Elimina un servicio (baja lógica o física según implementación)
+     * Elimina un servicio (borrado lógico - marca como INACTIVO)
      */
     @PostMapping("/eliminar/{id}")
     public String eliminarServicio(@PathVariable("id") int id, RedirectAttributes redirectAttributes) {
         try {
+            // Obtener el nombre del servicio antes de eliminarlo para el mensaje
             Servicio servicio = servicioService.buscarPorId(id);
             if (servicio == null) {
                 redirectAttributes.addFlashAttribute("error", "El servicio no existe");
                 return "redirect:/servicios";
             }
-
+            
             String nombreServicio = servicio.getNombreServicio();
             servicioService.eliminar(id);
+            
             redirectAttributes.addFlashAttribute("mensaje",
-                    "Servicio '" + nombreServicio + "' eliminado exitosamente");
-
+                    "Servicio '" + nombreServicio + "' marcado como INACTIVO exitosamente");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error",
-                    "No se puede eliminar el servicio. Puede estar asociado a cuentas existentes.");
+                    "No se pudo desactivar el servicio: " + e.getMessage());
         }
 
         return "redirect:/servicios";
@@ -178,10 +181,9 @@ public class ServicioController {
                 return "redirect:/servicios";
             }
 
-            // Cambiar el estado
+            // Cambiar el estado usando el método del service
             Estado nuevoEstado = servicio.getEstado() == Estado.ACTIVO ? Estado.INACTIVO : Estado.ACTIVO;
-            servicio.setEstado(nuevoEstado);
-            servicioService.actualizar(servicio);
+            servicioService.cambiarEstado(id, nuevoEstado);
 
             redirectAttributes.addFlashAttribute("mensaje",
                     "Estado del servicio actualizado a " + nuevoEstado);

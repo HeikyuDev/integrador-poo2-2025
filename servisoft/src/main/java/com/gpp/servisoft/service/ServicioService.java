@@ -63,30 +63,44 @@ public class ServicioService {
      */
     public Servicio actualizar(Servicio servicio) {
         // Verificar que el servicio existe
-        if (servicio.getIdServicio() == 0 || !servicioRepository.existsById(servicio.getIdServicio())) {
-            throw new IllegalArgumentException("El servicio no existe");
+        if (servicio.getIdServicio() == 0) {
+            throw new IllegalArgumentException("ID de servicio inválido");
         }
         
-        validarServicio(servicio);
-        return servicioRepository.save(servicio);
+        Servicio servicioExistente = servicioRepository.findById(servicio.getIdServicio())
+            .orElseThrow(() -> new IllegalArgumentException("El servicio no existe"));
+        
+        // Verificar nombre solo si cambió
+        if (!servicioExistente.getNombreServicio().equals(servicio.getNombreServicio())) {
+            if (existePorNombreExcluyendoId(servicio.getNombreServicio(), servicio.getIdServicio())) {
+                throw new IllegalArgumentException("Ya existe un servicio con ese nombre");
+            }
+        }
+        
+        // Actualizar campos directamente en el servicio existente
+        servicioExistente.setNombreServicio(servicio.getNombreServicio());
+        servicioExistente.setDescripcionServicio(servicio.getDescripcionServicio());
+        servicioExistente.setMontoServicio(servicio.getMontoServicio());
+        servicioExistente.setAlicuota(servicio.getAlicuota());
+        servicioExistente.setEstado(servicio.getEstado());
+        servicioExistente.setTieneCantidad(servicio.isTieneCantidad());
+        
+        // Validar el servicio actualizado (solo validaciones generales)
+        validarMontoYAlicuota(servicioExistente);
+        
+        return servicioRepository.save(servicioExistente);
     }
 
     /**
-     * Elimina un servicio
-     * Nota: Puede ser baja lógica (cambiar estado) o física según necesidad
+     * Elimina un servicio (borrado lógico)
      */
     public void eliminar(int id) {
-        if (!servicioRepository.existsById(id)) {
-            throw new IllegalArgumentException("El servicio no existe");
-        }
+        Servicio servicio = servicioRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("El servicio no existe"));
         
-        // Opción 1: Eliminación física
-        servicioRepository.deleteById(id);
-        
-        // Opción 2: Baja lógica (comentar la línea anterior y descomentar estas)
-        // Servicio servicio = buscarPorId(id);
-        // servicio.setEstado(Estado.INACTIVO);
-        // servicioRepository.save(servicio);
+        // Borrado lógico: cambiar estado a INACTIVO
+        servicio.setEstado(Estado.INACTIVO);
+        servicioRepository.save(servicio);
     }
 
     /**
@@ -133,6 +147,13 @@ public class ServicioService {
             }
         }
 
+        validarMontoYAlicuota(servicio);
+    }
+
+    /**
+     * Validaciones de monto y alícuota
+     */
+    private void validarMontoYAlicuota(Servicio servicio) {
         // Validar monto positivo
         if (servicio.getMontoServicio() < 0) {
             throw new IllegalArgumentException("El monto no puede ser negativo");

@@ -44,7 +44,7 @@
                 <div class="col-lg-8">
                     <div class="card shadow-3-strong">
                         <div class="card-body p-4">
-                            <form th:action="${cliente.idCliente == 0} ? @{/clientes/guardar} : @{/clientes/actualizar}" 
+                            <form th:action="@{/clientes/guardar}" 
                                   th:object="${cliente}" 
                                   method="post">
 
