@@ -108,10 +108,10 @@ public class ClienteController {
     public String eliminar(@PathVariable int id, RedirectAttributes redirectAttributes) {
         try {
             clienteService.eliminar(id);
-            redirectAttributes.addFlashAttribute("success", "Cliente eliminado exitosamente");
+            redirectAttributes.addFlashAttribute("success", "Cliente desactivado exitosamente");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", 
-                "No se pudo eliminar el cliente. Puede estar asociado a cuentas existentes.");
+                "No se pudo desactivar el cliente.");
         }
         return "redirect:/clientes";
     }

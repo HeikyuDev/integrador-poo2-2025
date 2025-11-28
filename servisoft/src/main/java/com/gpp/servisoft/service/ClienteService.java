@@ -79,11 +79,14 @@ public class ClienteService {
         return clienteRepository.save(clienteExistente);
     }
     
+    @Transactional
     public void eliminar(int id) {
-        if (!clienteRepository.existsById(id)) {
-            throw new IllegalArgumentException("El cliente no existe");
-        }
-        clienteRepository.deleteById(id);
+        Cliente cliente = clienteRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("El cliente no existe"));
+        
+        // Borrado lógico: cambiar estado a INACTIVO
+        cliente.setEstado(Estado.INACTIVO);
+        clienteRepository.save(cliente);
     }
     
     @Transactional(readOnly = true)
