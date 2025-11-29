@@ -4,11 +4,14 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import com.gpp.servisoft.domain.facturacion.factory.ReglaFacturaFactory;
 import com.gpp.servisoft.domain.facturacion.strategy.ReglaFacturaStrategy;
 import com.gpp.servisoft.exceptions.ExcepcionNegocio;
@@ -28,6 +31,7 @@ import com.gpp.servisoft.model.entities.Servicio;
 import com.gpp.servisoft.model.entities.ServicioDeLaCuenta;
 import com.gpp.servisoft.model.enums.CondicionFrenteIVA;
 import com.gpp.servisoft.model.enums.Estado;
+import com.gpp.servisoft.model.enums.EstadoFactura;
 import com.gpp.servisoft.model.enums.EstadoServicio;
 import com.gpp.servisoft.model.enums.Periodicidad;
 import com.gpp.servisoft.model.enums.TipoComprobante;
@@ -583,5 +587,67 @@ public class FacturacionService {
 
         // Delego la decisión a la regla seleccionada
         return regla.determinar(CONDICION_EMPRESA, condicionReceptor);
+    }
+
+    /**
+     * Revierte los servicios de facturas pagadas a estado PENDIENTE si la fecha 
+     * de hoy es posterior a su fecha de vencimiento.
+     * 
+     * Esta lógica permite que servicios facturados vuelvan a estar disponibles para
+     * una nueva facturación después de que su período de validez ha expirado.
+     * 
+     * Operaciones realizadas:
+     * 1. Obtiene todas las facturas en estado PAGADA
+     * 2. Filtra aquellas cuya fecha de vencimiento ha pasado (vencidas)
+     * 3. Actualiza los servicios asociados al estado PENDIENTE
+     * 4. Persiste los cambios de forma transaccional
+     * 
+     * @throws ExcepcionNegocio si ocurre un error durante la actualización
+     */
+    @Scheduled(cron = "0 0 0 * * ?") // Ejecuta diariamente a las 00:00
+    @Transactional
+    public void revertirServiciosPagadosVencidos() {
+        // Obtener todas las facturas del repositorio
+        List<Factura> todasLasFacturas = facturacionRepository.findAll();
+        
+        if (todasLasFacturas.isEmpty()) {
+            return;
+        }
+
+        LocalDate hoy = LocalDate.now();
+        List<ServicioDeLaCuenta> serviciosAActualizar = new ArrayList<>();
+
+        // Procesar cada factura
+        for (Factura factura : todasLasFacturas) {
+            // Verificar si la factura está pagada
+            if (factura.calcularEstado() != EstadoFactura.PAGADA) {
+                continue;
+            }
+
+            // Validar que la factura tenga fecha de vencimiento
+            if (factura.getFechaVencimiento() == null) {
+                throw new ExcepcionNegocio("Factura con ID " + factura.getIdFactura() + 
+                        " no tiene fecha de vencimiento definida");
+            }
+
+            // Verificar si la factura está vencida (fecha de hoy es posterior al vencimiento)
+            if (hoy.isAfter(factura.getFechaVencimiento())) {
+                // Obtener los servicios de esta factura y revertirlos a PENDIENTE
+                if (factura.getDetallesFacturas() != null && !factura.getDetallesFacturas().isEmpty()) {
+                    for (DetalleFactura detalle : factura.getDetallesFacturas()) {
+                        ServicioDeLaCuenta servicio = detalle.getServicioDeLaCuenta();
+                        if (servicio != null) {
+                            servicio.setEstadoServicio(EstadoServicio.PENDIENTE);
+                            serviciosAActualizar.add(servicio);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Persistir todos los cambios
+        if (!serviciosAActualizar.isEmpty()) {
+            servicioDeLaCuentaRepository.saveAll(serviciosAActualizar);
+        }
     }
 }
