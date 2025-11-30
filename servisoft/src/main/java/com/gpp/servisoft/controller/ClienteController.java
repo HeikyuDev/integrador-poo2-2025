@@ -45,7 +45,8 @@ public class ClienteController {
         cliente.setEstado(Estado.ACTIVO);
         model.addAttribute("cliente", cliente);
         model.addAttribute("tiposCliente", TipoCliente.values());
-        model.addAttribute("estados", Estado.values());
+        // Solo permitir seleccionar ACTIVO e INACTIVO en el formulario
+        model.addAttribute("estados", new Estado[] { Estado.ACTIVO, Estado.INACTIVO });
         return "clientes/formularioCliente";
     }
     
@@ -63,7 +64,8 @@ public class ClienteController {
         
         model.addAttribute("cliente", clienteOpt.get());
         model.addAttribute("tiposCliente", TipoCliente.values());
-        model.addAttribute("estados", Estado.values());
+        // Solo permitir seleccionar ACTIVO e INACTIVO en el formulario
+        model.addAttribute("estados", new Estado[] { Estado.ACTIVO, Estado.INACTIVO });
         return "clientes/formularioCliente";
     }
     
@@ -78,7 +80,8 @@ public class ClienteController {
         
         if (result.hasErrors()) {
             model.addAttribute("tiposCliente", TipoCliente.values());
-            model.addAttribute("estados", Estado.values());
+            // Solo permitir seleccionar ACTIVO e INACTIVO cuando hay errores y se re-renderiza
+            model.addAttribute("estados", new Estado[] { Estado.ACTIVO, Estado.INACTIVO });
             return "clientes/formularioCliente";
         }
         
@@ -96,7 +99,7 @@ public class ClienteController {
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
             model.addAttribute("tiposCliente", TipoCliente.values());
-            model.addAttribute("estados", Estado.values());
+            model.addAttribute("estados", new Estado[] { Estado.ACTIVO, Estado.INACTIVO });
             return "clientes/formularioCliente";
         }
     }
@@ -108,10 +111,10 @@ public class ClienteController {
     public String eliminar(@PathVariable int id, RedirectAttributes redirectAttributes) {
         try {
             clienteService.eliminar(id);
-            redirectAttributes.addFlashAttribute("success", "Cliente desactivado exitosamente");
+            redirectAttributes.addFlashAttribute("success", "Cliente suspendido exitosamente");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", 
-                "No se pudo desactivar el cliente.");
+                "No se pudo suspender el cliente.");
         }
         return "redirect:/clientes";
     }

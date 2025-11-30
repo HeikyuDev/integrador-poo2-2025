@@ -80,7 +80,9 @@
                                                 id="tipoCliente" 
                                                 class="form-select"
                                                 th:classappend="${#fields.hasErrors('tipoCliente')} ? 'is-invalid' : ''"
-                                                required>
+                                            required
+                                            oninvalid="this.setCustomValidity('Por favor, seleccione un tipo de cliente')"
+                                            oninput="this.setCustomValidity('')">
                                             <option value="">Seleccione un tipo</option>
                                                 <option th:each="tipo : ${tiposCliente}" 
                                                     th:value="${tipo}" 
@@ -154,20 +156,25 @@
                                             <span class="input-group-text">
                                                 <i class="fas fa-phone"></i>
                                             </span>
+                                            <span class="input-group-text">+54</span>
                                             <input type="tel" 
                                                    th:field="*{telefono}" 
                                                    id="telefono" 
                                                    class="form-control"
                                                    th:classappend="${#fields.hasErrors('telefono')} ? 'is-invalid' : ''"
                                                    maxlength="20"
-                                                   placeholder="Ej: 3764-123456"
-                                                   required>
+                                                   placeholder="Ej: 11 1234-5678 | 3704-123456"
+                                                   required
+                                                   pattern="^(?:9[\s-]?)?(?:\d[\s-]?){8,12}$"
+                                                   title="Ingrese un teléfono argentino válido (ej.: 11 1234-5678, 3704-123456)"
+                                                   oninvalid="this.setCustomValidity('Ingrese un teléfono argentino válido (ej.: 11 1234-5678, 3704-123456)')"
+                                                   oninput="this.setCustomValidity('')">
                                             <div class="invalid-feedback" th:if="${#fields.hasErrors('telefono')}" 
                                                  th:errors="*{telefono}">
                                             </div>
                                         </div>
-                                        <small class="text-muted">
-                                            <i class="fas fa-info-circle me-1"></i>Formato: números, espacios y guiones
+                                        <small class="text-muted" th:if="${!#fields.hasErrors('telefono')}">
+                                            <i class="fas fa-info-circle me-1"></i>Argentina: el número se ingresa sin el prefijo, ya provisto (+54)
                                         </small>
                                     </div>
 

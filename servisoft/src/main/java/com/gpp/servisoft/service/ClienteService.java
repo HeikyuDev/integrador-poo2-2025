@@ -84,8 +84,8 @@ public class ClienteService {
         Cliente cliente = clienteRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("El cliente no existe"));
         
-        // Borrado lógico: cambiar estado a INACTIVO
-        cliente.setEstado(Estado.INACTIVO);
+        // Borrado lógico: cambiar estado a SUSPENDIDO
+        cliente.setEstado(Estado.SUSPENDIDO);
         clienteRepository.save(cliente);
     }
     

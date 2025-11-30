@@ -64,6 +64,7 @@
                                 <option value="">Todos los estados</option>
                                 <option value="ACTIVO">Activos</option>
                                 <option value="INACTIVO">Inactivos</option>
+                                <option value="SUSPENDIDO">Suspendidos</option>
                             </select>
                         </div>
                         <div class="col-md-4">
@@ -73,6 +74,14 @@
                                 <option value="JURIDICO">Persona Jurídica</option>
                             </select>
                         </div>
+                    </div>
+
+                    <!-- Leyenda de estados -->
+                    <div class="mb-3 small text-muted">
+                        <span class="me-2">Leyenda estados:</span>
+                        <span class="badge rounded-pill badge-success me-2">Activo</span>
+                        <span class="badge rounded-pill badge-danger me-2">Inactivo</span>
+                        <span class="badge rounded-pill badge-warning">Suspendido</span>
                     </div>
 
                     <!-- Tabla responsive que lista los clientes cargados -->
@@ -103,7 +112,8 @@
 
                             <!-- Filas iteradas con datos de cada cliente -->
                             <tbody th:unless="${#lists.isEmpty(clientes)}">
-                                <tr th:each="cliente, iter : ${clientes}">
+                                <tr th:each="cliente, iter : ${clientes}"
+                                    th:classappend="${cliente.estado == T(com.gpp.servisoft.model.enums.Estado).SUSPENDIDO} ? ' table-warning' : ''">
                                     <td th:text="${iter.count}">1</td>
                                     <td>
                                         <span class="badge rounded-pill"
@@ -126,13 +136,13 @@
                                     </td>
                                     <td>
                                         <span class="badge rounded-pill"
-                                            th:classappend="${cliente.estado == T(com.gpp.servisoft.model.enums.Estado).ACTIVO} ? ' badge-success' : ' badge-danger'"
+                                            th:classappend="${cliente.estado == T(com.gpp.servisoft.model.enums.Estado).ACTIVO} ? ' badge-success' : (${cliente.estado == T(com.gpp.servisoft.model.enums.Estado).INACTIVO} ? ' badge-danger' : (${cliente.estado == T(com.gpp.servisoft.model.enums.Estado).SUSPENDIDO} ? ' badge-warning' : ''))"
                                             th:text="${cliente.estado != null ? cliente.estado : '—'}">
                                             ACTIVO
                                         </span>
                                     </td>
                                     <td class="text-center">
-                                        <!-- Botones para editar y eliminar cliente -->
+                                        <!-- Botones para editar y eliminar/suspender cliente -->
                                         <div class="btn-group btn-group-sm" role="group">
                                             <a th:href="@{/clientes/editar/{id}(id=${cliente.idCliente})}"
                                                 class="btn btn-warning btn-sm btn-rounded" data-mdb-ripple-init
@@ -140,12 +150,13 @@
                                                 <i class="fas fa-edit" aria-hidden="true"></i>
                                                 <span class="visually-hidden">Editar</span>
                                             </a>
-                                            <!-- Botón para eliminar cliente -->
+                                            <!-- Mostrar botón de suspender solo si NO está suspendido -->
                                             <button type="button" class="btn btn-danger btn-sm btn-rounded"
                                                 data-mdb-ripple-init
+                                                th:if="${cliente.estado != T(com.gpp.servisoft.model.enums.Estado).SUSPENDIDO}"
                                                 th:attr="data-idcliente=${cliente.idCliente}, data-nombrecliente=${cliente.nombre}"
-                                                onclick="abrirModal(this)" title="Eliminar">
-                                                <i class="fas fa-trash"></i>
+                                                onclick="abrirModal(this)" title="Suspender">
+                                                <i class="fas fa-user-slash"></i>
                                             </button>
                                         </div>
                                     </td>
@@ -158,21 +169,21 @@
         </div>
     </main>
 
-    <!-- Modal de confirmación de desactivación de clientes -->
+    <!-- Modal de confirmación de suspensión de clientes -->
     <div class="modal fade" id="modalEliminar" tabindex="-1" aria-labelledby="modalEliminarLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header bg-warning text-dark">
                     <h5 class="modal-title" id="modalEliminarLabel">
-                        <i class="fas fa-exclamation-triangle me-2"></i>Confirmar Desactivación
+                        <i class="fas fa-exclamation-triangle me-2"></i>Confirmar Suspensión
                     </h5>
                     <button type="button" class="btn-close" data-mdb-dismiss="modal"
                         aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p>¿Está seguro que desea desactivar el cliente <strong id="nombreClienteEliminar"></strong>?</p>
+                    <p>¿Está seguro que desea suspender al cliente <strong id="nombreClienteEliminar"></strong>?</p>
                     <p class="text-info small mb-0">
-                        <i class="fas fa-info-circle me-1"></i>El cliente será marcado como inactivo y podrá reactivarlo posteriormente.
+                        <i class="fas fa-info-circle me-1"></i>El cliente será marcado como suspendido y podrá reactivarlo posteriormente.
                     </p>
                 </div>
                 <div class="modal-footer">
@@ -180,7 +191,7 @@
                         data-mdb-ripple-init>Cancelar</button>
                     <form id="formEliminar" method="post" style="display: inline;">
                         <button type="submit" class="btn btn-warning" data-mdb-ripple-init>
-                            <i class="fas fa-user-times me-2"></i>Desactivar
+                            <i class="fas fa-user-slash me-2"></i>Suspender
                         </button>
                     </form>
                 </div>
