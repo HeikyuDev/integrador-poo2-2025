@@ -40,7 +40,7 @@ Como *Administrador*, quiero poder registrar un nuevo cliente con su nombre, tip
 
 **Criterios de aceptación:**
 - Todos los campos obligatorios (nombre, tipo, dirección, teléfono, correo) deben estar completos; si falta alguno, el sistema muestra un mensaje de error y no permite guardar.
-- El cliente queda registrado con estado Activo. 
+- El cliente queda registrado con el estado seleccionado, ya sea Activo o Inactivo. 
 
 ---
 
@@ -50,13 +50,19 @@ Como *Administrador*, quiero visualizar el listado de clientes registrados, para
 **Criterios de aceptación:**
 - El listado muestra todos los clientes activos.
 - Cada cliente en el listado muestra:
+    - Id → identificador único del cliente.
     - Nombre → nombre completo si es persona física, o denominación comercial si es persona jurídica.
     - Dirección → domicilio o ubicación física principal del cliente..
     - Teléfono → número de contacto.
     - Correo electrónico → email de contacto.
-    - Tipo → Persona Fisica/Juridica
-- El sistema permite buscar clientes por nombre, mostrando todos los que coincidan parcial o totalmente con el texto ingresado; si no hay coincidencias, se muestra un mensaje indicando “No se encontraron clientes”.
-- Se debe poder filtrar por tipo
+    - Tipo → Persona Fisica/Jurídica
+    - Estado → Activo/Inactivo
+- El sistema permite filtrar clientes por nombre, mostrando todos los que coincidan parcial o totalmente con el texto ingresado; si no hay coincidencias, no se muestra en la tabla.
+- Se debe poder filtrar por estado.
+- Se debe poder filtrar por tipo.
+- Cada cliente tiene asociado un boton para dar de baja o editarlo.
+- Si el cliente esta suspendido, solo se deberia poder editarlo para asi marcarlo como Activo/Inactivo nuevamente.
+
 
 ---
 
@@ -64,12 +70,13 @@ Como *Administrador*, quiero visualizar el listado de clientes registrados, para
 Como *Administrador*, quiero poder modificar los datos de un cliente registrado, para mantener actualizada su información dentro del sistema.  
 
 **Criterios de aceptación:**
-- Solo se pueden modificar los siguientes campos:
-    - Nombre → completo si es persona física, denominación comercial si es persona jurídica.
+- Se pueden modificar los siguientes campos:
     - Tipo → Persona Física / Persona Jurídica.
+    - Nombre → completo si es persona física, denominación comercial si es persona jurídica.
     - Dirección → domicilio o ubicación física principal del cliente..
     - Teléfono → número de contacto.
     - Correo electrónico → email de contacto.
+    - Estado → Activo/Inactivo.
 - El sistema valida que los campos obligatorios no queden vacíos; si falta alguno, muestra un mensaje de error y no guarda los cambios.
 - Los cambios se reflejan inmediatamente en los listados de clientes.  
 
@@ -79,7 +86,8 @@ Como *Administrador*, quiero poder modificar los datos de un cliente registrado,
 Como *Administrador*, quiero dar de baja un cliente registrado, para que no se generen nuevas cuentas ni se pueda facturar a su nombre
 
 **Criterios de aceptación:**
-- Al dar de baja, el cliente cambia su estado a *Inactivo*.  
+- Al dar de baja, el cliente cambia su estado a *Suspendido*.  
+- El boton de suspender cliente desaparecera y solo se podra editar el cliente para cambiar su estado a Activo/Inactivo.
 - La información del cliente (nombre, tipo, dirección postal, teléfono, correo) permanece registrada.
 - Las cuentas y facturas existentes asociadas al cliente permanecen en el sistema y pueden consultarse, pero no se pueden crear nuevas operaciones mientras el cliente esté Inactivo.
 
