@@ -51,6 +51,11 @@
                 </div>
 
                 <div class="card-body">
+                    <!-- Leyenda de estados -->
+                    <div class="mb-3">
+                        <span class="badge rounded-pill badge-success me-2">Activo</span>
+                        <span class="badge rounded-pill badge-warning">Inactivo</span>
+                    </div>
                     <!-- Panel de filtros y búsqueda -->
                     <div class="row mb-3">
                         <div class="col-md-6">
@@ -60,10 +65,11 @@
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <select class="form-select" id="filtroEstado" onchange="filtrarTabla()">
-                                <option value="">Todos los estados</option>
+                            <select class="form-select" id="filtroEstado" onchange="aplicarFiltroEstado()"
+                                th:value="${estadoSeleccionado}">
                                 <option value="ACTIVO">Activos</option>
                                 <option value="INACTIVO">Inactivos</option>
+                                <option value="ALL">Todos</option>
                             </select>
                         </div>
                     </div>
@@ -96,7 +102,8 @@
 
                             <!-- Filas iteradas con datos de cada servicio -->
                             <tbody th:unless="${#lists.isEmpty(servicios)}">
-                                <tr th:each="servicio, iter : ${servicios}">
+                                <tr th:each="servicio, iter : ${servicios}"
+                                    th:classappend="${servicio.estado != null && servicio.estado.name() == 'INACTIVO'} ? ' table-warning' : ''">
                                     <td th:text="${iter.count}">1</td>
                                     <td>
                                         <strong th:text="${servicio.nombreServicio}">Nombre</strong>
@@ -118,7 +125,7 @@
                                     </td>
                                     <td>
                                         <span class="badge rounded-pill"
-                                            th:classappend="${servicio.estado.name() == 'ACTIVO'} ? ' badge-success' : ' badge-danger'"
+                                            th:classappend="${servicio.estado != null && servicio.estado.name() == 'ACTIVO'} ? ' badge-success' : ' badge-warning'"
                                             th:text="${servicio.estado != null ? servicio.estado : '—'}">
                                             ACTIVO
                                         </span>
@@ -136,7 +143,8 @@
                                             <button type="button" class="btn btn-danger btn-sm btn-rounded"
                                                 data-mdb-ripple-init
                                                 th:attr="data-idservicio=${servicio.idServicio}, data-nombreservicio=${servicio.nombreServicio}"
-                                                onclick="abrirModal(this)" title="Desactivar">
+                                                onclick="abrirModal(this)" title="Desactivar"
+                                                th:if="${servicio.estado != null && servicio.estado.name() != 'INACTIVO'}">
                                                 <i class="fas fa-ban"></i>
                                             </button>
 
@@ -206,16 +214,19 @@
 
         function filtrarTabla() {
             const texto = document.getElementById('searchInput').value.toLowerCase();
-            const estado = document.getElementById('filtroEstado').value;
             const filas = document.querySelectorAll('#tablaServicios tbody tr');
 
             filas.forEach(fila => {
                 const nombre = fila.querySelector('td:nth-child(2)').textContent.toLowerCase();
-                const estadoFila = fila.querySelector('td:nth-child(7) span').textContent.trim();
                 const coincideTexto = nombre.includes(texto);
-                const coincideEstado = !estado || estado === estadoFila;
-                fila.style.display = (coincideTexto && coincideEstado) ? '' : 'none';
+                fila.style.display = coincideTexto ? '' : 'none';
             });
+        }
+
+        function aplicarFiltroEstado() {
+            const estado = document.getElementById('filtroEstado').value;
+            const url = estado ? ('/servicios?estado=' + estado) : '/servicios';
+            window.location.href = url;
         }
     </script>
 </body>

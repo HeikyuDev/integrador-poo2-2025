@@ -106,9 +106,8 @@
                                                    id="descripcionServicio" 
                                                    class="form-control"
                                                    th:classappend="${#fields.hasErrors('descripcionServicio')} ? 'is-invalid' : ''"
-                                                   maxlength="50"
-                                                   required>
-                                            <label class="form-label" for="descripcionServicio">Descripción *</label>
+                                                   maxlength="50">
+                                            <label class="form-label" for="descripcionServicio">Descripción (opcional)</label>
                                             <div class="invalid-feedback" th:if="${#fields.hasErrors('descripcionServicio')}" 
                                                  th:errors="*{descripcionServicio}">
                                             </div>

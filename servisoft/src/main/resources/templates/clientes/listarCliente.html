@@ -60,16 +60,18 @@
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <select class="form-select" id="filtroEstado" onchange="filtrarTabla()">
-                                <option value="">Todos los estados</option>
+                            <select class="form-select" id="filtroEstado" onchange="aplicarFiltros()"
+                                th:value="${estadoSeleccionado}">
                                 <option value="ACTIVO">Activos</option>
                                 <option value="INACTIVO">Inactivos</option>
                                 <option value="SUSPENDIDO">Suspendidos</option>
+                                <option value="ALL">Todos</option>
                             </select>
                         </div>
                         <div class="col-md-4">
-                            <select class="form-select" id="filtroTipo" onchange="filtrarTabla()">
-                                <option value="">Todos los tipos</option>
+                            <select class="form-select" id="filtroTipo" onchange="aplicarFiltros()"
+                                th:value="${tipoSeleccionado}">
+                                <option value="ALL">Todos los tipos</option>
                                 <option value="FISICO">Persona Física</option>
                                 <option value="JURIDICO">Persona Jurídica</option>
                             </select>
@@ -222,7 +224,6 @@
 
         function filtrarTabla() {
             const texto = document.getElementById('searchInput').value.toLowerCase();
-            const estado = document.getElementById('filtroEstado').value;
             const tipo = document.getElementById('filtroTipo').value;
             const filas = document.querySelectorAll('#tablaClientes tbody tr');
 
@@ -233,17 +234,25 @@
                 }
 
                 const nombre = fila.querySelector('td:nth-child(3)').textContent.toLowerCase();
-                const estadoFila = fila.querySelector('td:nth-child(7) span').textContent.trim();
                 const tipoFila = fila.querySelector('td:nth-child(2) span').textContent.trim();
                 
                 const coincideTexto = nombre.includes(texto);
-                const coincideEstado = !estado || estado === estadoFila;
                 const coincideTipo = !tipo || 
                     (tipo === 'FISICO' && tipoFila === 'Persona Física') ||
                     (tipo === 'JURIDICO' && tipoFila === 'Persona Jurídica');
                 
-                fila.style.display = (coincideTexto && coincideEstado && coincideTipo) ? '' : 'none';
+                fila.style.display = (coincideTexto && coincideTipo) ? '' : 'none';
             });
+        }
+
+        function aplicarFiltros() {
+            const estado = document.getElementById('filtroEstado').value;
+            const tipo = document.getElementById('filtroTipo').value;
+            const params = [];
+            if (estado) params.push('estado=' + encodeURIComponent(estado));
+            if (tipo) params.push('tipo=' + encodeURIComponent(tipo));
+            const url = '/clientes' + (params.length ? ('?' + params.join('&')) : '');
+            window.location.href = url;
         }
     </script>
 </body>

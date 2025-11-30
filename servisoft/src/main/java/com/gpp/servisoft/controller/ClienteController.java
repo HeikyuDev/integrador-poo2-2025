@@ -31,8 +31,30 @@ public class ClienteController {
      * Listar todos los clientes
      */
     @GetMapping
-    public String listar(Model model) {
-        model.addAttribute("clientes", clienteService.listarTodos());
+    public String listar(@RequestParam(name = "estado", required = false) String estado,
+                         @RequestParam(name = "tipo", required = false) String tipo,
+                         Model model) {
+        // Filtrado por estado (por defecto ACTIVO)
+        var clientesBase = (estado == null || estado.isBlank())
+                ? clienteService.listarPorEstado(Estado.ACTIVO)
+                : ("ALL".equalsIgnoreCase(estado)
+                    ? clienteService.listarTodos()
+                    : clienteService.listarPorEstado(Estado.valueOf(estado)));
+
+        // Filtrado por tipo (opcional). Si tipo = ALL o vacío, se mantiene la lista base
+        var clientes = clientesBase;
+        if (tipo != null && !tipo.isBlank() && !"ALL".equalsIgnoreCase(tipo)) {
+            try {
+                var tipoEnum = TipoCliente.valueOf(tipo);
+                clientes = clientes.stream().filter(c -> c.getTipoCliente() == tipoEnum).toList();
+            } catch (IllegalArgumentException ex) {
+                // Tipo inválido: mantener lista base
+            }
+        }
+
+        model.addAttribute("clientes", clientes);
+        model.addAttribute("estadoSeleccionado", estado == null || estado.isBlank() ? "ACTIVO" : estado);
+        model.addAttribute("tipoSeleccionado", tipo == null || tipo.isBlank() ? "ALL" : tipo);
         return "clientes/listarCliente";
     }
     

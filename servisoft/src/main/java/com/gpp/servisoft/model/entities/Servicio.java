@@ -52,12 +52,11 @@ public class Servicio {
 
     @NotBlank(message = "El nombre no puede estar vacío")
     @Size(max = 50, message = "El nombre no debe superar los 50 caracteres")
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 50, unique = true)
     private String nombreServicio;
 
-    @NotBlank(message = "La descripción no puede estar vacía")
     @Size(max = 50, message = "La descripción no debe superar los 50 caracteres")
-    @Column(nullable = false, length = 50)
+    @Column(nullable = true, length = 50)
     private String descripcionServicio;
 
     @NotNull(message = "El monto no puede ser nulo")

@@ -3,6 +3,7 @@ package com.gpp.servisoft.controller;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -23,9 +24,18 @@ public class ServicioController {
      * Muestra el dashboard con la lista de todos los servicios
      */
     @GetMapping
-    public String listarServicios(Model model) {
+    public String listarServicios(@RequestParam(name = "estado", required = false) String estado, Model model) {
 
-        List<Servicio> servicios = servicioService.listarTodos();
+        // Por defecto mostrar solo ACTIVO; si se pasa estado, filtrar por ese
+        List<Servicio> servicios;
+        if (estado == null || estado.isBlank()) {
+            servicios = servicioService.listarActivos();
+        } else if ("ALL".equalsIgnoreCase(estado)) {
+            servicios = servicioService.listarTodos();
+        } else {
+            Estado estadoEnum = Estado.valueOf(estado);
+            servicios = servicioService.listarPorEstado(estadoEnum);
+        }
 
         // Calcular estadísticas
         long totalServicios = servicios.size();
@@ -41,6 +51,7 @@ public class ServicioController {
                 .orElse(0.0);
 
         model.addAttribute("servicios", servicios);
+        model.addAttribute("estadoSeleccionado", estado == null || estado.isBlank() ? "ACTIVO" : estado);
         model.addAttribute("totalServicios", totalServicios);
         model.addAttribute("serviciosActivos", serviciosActivos);
         model.addAttribute("serviciosInactivos", serviciosInactivos);
@@ -100,6 +111,16 @@ public class ServicioController {
             redirectAttributes.addFlashAttribute("mensaje",
                     "Servicio '" + servicio.getNombreServicio() + "' creado exitosamente");
             return "redirect:/servicios";
+        } catch (DataIntegrityViolationException e) {
+            // Error por constraint única (carrera o validación de BD)
+            result.rejectValue("nombreServicio", "duplicado", "Ya existe un servicio con ese nombre");
+            model.addAttribute("servicio", servicio);
+            return "servicios/formularioServicio";
+        } catch (IllegalArgumentException e) {
+            // Validaciones de negocio del service (nombre duplicado u otra regla)
+            result.rejectValue("nombreServicio", "duplicado", "Ya existe un servicio con ese nombre");
+            model.addAttribute("servicio", servicio);
+            return "servicios/formularioServicio";
         } catch (Exception e) {
             model.addAttribute("servicio", servicio);
             model.addAttribute("error", "Error al guardar el servicio: " + e.getMessage());
@@ -115,7 +136,6 @@ public class ServicioController {
             BindingResult result,
             Model model,
             RedirectAttributes redirectAttributes) {
-
         if (result.hasErrors()) {
             System.out.println("⚠️ Errores detectados, recargando formulario...");
             model.addAttribute("servicio", servicio);
@@ -131,9 +151,15 @@ public class ServicioController {
             redirectAttributes.addFlashAttribute("mensaje",
                     "Servicio '" + servicio.getNombreServicio() + "' actualizado exitosamente");
 
-            // ✅ Redirige al dashboard
             return "redirect:/servicios";
-
+        } catch (DataIntegrityViolationException e) {
+            result.rejectValue("nombreServicio", "duplicado", "Ya existe un servicio con ese nombre");
+            model.addAttribute("servicio", servicio);
+            return "servicios/formularioServicio";
+        } catch (IllegalArgumentException e) {
+            result.rejectValue("nombreServicio", "duplicado", "Ya existe un servicio con ese nombre");
+            model.addAttribute("servicio", servicio);
+            return "servicios/formularioServicio";
         } catch (Exception e) {
             model.addAttribute("servicio", servicio);
             model.addAttribute("error", "Error al actualizar el servicio: " + e.getMessage());
