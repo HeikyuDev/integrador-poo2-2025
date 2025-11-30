@@ -45,7 +45,7 @@ Como *Administrador*, quiero poder registrar un nuevo cliente con su nombre, tip
 ---
 
 **HU-002 — Consulta de clientes**  
-Como *Administrador*, quiero visualizar el listado de clientes registrados, para poder visualizar su nombre, dirección e información de contacto dentro del sistema.  
+Como *Administrador*, quiero visualizar el listado de clientes registrados y activos, para poder visualizar su nombre, dirección e información de contacto dentro del sistema.  
 
 **Criterios de aceptación:**
 - El listado muestra todos los clientes activos.
@@ -58,6 +58,7 @@ Como *Administrador*, quiero visualizar el listado de clientes registrados, para
     - Tipo → Persona Fisica/Jurídica
     - Estado → Activo/Inactivo
 - El sistema permite filtrar clientes por nombre, mostrando todos los que coincidan parcial o totalmente con el texto ingresado; si no hay coincidencias, no se muestra en la tabla.
+- Ademas permite filtrar por todos los clientes (Activos/Inactivos/suspendidos).
 - Se debe poder filtrar por estado.
 - Se debe poder filtrar por tipo.
 - Cada cliente tiene asociado un boton para dar de baja o editarlo.
@@ -105,33 +106,38 @@ Como *Administrador*, quiero registrar un servicio indicando su nombre, descripc
     - Alícuota de IVA → porcentaje de impuesto aplicable.
 - La descripción es opcional y permite detallar características del servicio.
 - No puede haber dos servicios activos con el mismo nombre. 
-- Al guardar, el servicio queda registrado con estado *Activo* y disponible para asociar a cuentas y generar facturas.  
+- Al guardar el servicio como estado *Activo* queda disponible para asociar a cuentas y generar facturas.  
 
 ---
 
 **HU-011 — Consulta de servicios**  
-Como *Administrador*, quiero visualizar todos los servicios registrados y activos, mostrando su nombre, descripción, monto y alícuota de IVA, para poder consultar los servicios disponibles en el sistema.
+Como *Administrador*, quiero visualizar todos los servicios registrados y activos, mostrando su nombre, descripción, monto, alícuota de IVA y si admite cantidad, para poder consultar los servicios disponibles en el sistema.
 
 **Criterios de aceptación:**
-- Solo se muestran los servicios con estado Activo.
+- Se muestran los servicios con estado tanto Activo como Inactivo.
 - Cada servicio en el listado incluye:
     - Nombre → identificador corto del servicio.
     - Descripción → detalles adicionales (si los hay).
     - Monto → precio del servicio.
     - Alícuota de IVA → porcentaje de impuesto aplicable.
+    - Estado → Activo/Inactivo
+    - Admite cantidad → indica si el servicio permite especificar una cantidad en la factura.
 - El sistema permite buscar servicios por nombre, mostrando todos los que coincidan parcial o totalmente; si no hay coincidencias, se muestra el mensaje “No se encontraron servicios”.
+- También permite filtrar por estado (Activo/Inactivo) o todos.
 
 ---
 
 **HU-012 — Modificación de servicios**  
-Como *Administrador*, quiero poder modificar los datos de un servicio ya registrado, para mantener su información actualizada y correcta en el sistema.  
+Como *Administrador*, quiero poder modificar los datos de un servicio ya registrado y activo, para mantener su información actualizada y correcta en el sistema.  
 
 **Criterios de aceptación:**
-- Solo se pueden modificar los siguientes campos de servicios activos:
+- Solo se pueden modificar los siguientes campos de servicios:
     - Nombre → identificador corto del servicio.
     - Descripción → detalles adicionales (si los hay).
     - Monto → precio del servicio.
     - Alícuota de IVA → porcentaje de impuesto aplicable.
+    - Admite cantidad → indica si el servicio permite especificar una cantidad en la factura.
+    - Estado → Activo/Inactivo.
 - El sistema valida que los campos obligatorios no queden vacíos; si falta alguno, muestra un mensaje de error y no guarda los cambios.
 - No se permite que existan dos servicios activos con el mismo nombre.
 - Los cambios se reflejan inmediatamente en los listados y consultas de servicios.
@@ -139,10 +145,10 @@ Como *Administrador*, quiero poder modificar los datos de un servicio ya registr
 ---
 
 **HU-013 — Baja de servicio**  
-Como *Administrador*, quiero dar de baja un servicio registrado, para que no se pueda asociar a nuevas cuentas ni generar facturas. 
+Como *Administrador*, quiero desactivar un servicio registrado y activo, para que no se pueda asociar a nuevas cuentas ni generar facturas. 
 
 **Criterios de aceptación:**
-- Al dar de baja, el servicio cambia su estado a *Inactivo*.  
+- Al desactivar, el servicio cambia su estado a *Inactivo*.  
 - La información del servicio (nombre, descripción, monto, alícuota de IVA) permanece registrada.
 - No se pueden generar nuevas facturas ni asociar el servicio a nuevas cuentas mientras esté Inactivo.  
 
