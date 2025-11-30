@@ -210,127 +210,124 @@ Como *Administrador*, quiero dar de baja una cuenta registrada, para que no pued
 ### Módulo Facturación
 
 **HU-040 — Emisión de factura individual**  
-Como *Administrador*, quiero emitir una factura individual para una cuenta, para registrar los servicios contratados y pendientes de pago, asegurando el cálculo correcto de impuestos.
+Como *Administrador*, quiero emitir una factura individual seleccionando servicios específicos de una cuenta y su periodicidad, para registrar la operación y permitir el cobro posterior.
 
 **Criterios de aceptación:**
-- Al ingresar a la sección, el sistema muestra todos los servicios asignados a todas las cuentas, ordenados por cuenta.
-- La pantalla permite filtrar los servicios por cuenta, mostrando únicamente los servicios asociados a la cuenta seleccionada.
-- Cada servicio listado incluye:
-    - Nombre del servicio
-    - Descripción
-    - Monto
-    - Estado de pago (pagado/impago/ ParcialmentePagado)
-- Se pueden aplicar filtros adicionales:
-    - Estado de pago
-    - Fecha de asignación
-    - Nombre del servicio
-- Al seleccionar los servicios y confirmar, el sistema:
-    - Calcula automáticamente el IVA según el servicio y la condición fiscal de la cuenta.
-    - Genera la factura digitalmente dentro del sistema, asignándole número único, fecha de emisión y fecha de vencimiento.
-    - La factura no se emite en papel, solo queda registrada para consultas y trazabilidad.
-- La factura se genera con número único y fecha de emisión.  
+- El sistema debe permitir seleccionar una cuenta activa e inmediatamente muestra solo los servicios en estado **PENDIENTE** de esa cuenta.
+- La lista de servicios debe muestrar para cada uno: nombre, descripción, monto unitario, cantidad y checkbox de seleccion.
+- El sistema debe permitir seleccionar múltiples servicios y modificar sus cantidades antes de facturar.
+- El sistema debe permitir seleccionar una periodicidad predefinida (MENSUAL, TRIMESTRAL, SEMESTRAL, ANUAL) que determina la fecha de vencimiento.
+- El sistema debe validar que se seleccione al menos un servicio y una periodicidad válida antes de procesar.
+- La factura generada debe incluir: número único de comprobante, fechas de emisión (hoy) y vencimiento (calculada según periodicidad), datos históricos del cliente y servicios, tipo de comprobante (A/B/C/D/E) según condición fiscal.
+- El sistema debe calcular automáticamente: subtotal de cada servicio (monto unitario × cantidad), IVA de cada servicio (subtotal × alícuota), monto total de la factura.
+- El sistema debe actualizar el estado de los servicios facturados a **FACTURADO**.
+- El sistema debe ejecutar la operación de forma transaccional: si ocurre un error, todos los cambios se revierten.
+- El sistema debe mostrar un mensaje de éxito con el número de factura generado.  
 
 ---
 
 **HU-041 — Anulación de factura (nota de crédito)**  
-Como *Administrador*, quiero generar una nota de crédito para corregir una factura errónea, de manera que el monto de la factura quede ajustado correctamente dentro del sistema.
+Como *Administrador*, quiero anular una factura mediante una nota de crédito, para corregir errores.
 
 **Criterios de aceptación:**
-- Solo pueden anularse facturas activas.
-- Al anular una factura, el sistema genera automáticamente una nota de crédito por el valor total de la factura, vinculada a la factura original.
+- El sistema debe permitir filtrar facturas por cuenta y número de comprobante (búsqueda parcial).
+- El sistema debe mostrar solo facturas en estado **PENDIENTE** o **PARCIALMENTE_PAGADA**.
+- El sistema debe permitir ingresar un motivo de anulación con validación de 10 a 100 caracteres.
+- El sistema debe validar que la factura no esté ya anulada (no tenga nota de crédito asociada).
+- El sistema debe crear automáticamente una nota de crédito vinculada a la factura con: monto igual al total, motivo ingresado, fecha de emisión (hoy), tipo de comprobante (A/B/C/D/E) según condición fiscal.
+- El sistema debe revertir los servicios facturados a estado **PENDIENTE** para permitir refacturación.
+- El sistema debe ejecutar la operación de forma transaccional: si ocurre un error, todos los cambios se revierten.
+- El sistema debe mostrar un mensaje de éxito confirmando la anulación.
 
 ---
 
 **HU-042 — Facturación masiva**  
-Como *Administrador*, quiero generar facturas de manera masiva para todas las cuentas activas, para registrar automáticamente los servicios pendientes de pago dentro del sistema.
+Como *Administrador*, quiero generar facturas masivamente para todas las cuentas activas, para automatizar la facturación de servicios pendientes.
 
 **Criterios de aceptación:**
-- La facturación masiva solo incluye cuentas en estado *Activo*..  
-- Para cada cuenta, se incluyen los servicios pendientes de pago, calculando automáticamente el IVA según la condición fiscal de la cuenta.
-- El sistema registra:
-    - Cantidad total de facturas generadas
-    - Monto total facturado
+- El sistema debe mostrar un formulario con desplegable de periodicidad  (MENSUAL, TRIMESTRAL, SEMESTRAL, ANUAL) y botón "Facturar".
+- El sistema debe validar que se haya seleccionado una periodicidad válida antes de procesar.
+- El sistema debe identificar automáticamente todas las cuentas en estado **ACTIVO** que tengan servicios en estado **PENDIENTE**.
+- El sistema debe crear una factura para cada cuenta con servicios pendientes, incluyendo: número único de comprobante, fecha de emisión (hoy), fecha de vencimiento (calculada según periodicidad seleccionada), servicios pendientes de esa cuenta, IVA calculado por cada servicio, datos históricos del cliente y servicios, tipo de comprobante (A/B/C/D/E) según condición fiscal.
+- El sistema debe actualizar a **FACTURADO** el estado de los servicios incluidos en cada factura.
+- El sistema no debe generar factura para cuentas que no tengan servicios pendientes.
+- El sistema debe rechazar la operación si no hay servicios pendientes en ninguna cuenta activa.
+- El sistema debe registrar un registro de facturación masiva con: cantidad total de facturas generadas, monto total facturado (suma de montos totales de todas las facturas), fecha del proceso (hoy).
+- El sistema debe ejecutar la operación de forma transaccional: si ocurre un error, todos los cambios se revierten.
+- El sistema debe mostrar un mensaje de éxito indicando cantidad de facturas generadas y monto total facturado.
 
 ---
 
 **HU-043 — Consulta de facturas**  
-Como *Administrador*, quiero visualizar todas las facturas emitidas, para poder consultar los servicios incluidos, los montos y los pagos realizados dentro del sistema.
+Como *Administrador*, quiero visualizar un listado completo de facturas con opciones de filtrado y acceder a los detalles de cada una, para poder consultar y analizar el historial de facturación de los clientes.
 
 **Criterios de aceptación:**
-- Permite filtrar por cliente, cuenta, estado del pago y fecha de emisión.  
-- Muestra, para cada factura:
-    - Número de factura
-    - Cuenta y cliente asociado
-    - Servicios incluidos
-    - Monto total
-    - Pagos registrados y método de pago
-- Permite acceder al detalle completo de cada factura.
+- El sistema debe mostrar todas las facturas registradas.
+- El sistema debe permitir filtrar por cuenta (desplegable) y por número de comprobante (búsqueda).
+- El sistema debe ordenar el listado por fecha de emisión en orden descendente (más recientes primero).
+- El sistema debe mostrar en cada fila: número de comprobante, razón social, fechas de emisión y vencimiento y monto total.
+- El sistema debe permitir acceder al detalle completo de una factura.
+- El sistema debe mostrar en el detalle: número y tipo de comprobante (A/B/C/D/E), datos del cliente (CUIT, razón social, domicilio fiscal, condición frente al IVA), cuenta asociada, servicios facturados (nombre, cantidad, precio unitario, subtotal, alícuota IVA e IVA de cada servicio), subtotal, total IVA y monto total.
+- El sistema debe mostrar, si la factura está anulada, la nota de crédito asociada con motivo y fecha de emisión.
+---
+
+**HU-044 — Consulta de facturación masiva**  
+Como *Administrador*, quiero visualizar un listado de todos los procesos de facturación masiva realizados con opción de acceder a los detalles, para consultar el historial y verificar los resultados de cada proceso.
+
+**Criterios de aceptación:**
+- El sistema debe mostrar todos los procesos de facturación masiva registrados.
+- El sistema debe mostrar para cada proceso en el listado: fecha de emisión, cantidad de facturas generadas y monto total facturado.
+- El sistema debe ordenar el listado de forma predeterminada por fecha de emisión en orden descendente (más recientes primero).
+- El sistema debe permitir acceder al detalle completo de cada proceso, mostrando la información general (fecha, cantidad y monto total) y el listado de todas las facturas generadas con sus datos (número de comprobante, razón social, monto y fecha de vencimiento), permitiendo acceder al detalle individual de cada factura.
+- El sistema no debe permitir modificar ni eliminar registros desde esta sección (solo consulta).
 
 ---
 
 ### Módulo Pagos
 
 **HU-050 — Registro de pago total**  
-Como *Administrador*, quiero registrar pagos totales de facturas, para reflejar correctamente las operaciones canceladas y evitar que facturas pagadas se consideren vencidas.
-
+Como *Administrador*, quiero registrar un pago que cancela completamente una factura, para reflejar que ha sido pagada en su totalidad.
 
 **Criterios de aceptación:**
-- Solo pueden registrarse pagos sobre facturas con saldo pendiente.
-- Al registrar el pago total:
-    - El sistema toma automáticamente el monto restante de la factura como monto del pago.
-    - Registra la fecha del pago y el medio utilizado.
-- Si el pago se realiza después del vencimiento, el sistema conserva la fecha real de pago.
-- No se permite modificar ni eliminar el pago una vez confirmado.
+- El sistema debe validar que la factura seleccionada tenga saldo pendiente.
+- El sistema debe calcular automáticamente el monto del pago como el saldo restante de la factura (monto total menos pagos registrados anteriormente).
+- El sistema debe permitir seleccionar el método de pago (efectivo, tarjeta, transferencia, etc.).
+- El sistema debe registrar la fecha del pago como la fecha actual.
+- El sistema debe persistir el pago de forma transaccional.
+- El sistema debe mostrar un mensaje de éxito confirmando el registro del pago y el monto registrado.
 
 ---
 
 **HU-051 — Registro de pago parcial**  
-Como *Administrador*, quiero registrar pagos parciales de una factura, para poder reflejar en el sistema los abonos realizados por un cliente antes de saldar el total.
+Como *Administrador*, quiero registrar un pago parcial de una factura, para reflejar los abonos que realiza un cliente en cuotas.
 
 **Criterios de aceptación:**
-- El sistema recalcula automáticamente el saldo restante de la factura.
-- Permite registrar pagos sucesivos hasta cubrir el monto total.
-- Cada pago queda registrado con su fecha, monto y método de pago.
-- La factura se considera pagada cuando el saldo pendiente calculado (total de la factura menos la suma de los pagos registrados) es igual a cero.
+- El sistema debe validar que la factura seleccionada tenga saldo pendiente.
+- El sistema debe validar que el monto ingresado sea mayor a cero.
+- El sistema debe validar que el monto ingresado no exceda el saldo pendiente de la factura.
+- El sistema debe permitir seleccionar el método de pago (efectivo, tarjeta, transferencia, etc.).
+- El sistema debe registrar la fecha del pago como la fecha actual.
+- El sistema debe permitir registrar múltiples pagos parciales para la misma factura.
+- El sistema debe persistir el pago de forma transaccional.
+- El sistema debe mostrar un mensaje de éxito confirmando el registro del pago y el monto registrado.
 
 ---
 
-**HU-052 — Registro de pago adelantado**  
-Como *Administrador*, quiero registrar pagos anticipados para un cliente, para que puedan aplicarse automáticamente a futuras facturas. 
+**HU-052 — Consulta de pagos**  
+Como *Administrador*, quiero visualizar un listado de todos los pagos registrados con opciones de filtrado y ordenamiento, para consultar el historial completo de cobros realizados.
 
 **Criterios de aceptación:**
-- El pago registrado queda disponible como saldo a favor del cliente.  
-- El sistema asocia automáticamente el saldo al cliente correspondiente.
-- Al generar futuras facturas, el saldo a favor se puede aplicar para reducir el monto a pagar.
+- El sistema debe mostrar todos los pagos registrados en el sistema.
+- El sistema debe mostrar para cada pago: monto abonado, fecha de pago, método de pago, razón social del cliente y número de comprobante de la factura asociada.
+- El sistema debe permitir filtrar por cuenta (desplegable) seleccionando una cuenta específica para ver solo sus pagos.
+- El sistema debe permitir filtrar por número de comprobante (búsqueda) mostrando solo los pagos asociados a esa factura.
+- El sistema debe permitir filtrar por rango de fechas (fecha desde y fecha hasta) validando que la fecha desde no sea posterior a la fecha hasta.
+- El sistema debe ordenar el listado de forma predeterminada por fecha de pago en orden descendente (más recientes primero).
+- El sistema debe permitir cambiar el ordenamiento por fecha (ascendente o descendente) o por monto (ascendente o descendente).
+- El sistema debe mostrar el listado de forma paginada con 10 registros por página.
+- El sistema no debe permitir modificar ni eliminar registros de pago desde esta sección (solo lectura).
 
 ---
 
-**HU-053 — Consulta de pagos**  
-Como *Administrador*, quiero visualizar todos los pagos realizados en el sistema, para poder consultar el historial de cobros de cada cliente y factura.
 
-**Criterios de aceptación:**
-- El listado muestra, para cada pago:
-    - Monto abonado
-    - Fecha
-    - Método de pago (efectivo, tarjeta, transferencia, etc.)
-    - Cliente asociado
-    - Factura asociada 
-- Permite filtrar por cliente, factura o rango de fechas.
-- Permite ordenar los pagos por fecha o monto.
-- No se permite modificar ni eliminar los registros de pago desde esta sección (solo consulta).
-
----
-
-### Módulo Reportes
-
-**HU-060 — Reporte de facturación masiva**  
-Como *Administrador*, quiero visualizar un listado de los procesos de facturación masiva realizados, para consultar sus resultados y verificar los montos y cantidad de facturas generadas.
-
-**Criterios de aceptación:**
-- El listado muestra, para cada proceso:
-    - Fecha del proceso
-    - Cantidad de facturas generadas
-    - Monto total facturado
-    - Empleado responsable del proceso
----
 

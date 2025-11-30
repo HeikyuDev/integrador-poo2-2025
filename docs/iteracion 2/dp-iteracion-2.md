@@ -140,22 +140,22 @@ Para el desarrollo de la iteracion 2 se dividió el trabajo de la siguiente mane
 
 Las historias de usuario que se van a implementar en esta iteración son:
 
-### 7. Suspensión de cuenta
+### 1. Suspensión de cuenta
 - **Como** administrador
 - **Quiero** poder suspender la cuenta de un cliente a pedido del mismo
 - **Para** detener temporalmente la generación de facturas sin perder la información fiscal asociada
 
-### 8. Anulación de factura (Nota de Crédito)
+### 2. Anulación de factura (Nota de Crédito)
 - **Como** administrador
 - **Quiero** generar una nota de crédito para corregir una factura errónea
 - **Para** que el monto de la factura quede ajustado correctamente dentro del sistema
 
-### 9. Registro de pago parcial
+### 3. Registro de pago parcial
 - **Como** administrador
 - **Quiero** registrar pagos parciales de una factura
 - **Para** poder reflejar en el sistema los abonos realizados por un cliente antes de saldar el total
 
-### 10. Consulta de pagos
+### 4. Consulta de pagos
 - **Como** administrador
 - **Quiero** visualizar todos los pagos realizados en el sistema
 - **Para** poder consultar el historial de cobros de cada cliente y factura

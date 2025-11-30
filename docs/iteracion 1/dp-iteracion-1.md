@@ -217,19 +217,30 @@ Para el desarrollo de la iteracion 1 se dividió el trabajo de la siguiente mane
 - **Quiero** registrar, consultar, modificar y dar de baja las cuentas de los clientes
 - **Para** vincular los servicios contratados al cliente, mantener su estado actualizado (activo o de baja), impidiendo que las cuentas dadas de baja sean incluidas en la facturación.
 
+
 ### 4. Facturación individual
 - **Como** administrador
-- **Quiero** emitir una factura individual y que el sistema calcule el IVA según la alícuota del servicio y la condición fiscal del cliente
-- **Para** para registrar los servicios contratados y pendientes de pago, asegurando el cálculo correcto de impuestos.
+- **Quiero** emitir una factura individual seleccionando servicios de una cuenta
+- **Para** registrar los servicios contratados y permitir su cobro posterior.
 
 ### 5. Registro de pago total
 - **Como** administrador 
-- **Quiero** registrar el pago total de una determinada factura 
-- **Para** reflejar correctamente las operaciones canceladas y evitar que facturas pagadas se consideren vencidas.
+- **Quiero** registrar un pago que cancele completamente una factura
+- **Para** reflejar que ha sido pagada en su totalidad.
 
 ### 6. Facturación Masiva
 - **Como** administrador 
-- **Quiero** quiero presionar el botón **“FACTURAR MASIVO”** y que el sistema genere facturas de todos los servicios aún no facturados, correspondientes a **clientes activos** y que registre la cantidad total de facturas generadas y el monto total facturado.
-- **Para** registrar automáticamente los servicios pendientes de pago dentro del sistema.
+- **Quiero** generar facturas masivamente para todas las cuentas activas
+- **Para** automatizar la facturación de servicios pendientes.
+
+### 7. Consulta de facturación masiva
+- **Como** administrador
+- **Quiero** visualizar un listado de todos los procesos de facturación masiva realizados
+- **Para** consultar el historial y verificar los resultados de cada proceso.
+
+### 8. Consulta de facturas
+- **Como** administrador
+- **Quiero** visualizar un listado de todas las facturas emitidas con opciones de filtrado y acceso al detalle
+- **Para** consultar y analizar el historial de facturación de los clientes.
 
 

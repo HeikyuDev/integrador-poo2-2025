@@ -24,19 +24,29 @@ El presente *roadmap* toma como base el ya establecido documento de especificaci
 
 ### 4. Facturación individual
 - **Como** administrador
-- **Quiero** emitir una factura individual y que el sistema calcule el IVA según la alícuota del servicio y la condición fiscal del cliente
-- **Para** para registrar los servicios contratados y pendientes de pago, asegurando el cálculo correcto de impuestos.
+- **Quiero** emitir una factura individual seleccionando servicios de una cuenta
+- **Para** registrar los servicios contratados y permitir su cobro posterior.
 
 ### 5. Registro de pago total
 - **Como** administrador 
-- **Quiero** registrar el pago total de una determinada factura 
-- **Para** reflejar correctamente las operaciones canceladas y evitar que facturas pagadas se consideren vencidas.
+- **Quiero** registrar un pago que cancele completamente una factura
+- **Para** reflejar que ha sido pagada en su totalidad.
 
 ### 6. Facturación Masiva
 - **Como** administrador 
-- **Quiero** quiero presionar el botón **“FACTURAR MASIVO”** y que el sistema genere facturas de todos los servicios aún no facturados, correspondientes a **clientes activos** y que registre la cantidad total de facturas generadas y el monto total facturado.
-- **Para** registrar automáticamente los servicios pendientes de pago dentro del sistema.
+- **Quiero** generar facturas masivamente para todas las cuentas activas
+- **Para** automatizar la facturación de servicios pendientes.
 
+### 7. Consulta de facturación masiva
+- **Como** administrador
+- **Quiero** visualizar un listado de todos los procesos de facturación masiva realizados
+- **Para** consultar el historial y verificar los resultados de cada proceso.
+
+
+### 8. Consulta de facturas
+- **Como** administrador
+- **Quiero** visualizar un listado de todas las facturas emitidas con opciones de filtrado y acceso al detalle
+- **Para** consultar y analizar el historial de facturación de los clientes.
 ---
 
 ## Fase 2: Funciones avanzadas, Refactoring y Testeo
@@ -53,27 +63,12 @@ El presente *roadmap* toma como base el ya establecido documento de especificaci
 - **Quiero** anular una factura errónea generando automáticamente una nota de crédito del mismo importe, vinculada a la factura original
 - **Para** corregir errores en comprobantes ya emitidos, manteniendo la coherencia contable y la trazabilidad de la operación mediante la nota de crédito.
 
-### 3. Registro de pagos por adelantado
-- **Como** administrador 
-- **Quiero** registrar pagos anticipados
-- **Para** reflejar el dinero recibido como saldo a favor del cliente y que pueda ser aplicado a futuras facturas.
-
-### 4. Registro de pago parcial
+### 3. Registro de pago parcial
 - **Como** administrador 
 - **Quiero** registrar pagos parciales de una determinada factura
 - **Para** registrar el abono de una parte del monto total y que el sistema la considere al momento de realizar otro pago parcial, o el pago total.
 
-### 5. Consultar reportes de facturación masiva
+### 4. Consulta de pagos
 - **Como** administrador
-- **Quiero** visualizar un listado de los procesos de facturación masiva realizados, que me muestre la fecha, cantidad de facturas generadas y monto total facturado
-- **Para** consultar sus resultados y verificar los montos y cantidad de facturas generadas.
-
-### 6. Consulta de pagos
-- **Como** administrador
-- **Quiero** visualizar todos los pagos realizados por los clientes en el sistema, que me muestre el monto abonado, la fecha de realización, el, o los, métodos de pago empleados, el cliente que lo realizó y número de factura en cuestión 
-- **Para** poder consultar el historial de cobros de cada cliente y factura.
-
-### 7. Consulta de facturas
-- **Como** administrador
-- **Quiero** visualizar el histórico de todas las facturas emitidas, que me indique el número de factura, cuenta del cliente, el, o los, servicios incluídos, el monto total y el, o los, pagos registrados junto a su método escogido
-- **Para** poder consultar los servicios incluidos, los montos y los pagos realizados dentro del sistema.
+- **Quiero** visualizar un listado de todos los pagos registrados con opciones de filtrado y ordenamiento
+- **Para** consultar el historial completo de cobros realizados.
