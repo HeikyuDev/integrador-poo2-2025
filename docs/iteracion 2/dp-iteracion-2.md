@@ -164,7 +164,7 @@ Para el desarrollo de la iteracion 2 se dividió el trabajo de la siguiente mane
 
 ---
 
-![image](link)
+![image](https://github.com/HeikyuDev/integrador-poo2-2025/blob/main/docs/iteracion%201/img/Modulo-Cuentas/detalle-cuenta.png)
 
 # Ver detalle de cuenta
 
