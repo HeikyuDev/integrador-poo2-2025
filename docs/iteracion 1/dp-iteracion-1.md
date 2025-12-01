@@ -21,31 +21,133 @@ Para el desarrollo de la iteracion 1 se dividió el trabajo de la siguiente mane
 # Alta de Cuenta
 
 *   **ID:** GC-001.
-*   **Descripción:** En este caso de uso, el *administrador* ingresa los datos necesarios y selecciona un **Cliente previamente registrado** para realizar el alta de una nueva cuenta. 
+*   **Descripción:** En este caso de uso, el administrador crea una nueva cuenta vinculada a un cliente existente, registrando sus datos fiscales para futuras operaciones de facturación.
 *   **Actor(es):** *Administrador*.
 
 ## Precondiciones
-* El cliente al cual se asociará la nueva cuenta, debe haber sido registrado previamente en el sistema.
+* Debe existir al menos un cliente registrado en el sistema.
 
 ## Flujo principal de eventos
-1. El administrador, estando en la página inicial con el listado, selecciona la opción **+ Nueva cuenta**.
+1. El administrador accede a la opción **Crear cuenta**.
 2. El sistema redirige a una nueva página que le permite cargar los campos necesarios.
-3. El administrador selecciona o busca un cliente registrado en la opción **Cliente**, luego ingresa por teclado la razón social, el CUIT y domicilio fiscal que tendrá la nueva cuenta.
-4. El administrador selecciona la condición frente al IVA de la cuenta.
+3. El administrador selecciona el cliente existente al que se asociará la cuenta.
+4. El administrador ingresa:
+    * CUIT
+    * Razón social
+    * Condición frente al IVA
+    * Domicilio fiscal
 5. Tras haber llenado los campos del formulario, el administrador pulsa el botón **Guardar**.
-6. El sistema valida que los datos ingresados sean válidos y no haya campos vacíos.
-7. El sistema, tras haber validado los datos, muestra un mensaje de confirmación indicando que la cuenta fue creada exitosamente.
+6. El sistema valida que todos los campos estén completos.
+7. El sistema, tras haber validado los datos, muestra un mensaje de confirmación indicando que la cuenta fue creada exitosamente y registra la cuenta con estado **Activo**.
+8. Se termina el caso de uso.
 
 ## Flujos alternativos
 *   **Si hay campos faltantes o con errores:**
     * El sistema avisa al administrador mediante una notificación emergente debajo del campo incorrecto o faltante.
     * El administrador completa el campo faltante o lo corrige.
-    * Se retorna al paso 6 de la secuencia normal.
-*   **Si [otra condición]:**
-    *   [Describe otro flujo alternativo]
+    * Se retorna al paso 4 de la secuencia normal.
 
 ## Poscondiciones
 * Se crea el registro de una nueva cuenta en el sistema.
+
+---
+
+![image](IMAGEN DEL WIREFRAME)
+
+# Consulta de cuentas
+
+*   **ID:** GC-002.
+*   **Descripción:** En este caso de uso, el administrador visualiza todas las cuentas registradas en el sistema, con la posibilidad de filtrar según estado.
+*   **Actor(es):** *Administrador*.
+
+## Precondiciones
+* Deben existir cuentas registradas previamente.
+
+## Flujo principal de eventos
+1. El administrador accede a la opción **Cuentas**.
+2. El sistema muestra el listado completo de cuentas registradas.
+3. El administrador puede aplicar filtros por estado:
+    * Activa
+    * Suspendida
+    * Inactiva
+    * Todas
+4. El sistema muestra el listado filtrado con:
+    * ID
+    * CUIT
+    * Razón social
+    * Condición frente al IVA
+    * Domicilio fiscal
+    * Estado
+5. Se termina el caso de uso.
+
+---
+
+![image](IMAGEN DEL WIREFRAME)
+
+# Modificar Cuenta
+
+*   **ID:** GC-003.
+*   **Descripción:** En este caso de uso, el administrador modifica una cuenta ya creada, editando datos de la cuenta o los servicios asociados de la misma.
+*   **Actor(es):** *Administrador*.
+
+## Precondiciones
+* La cuenta debe haber sido previamente registrada.
+
+## Flujo principal de eventos
+1. El administrador selecciona la opción para editar una cuenta del listado.
+2. El sistema muestra los campos editables:
+    * Razón social
+    * Condición frente al IVA
+    * Domicilio fiscal
+3. El administrador realiza las modificaciones necesarias.
+4. El administrador selecciona o deselecciona servicios asociados.
+5. Si selecciona un servicio con cantidad variable, el sistema solicita ingresarla.
+6. El administrador confirma los cambios.
+7. El sistema valida que todos los campos estén completos.
+8. El sistema actualiza los datos y asociaciones.
+9. El sistema muestra un mensaje de confirmación.
+10. Se termina el caso de uso.
+
+## Flujos alternativos
+*   **Si hay campos faltantes o con errores:**
+    * El sistema avisa al administrador mediante una notificación emergente debajo del campo incorrecto o faltante.
+    * El administrador completa el campo faltante o lo corrige.
+    * Se retorna al paso 3 de la secuencia normal.
+
+## Poscondiciones
+* Se actualiza el registro de una cuenta.
+* Los servicios agregados o eliminados quedan reflejados.
+* Se registra la preferencia o cantidad cuando aplique.
+
+---
+
+# Baja de Cuenta
+
+*   **ID:** GC-004.
+*   **Descripción:** En este caso de uso, el administrador da de baja una cuenta para impedir su uso en facturación, manteniendo su información histórica.
+*   **Actor(es):** *Administrador*.
+
+## Precondiciones
+* La cuenta debe haber sido previamente registrada.
+* La cuenta debe estar en estado **Activo** o **Suspendido**
+
+## Flujo principal de eventos
+1. El administrador selecciona la cuenta a dar de baja y presiona la opción para editar.
+2. El sistema muestra los datos de la cuenta, sus servicios asociados y el botón **Marcar como inactivo**.
+3. El administrador presiona el botón.
+4. El sistema pregunta si desea confirmar la operación.
+5. El administrador confirma la operación.
+6. El sistema actualiza el estado a Inactiva.
+7. El sistema muestra mensaje de baja exitosa.
+8. Se termina el caso de uso.
+
+## Flujos alternativos
+*   **Si la cuenta ya está inactiva:**
+    * El sistema impide la acción y notifica al administrador.
+
+## Poscondiciones
+* La cuenta pasa a estado Inactiva.
+* No puede usarse en procesos de facturación.
 
 ---
 
@@ -215,7 +317,7 @@ Para el desarrollo de la iteracion 1 se dividió el trabajo de la siguiente mane
 ### 3. Gestión de cuentas
 - **Como** administrador
 - **Quiero** registrar, consultar, modificar y dar de baja las cuentas de los clientes
-- **Para** vincular los servicios contratados al cliente, mantener su estado actualizado (activo o de baja), impidiendo que las cuentas dadas de baja sean incluidas en la facturación.
+- **Para** vincular los servicios contratados al cliente, mantener su estado actualizado (activo o inactivo), impidiendo que las cuentas dadas de baja (inactivas) sean incluidas en la facturación.
 
 
 ### 4. Facturación individual
@@ -242,5 +344,3 @@ Para el desarrollo de la iteracion 1 se dividió el trabajo de la siguiente mane
 - **Como** administrador
 - **Quiero** visualizar un listado de todas las facturas emitidas con opciones de filtrado y acceso al detalle
 - **Para** consultar y analizar el historial de facturación de los clientes.
-
-

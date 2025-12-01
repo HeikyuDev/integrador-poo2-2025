@@ -157,32 +157,36 @@ Como *Administrador*, quiero desactivar un servicio registrado y activo, para qu
 ### Módulo Cuentas
 
 **HU-030 — Alta de cuenta**  
-Como *Administrador*, quiero crear una cuenta vinculada a un cliente, para registrar sus datos fiscales y permitir su utilización en procesos de facturación.
+Como *Administrador*, quiero crear una cuenta vinculada a un cliente, para registrar sus datos fiscales, poder asociarle servicios y permitir su utilización en procesos de facturación.
 
 **Criterios de aceptación:**
-- La cuenta debe estar asociada a un cliente existente.  
+- La cuenta debe estar asociada a un cliente existente.
+- La condición frente al IVA debe seleccionarse. 
 - Se deben ingresar los siguientes datos obligatorios:
     - CUIT
     - Razón social
     - Condición frente al IVA 
     - Domicilio fiscal
-- El sistema valida que el CUIT no esté ya registrado en otra cuenta activa.
-- Al confirmar, la cuenta se registra con estado Activo y queda disponible para operaciones de facturación. 
+- Al confirmar, la cuenta se registra con estado Activo y queda disponible para operaciones de facturación.
+- No es necesario asociar un servicio al momento de crear la cuenta.
+- El sistema valida que todos los campos esten completos.
 
 ---
 
 **HU-031 — Consulta de cuentas**  
-Como *Administrador*, quiero visualizar todas las cuentas activas registradas en el sistema, para consultar su información fiscal y el cliente al que pertenecen.
+Como *Administrador*, quiero visualizar todas las cuentas registradas en el sistema ya sean activas, suspendidas o inactivas, para consultar su información fiscal y estado.
 
 **Criterios de aceptación:**
-- El listado muestra todas las cuentas activas.
+- El listado muestra todas las cuentas registradas.
 - Cada cuenta en el listado incluye:
+    - ID
     - CUIT
     - Razón social
     - Condición frente al IVA
     - Domicilio fiscal
-    - Cliente asociado (nombre del cliente titular de la cuenta)
-- Permite filtrar por cliente. (visualizar todas las cuentas correspondientes a un determinado cliente)
+    - Estado
+- Permite filtrar por estado de cuenta, permitiendo visualizar solamente
+las activas, inactivas, suspendidas o todas.
 
 ---
 
@@ -198,7 +202,7 @@ Como *Administrador*, quiero poder suspender la cuenta de un cliente a pedido de
 
 **HU-033 — Modificacion de Cuenta**
 
-Como *Administrador*, quiero poder modificar los datos fiscales de una cuenta registrada, para mantener actualizada su información y asegurar que las futuras facturas se emitan correctamente.
+Como *Administrador*, quiero poder modificar los datos fiscales o los servicios asociados  de una cuenta registrada, para mantener actualizada su información.
 
 **Criterios de aceptación:**
 
@@ -206,8 +210,10 @@ Como *Administrador*, quiero poder modificar los datos fiscales de una cuenta re
     - Razón social
     - Condición frente al IVA
     - Domicilio fiscal
-- El CUIT no puede modificarse, ya que identifica de forma única la cuenta.
-- El sistema valida que los campos obligatorios no queden vacíos.
+- El sistema valida que todos los campos esten completos.
+- Si se selecciona un nuevo servicio y se actualiza, debe asociarse a la cuenta.
+- Si se deselecciona un servicio, debe eliminarse la asociación con la cuenta.
+- El sistema debe permitir elegir una cantidad de preferencia si el servicio posee cantidad variable.
 
 ---
 
@@ -220,6 +226,25 @@ Como *Administrador*, quiero dar de baja una cuenta registrada, para que no pued
 - La información de la cuenta no se elimina, permitiendo consultar su historial de facturación y pagos asociados.
 
 ---
+
+**HU-035 — Ver detalle de cuenta**  
+Como *Administrador*, quiero poder ver el detalle de una cuenta para consultar los datos registrados, información del cliente asociado y un listado de los servicios asociados, para consultar más a detalle toda la información relacionada a una cuenta.
+
+**Criterios de aceptación:**
+- El detalle debe mostrar los datos:
+    - ID de Cuenta
+    - CUIT
+    - Razón social
+    - Condición frente al IVA
+    - Domicilio fiscal
+    - Estado
+    - Nombre del cliente
+    - Tipo de cliente
+    - Dirección del cliente
+    - Correo del cliente
+    - Teléfono del cliente
+    - Lista de servicios asociados con precio y estado (Factuarado o Pendiente)
+- Solo se puede visualizar el estado de una cuenta existente
 
 ### Módulo Facturación
 

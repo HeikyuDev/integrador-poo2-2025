@@ -68,17 +68,21 @@
                                            th:value="${cuenta?.razonSocial}">
                                 </div>
 
-                                <!-- CUIT -->
-                                <div class="mb-3">
-                                    <label for="cuit" class="form-label">
-                                        <i class="fas fa-id-card me-2"></i>CUIT *
-                                    </label>
-                                    <input type="text" class="form-control" id="cuit" 
-                                           name="cuit" required pattern="[0-9]{11}"
-                                           placeholder="20123456789" maxlength="11"
-                                           th:value="${cuenta?.cuit}">
-                                    <small class="text-muted">Ingrese 11 dígitos numéricos sin guiones</small>
-                                </div>
+                                    <!-- CUIT -->
+                                    <div class="mb-3">
+                                        <label for="cuit" class="form-label">
+                                            <i class="fas fa-id-card me-2"></i>CUIT *
+                                        </label>
+                                        <input type="text" class="form-control" id="cuit" 
+                                            name="cuit" required pattern="[0-9]{11}"
+                                            placeholder="20123456789" maxlength="11"
+                                            th:value="${cuenta?.cuit}"
+                                            th:disabled="${cuenta != null}">
+                                        <small class="text-muted">
+                                            <span th:if="${cuenta == null}">Ingrese 11 dígitos numéricos sin guiones</span>
+                                            <span th:if="${cuenta != null}">No se puede cambiar el CUIT de una cuenta existente</span>
+                                        </small>
+                                    </div>
 
                                 <!-- Condición Frente al IVA -->
                                 <div class="mb-3">

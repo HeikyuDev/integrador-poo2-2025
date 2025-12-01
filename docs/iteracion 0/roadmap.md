@@ -20,7 +20,7 @@ El presente *roadmap* toma como base el ya establecido documento de especificaci
 ### 3. Gestión de cuentas
 - **Como** administrador
 - **Quiero** registrar, consultar, modificar y dar de baja las cuentas de los clientes
-- **Para** vincular los servicios contratados al cliente, mantener su estado actualizado (activo o de baja), impidiendo que las cuentas dadas de baja sean incluidas en la facturación.
+- **Para** vincular los servicios contratados al cliente, mantener su estado actualizado (activo o inactivo), impidiendo que las cuentas dadas de baja (inactivas) sean incluidas en la facturación.
 
 ### 4. Facturación individual
 - **Como** administrador
@@ -58,17 +58,22 @@ El presente *roadmap* toma como base el ya establecido documento de especificaci
 - **Quiero** poder suspender la cuenta de un cliente a pedido del mismo
 - **Para** detener temporalmente la generación de facturas sin perder la información fiscal asociada.
 
-### 2. Anulación de facturas
+### 2. Ver detalle cuenta
+- **Como** administrador 
+- **Quiero** quiero poder ver el detalle de una cuenta para consultar los datos registrados, información del cliente asociado y un listado de los servicios asociados
+- **Para** para consultar más a detalle toda la información relacionada a una cuenta.
+
+### 3. Anulación de facturas
 - **Como** administrador 
 - **Quiero** anular una factura errónea generando automáticamente una nota de crédito del mismo importe, vinculada a la factura original
 - **Para** corregir errores en comprobantes ya emitidos, manteniendo la coherencia contable y la trazabilidad de la operación mediante la nota de crédito.
 
-### 3. Registro de pago parcial
+### 4. Registro de pago parcial
 - **Como** administrador 
 - **Quiero** registrar pagos parciales de una determinada factura
 - **Para** registrar el abono de una parte del monto total y que el sistema la considere al momento de realizar otro pago parcial, o el pago total.
 
-### 4. Consulta de pagos
+### 5. Consulta de pagos
 - **Como** administrador
 - **Quiero** visualizar un listado de todos los pagos registrados con opciones de filtrado y ordenamiento
 - **Para** consultar el historial completo de cobros realizados.

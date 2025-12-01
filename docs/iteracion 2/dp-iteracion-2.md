@@ -2,7 +2,7 @@
 Para el desarrollo de la iteracion 2 se dividió el trabajo de la siguiente manera:
 
 ### **Gallo Guillermo**
-- Refactorizacion y mejora del Modulo de Cuentas
+- Refactorizacion y mejora del Modulo de Cuentas: agregadas las opciones *ver detalle de cuenta* y *suspender cuenta*.
 
 ### **Pergher Lucas Maurice**
 - Refactorizacion y mejora del Modulo de Clientes y Servicios, Y desarrollo del Historial del Pagos
@@ -19,7 +19,7 @@ Para el desarrollo de la iteracion 2 se dividió el trabajo de la siguiente mane
 ## Wireframe
 ![image](https://github.com/HeikyuDev/integrador-poo2-2025/blob/ce184cf4b9fa257d109dd1839452390f48a36ee8/docs/iteracion%202/img/Modulo-Facturacion/Mockup-Facturacion-Anulacion.jpg)
 
-## Caso de Uso
+## Casos de Uso
 
 *   **ID:** GC-006.
 *   **Descripción:** En este caso de uso, el *administrador* selecciona una determinada factura procesada en estado PENDIENTE o PARCIALMENTE PAGADA y procede a anularla generando una nota de crédito como comprobante de dicha anulación, además de revertir los servicios asociados a estado PENDIENTE para permitir refacturación.
@@ -134,6 +134,65 @@ Para el desarrollo de la iteracion 2 se dividió el trabajo de la siguiente mane
 
 ---
 
+# Suspender cuenta
+
+*   **ID:** GC-005.
+*   **Descripción:** En este caso de uso, el administrador suspende temporalmente una cuenta sin eliminar información fiscal, impidiendo que se incluya en facturaciones.histórica.
+*   **Actor(es):** *Administrador*.
+
+## Precondiciones
+* La cuenta debe haber sido previamente registrada.
+* La cuenta debe estar en estado **Inactivo** o **Suspendido**
+
+## Flujo principal de eventos
+1. El administrador selecciona la cuenta a suspender y presiona la opción para editar.
+2. El sistema muestra los datos de la cuenta, sus servicios asociados y el botón **Marcar como suspendido**.
+3. El administrador presiona el botón.
+4. El sistema pregunta si desea confirmar la operación.
+5. El administrador confirma la operación.
+6. El sistema actualiza el estado a **Suspendido**.
+7. El sistema muestra mensaje de cambios realizados.
+8. Se termina el caso de uso.
+
+## Flujos alternativos
+*   **Si la cuenta ya está suspendida:**
+    * El sistema impide la acción y notifica al administrador.
+
+## Poscondiciones
+* La cuenta queda con estado Suspendida.
+* La cuenta deja de aparecer en facturación masiva e individual.
+
+---
+
+![image](link)
+
+# Ver detalle de cuenta
+
+*   **ID:** GC-006.
+*   **Descripción:** En este caso de uso, el administrador solicita al sistema visualizar toda la información fiscal, los datos del cliente asociado y los servicios vinculados a una cuenta.
+*   **Actor(es):** *Administrador*.
+
+## Precondiciones
+* La cuenta debe haber sido previamente registrada.
+
+## Flujo principal de eventos
+1. El administrador selecciona una cuenta del listado y presiona el botón para ver el detalle de la cuenta.
+2. El sistema carga y muestra el detalle completo:
+    * ID de Cuenta
+    * CUIT
+    * Razón social
+    * Condición frente al IVA
+    * Domicilio fiscal
+    * Estado
+    * Nombre del cliente
+    * Tipo de cliente
+    * Dirección del cliente
+    * Correo
+    * Teléfono
+    * Servicios asociados con precio y estado (Facturado / Pendiente)
+3. El administrador revisa la información.
+4. Se termina el caso de uso.
+
 ---
 
 # Backlog de iteraciones
@@ -160,5 +219,9 @@ Las historias de usuario que se van a implementar en esta iteración son:
 - **Quiero** visualizar todos los pagos realizados en el sistema
 - **Para** poder consultar el historial de cobros de cada cliente y factura
 
+### 5. Ver detalle cuenta
+- **Como** administrador 
+- **Quiero** quiero poder ver el detalle de una cuenta para consultar los datos registrados, información del cliente asociado y un listado de los servicios asociados
+- **Para** para consultar más a detalle toda la información relacionada a una cuenta.
 
 
