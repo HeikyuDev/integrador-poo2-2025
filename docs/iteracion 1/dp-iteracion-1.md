@@ -16,7 +16,7 @@ Para el desarrollo de la iteracion 1 se dividió el trabajo de la siguiente mane
 ---
 # Wireframe y caso de uso
 
-![image](IMAGEN DEL WIREFRAME)
+![image](https://github.com/HeikyuDev/integrador-poo2-2025/blob/main/docs/iteracion%201/img/Modulo-Cuentas/nueva-cuenta.png)
 
 # Alta de Cuenta
 
@@ -52,7 +52,7 @@ Para el desarrollo de la iteracion 1 se dividió el trabajo de la siguiente mane
 
 ---
 
-![image](IMAGEN DEL WIREFRAME)
+![image](https://github.com/HeikyuDev/integrador-poo2-2025/blob/main/docs/iteracion%201/img/Modulo-Cuentas/listado-cuentas.png)
 
 # Consulta de cuentas
 
@@ -81,8 +81,6 @@ Para el desarrollo de la iteracion 1 se dividió el trabajo de la siguiente mane
 5. Se termina el caso de uso.
 
 ---
-
-![image](IMAGEN DEL WIREFRAME)
 
 # Modificar Cuenta
 
