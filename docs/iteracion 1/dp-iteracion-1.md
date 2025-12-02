@@ -20,7 +20,7 @@ Para el desarrollo de la iteracion 1 se dividió el trabajo de la siguiente mane
 
 # Alta de Cuenta
 
-*   **ID:** GC-001.
+*   **ID:** CU-001.
 *   **Descripción:** En este caso de uso, el administrador crea una nueva cuenta vinculada a un cliente existente, registrando sus datos fiscales para futuras operaciones de facturación.
 *   **Actor(es):** *Administrador*.
 
@@ -56,7 +56,7 @@ Para el desarrollo de la iteracion 1 se dividió el trabajo de la siguiente mane
 
 # Consulta de cuentas
 
-*   **ID:** GC-002.
+*   **ID:** CU-002.
 *   **Descripción:** En este caso de uso, el administrador visualiza todas las cuentas registradas en el sistema, con la posibilidad de filtrar según estado.
 *   **Actor(es):** *Administrador*.
 
@@ -121,7 +121,7 @@ Para el desarrollo de la iteracion 1 se dividió el trabajo de la siguiente mane
 
 # Baja de Cuenta
 
-*   **ID:** GC-004.
+*   **ID:** CU-003.
 *   **Descripción:** En este caso de uso, el administrador da de baja una cuenta para impedir su uso en facturación, manteniendo su información histórica.
 *   **Actor(es):** *Administrador*.
 
@@ -156,7 +156,7 @@ Para el desarrollo de la iteracion 1 se dividió el trabajo de la siguiente mane
 
 ## Caso de Uso
 
-*   **ID:** GC-002.
+*   **ID:** CU-005.
 * **Descripción:** En este caso de uso, el *administrador* selecciona una **cuenta de cliente** y un **período** a facturar. El sistema muestra los servicios pendientes de esa cuenta. El administrador selecciona los servicios, ajusta las cantidades si es necesario, y genera la factura.
 *   **Actor(es):** *Administrador*.
 
@@ -196,7 +196,7 @@ Para el desarrollo de la iteracion 1 se dividió el trabajo de la siguiente mane
 
 ## Caso de Uso
 
-*   **ID:** GC-003.
+*   **ID:** CU-006.
 * **Descripción:** En este caso de uso, el *administrador*, selecciona un periodo de Facturacion, y preciona el boton *Facturacion Masiva* para facturar a cada cuenta que este en el estado *Activo*.
 *   **Actor(es):** *Administrador*.
 
@@ -230,7 +230,7 @@ Para el desarrollo de la iteracion 1 se dividió el trabajo de la siguiente mane
 
 ## Caso de Uso
 
-*   **ID:** GC-004.
+*   **ID:** CU-007.
 *   **Descripción:** En este caso de uso, el *administrador* selecciona una **factura pendiente de pago** y registra el pago total de la misma indicando el **método de pago** utilizado.
 *   **Actor(es):** *Administrador*.
 
@@ -269,7 +269,7 @@ Para el desarrollo de la iteracion 1 se dividió el trabajo de la siguiente mane
 
 ## Caso de Uso
 
-*   **ID:** GC-005.
+*   **ID:** CU-008.
 *   **Descripción:** En este caso de uso, el *administrador* consulta y filtra el listado de todas las facturas emitidas en el sistema, pudiendo buscar por **Cuenta** o por **Número de Comprobante**.
 *   **Actor(es):** *Administrador*.
 
@@ -296,6 +296,300 @@ Para el desarrollo de la iteracion 1 se dividió el trabajo de la siguiente mane
 ## Poscondiciones
 * El administrador visualiza el listado de facturas filtradas y paginadas.
 * El administrador puede acceder al detalle de cualquier factura seleccionada.
+---
+
+# Modulo de Servicios
+
+# Alta de Servicio
+
+## Wireframe
+![Lista de Servicios](img/Modulo-Servicios/formulario-servicio.png)
+
+## Caso de uso
+
+*   **ID:** CU-009.
+*   **Descripción:** En este caso de uso, el administrador registra un nuevo servicio completando sus datos básicos, valores económicos (monto y alícuota) y su estado.
+*   **Actor(es):** *Administrador*.
+
+## Precondiciones
+* No se requieren precondiciones.
+
+## Flujo principal de eventos
+1. El administrador ingresa a **Servicios** y presiona **Nuevo Servicio**.
+2. El sistema redirige al formulario **Nuevo Servicio**.
+3. El administrador completa los campos:
+   * Nombre del servicio (obligatorio)
+   * Descripción (opcional)
+   * Monto ($) — numérico, mayor o igual a 0 (obligatorio)
+   * Alícuota (IVA) — opciones: 0%, 10.5%, 21%, 27% (obligatorio)
+   * Estado — ACTIVO o INACTIVO (obligatorio)
+   * Admite cantidad variable — conmutador (opcional)
+4. A medida que ingresa Monto y Alícuota, el sistema actualiza la **Vista previa del cálculo** (Monto base, IVA y Total).
+5. El administrador presiona **Guardar Servicio**.
+6. El sistema valida los datos obligatorios y formatos numéricos.
+7. El sistema persiste el servicio, redirige al listado y muestra una notificación de éxito.
+8. Se termina el caso de uso.
+
+## Flujos alternativos
+*   **Campos faltantes o inválidos:**
+    * El sistema muestra mensajes de error por campo y/o un mensaje general.
+    * El administrador corrige y reintenta guardar.
+
+## Poscondiciones
+* Se crea el registro del nuevo servicio con el estado seleccionado.
+* La vista de listado queda disponible para administrar el servicio recién creado.
+
+---
+
+# Consulta de Servicios
+
+## Wireframe
+![Lista de Servicios](img/Modulo-Servicios/lista-servicios.png)
+
+## Caso de uso
+
+*   **ID:** CU-010.
+*   **Descripción:** En este caso de uso, el administrador visualiza el listado de servicios y puede buscar por nombre y filtrar por estado (Activos, Inactivos, Todos).
+*   **Actor(es):** *Administrador*.
+
+## Precondiciones
+* Debe existir al menos un servicio registrado en el sistema.
+
+## Flujo principal de eventos
+1. El administrador accede a **Servicios**.
+2. El sistema muestra el **Listado de Servicios**, con acciones y filtros disponibles.
+3. El administrador puede:
+   * Escribir en **Buscar servicio…** para filtrar por nombre en la tabla.
+   * Seleccionar **Estado** (ACTIVO, INACTIVO, ALL); el sistema aplica el filtro recargando la página con parámetros de consulta.
+4. El administrador puede iniciar acciones desde la tabla: **Editar**, **Desactivar** (si corresponde) o **Nuevo Servicio** desde la cabecera.
+5. Se termina el caso de uso.
+
+## Flujos alternativos
+*   **No hay servicios registrados:**
+    * El sistema muestra el renglón informativo: “No hay servicios registrados”.
+*   **No hay coincidencias con la búsqueda/filtro:**
+    * El listado no muestra filas que coincidan con los criterios aplicados.
+
+## Poscondiciones
+* Ninguna. Se trata de una visualización y navegación.
+
+---
+# Modificar Servicio
+
+## Caso de uso
+
+*   **ID:** CU-011.
+*   **Descripción:** En este caso de uso, el administrador edita los datos de un servicio registrado, incluyendo su monto, alícuota, estado y configuración de cantidad variable.
+*   **Actor(es):** *Administrador*.
+
+## Precondiciones
+* El servicio debe estar previamente registrado.
+
+## Flujo principal de eventos
+1. En el **Listado de Servicios**, el administrador presiona **Editar** en la fila del servicio deseado.
+2. El sistema muestra el formulario con los datos precargados y el encabezado **Editar Servicio**.
+3. El administrador modifica los campos necesarios: Nombre, Descripción, Monto, Alícuota, Estado y/o **Admite cantidad variable**.
+4. La **Vista previa del cálculo** se actualiza según Monto y Alícuota.
+5. El administrador presiona **Actualizar Servicio**.
+6. El sistema valida los campos (obligatoriedad y formatos numéricos).
+7. El sistema guarda los cambios, redirige al listado y muestra una notificación de éxito.
+8. Se termina el caso de uso.
+
+## Flujos alternativos
+*   **Campos faltantes o inválidos:**
+    * El sistema muestra mensajes de error por campo y/o un mensaje general.
+    * El administrador corrige y reintenta.
+*  **Cancelar edición:**
+    * El administrador presiona **Cancelar**.
+    * El sistema redirige al listado sin guardar cambios.
+
+## Poscondiciones
+* Se actualizan los datos del servicio.
+* Los cambios de estado se reflejan en el listado y reglas del sistema (servicios INACTIVOS no se podrán asignar a nuevas cuentas).
+
+---
+
+# Desactivar (Baja) Servicio
+
+## Wireframe
+![Lista de Servicios](img/Modulo-Servicios/lista-servicios.png)
+
+## Caso de uso
+
+*   **ID:** CU-012.
+*   **Descripción:** En este caso de uso, el administrador desactiva un servicio para impedir nuevas asignaciones, manteniendo su información histórica.
+*   **Actor(es):** *Administrador*.
+
+## Precondiciones
+* El servicio debe estar previamente registrado.
+* El servicio no debe estar ya en estado **INACTIVO** (en ese caso, el botón no se muestra).
+
+## Flujo principal de eventos
+1. En el **Listado de Servicios**, el administrador presiona el botón **Desactivar** de la fila del servicio.
+2. El sistema muestra un **modal de confirmación**, exhibiendo el nombre del servicio afectado.
+3. El administrador confirma la operación presionando **Desactivar** en el modal.
+4. El sistema procesa la solicitud (POST a `/servicios/eliminar/{id}`) y actualiza el estado del servicio a **INACTIVO**.
+5. El sistema cierra el modal, recarga el listado y muestra una notificación de éxito.
+6. Se termina el caso de uso.
+
+## Flujos alternativos
+*   **Cancelar en el modal:**
+    * No se realiza ninguna modificación.
+*   **Servicio ya inactivo:**
+    * El botón **Desactivar** no se muestra en la tabla para ese registro.
+
+## Poscondiciones
+* El servicio queda en estado **INACTIVO**.
+* No estará disponible para nuevas asignaciones.
+
+---
+
+# Modulo de Clientes
+
+# Alta de Cliente
+
+## Wireframe
+![Lista de Servicios](img/Modulo-Clientes/formulario-cliente.png)
+
+## Caso de uso
+
+*   **ID:** CU-013.
+*   **Descripción:** En este caso de uso, el administrador registra un nuevo cliente completando sus datos personales, de contacto y estado inicial.
+*   **Actor(es):** *Administrador*.
+
+## Precondiciones
+* No se requieren precondiciones.
+
+## Flujo principal de eventos
+1. El administrador ingresa a la sección **Clientes** y presiona el botón **Nuevo Cliente**.
+2. El sistema redirige al formulario **Nuevo Cliente**.
+3. El administrador selecciona el **Tipo de Cliente**: Persona Física o Persona Jurídica.
+4. El administrador completa los campos obligatorios:
+   * Nombre completo
+   * Dirección
+   * Teléfono (formato argentino; se muestra prefijo +54 como ayuda visual)
+   * Correo electrónico
+5. El administrador selecciona el **Estado** inicial (ACTIVO, INACTIVO o SUSPENDIDO).
+6. El administrador presiona **Guardar Cliente**.
+7. El sistema valida que los campos obligatorios estén completos, el formato del teléfono y del correo electrónico sea válido y, de aplicar, que el correo no esté ya registrado.
+8. El sistema persiste el cliente, redirige al listado y muestra una notificación de éxito.
+9. Se termina el caso de uso.
+
+## Flujos alternativos
+*   **Campos faltantes o inválidos:**
+    * El sistema muestra mensajes de error debajo de cada campo y/o un mensaje de error general.
+    * El administrador corrige y reintenta guardar.
+    * Se retorna al paso 3 del flujo principal.
+*   **Correo ya existente:**
+    * El sistema informa el conflicto mediante un mensaje de error general.
+    * El administrador ingresa un correo distinto y reintenta.
+
+## Poscondiciones
+* Se crea el registro del nuevo cliente con el estado seleccionado.
+* El correo electrónico queda reservado para ese cliente (unicidad).
+---
+
+# Consulta de Clientes
+
+## Wireframe
+![Lista de Clientes](img/Modulo-Clientes/lista-clientes.png)
+
+## Caso de uso
+
+*   **ID:** CU-014.
+*   **Descripción:** En este caso de uso, el administrador visualiza el listado de clientes y puede filtrar por Estado (Activos, Inactivos, Suspendidos, Todos), por Tipo (Persona Física/Jurídica) y buscar por nombre.
+*   **Actor(es):** *Administrador*.
+
+## Precondiciones
+* Debe existir al menos un cliente registrado en el sistema.
+
+## Flujo principal de eventos
+1. El administrador accede a la opción **Clientes**.
+2. El sistema muestra el **Listado de Clientes** con acciones y filtros disponibles.
+3. El administrador puede:
+   * Escribir en el campo de **búsqueda** para filtrar por nombre (filtro inmediato en la tabla).
+   * Seleccionar **Estado** (ACTIVO, INACTIVO, SUSPENDIDO, ALL); el sistema aplica filtros recargando la página con parámetros de consulta.
+   * Seleccionar **Tipo** (FISICO, JURIDICO, ALL); el sistema aplica filtros recargando la página con parámetros de consulta.
+4. El administrador puede iniciar acciones desde la tabla: **Editar** o **Suspender** (si corresponde), o **Nuevo Cliente** desde la cabecera.
+5. Se termina el caso de uso.
+
+## Flujos alternativos
+*   **No hay clientes registrados:**
+    * El sistema muestra un renglón informativo: “No hay clientes registrados”.
+*   **No hay coincidencias con los filtros/búsqueda:**
+    * El listado no muestra filas que coincidan con los criterios aplicados.
+
+## Poscondiciones
+* Ninguna. Se trata de una visualización y navegación.
+
+---
+
+# Modificar Cliente
+
+## Caso de uso
+
+*   **ID:** CU-015.
+*   **Descripción:** En este caso de uso, el administrador edita los datos de un cliente ya registrado, incluyendo su estado.
+*   **Actor(es):** *Administrador*.
+
+## Precondiciones
+* El cliente debe estar previamente registrado.
+
+## Flujo principal de eventos
+1. En el **Listado de Clientes**, el administrador presiona **Editar** en la fila del cliente deseado.
+2. El sistema muestra el formulario con los datos precargados y el encabezado **Editar Cliente**.
+3. El administrador modifica los campos necesarios (Tipo de cliente, Nombre, Dirección, Teléfono, Correo electrónico, Estado).
+4. El administrador presiona **Actualizar Cliente**.
+5. El sistema valida los campos (obligatoriedad, formatos y, de aplicar, unicidad del correo).
+6. El sistema guarda los cambios, redirige al listado y muestra una notificación de éxito.
+7. Se termina el caso de uso.
+
+## Flujos alternativos
+*   **Campos faltantes o inválidos:**
+    * El sistema muestra mensajes de error por campo y/o un mensaje general.
+    * El administrador corrige y reintenta.
+*   **Correo usado por otro cliente:**
+    * El sistema informa el conflicto mediante un mensaje de error general.
+    * El administrador ajusta el dato y reintenta.
+
+## Poscondiciones
+* Se actualizan los datos del cliente.
+* Los cambios de estado se reflejan en el listado y en las reglas del sistema (por ejemplo: clientes inactivos no podrán tener cuentas activas asociadas).
+
+---
+
+# Baja (Suspender) de Cliente
+
+## Wireframe
+![Lista de Clientes](img/Modulo-Clientes/lista-clientes.png)
+
+## Caso de uso
+*   **ID:** CU-016.
+*   **Descripción:** En este caso de uso, el administrador suspende un cliente para impedir su uso en operaciones, manteniendo su información y permitiendo reactivación posterior.
+*   **Actor(es):** *Administrador*.
+
+## Precondiciones
+* El cliente debe estar previamente registrado.
+* El cliente no debe estar ya en estado **SUSPENDIDO** (en ese caso, el botón no se muestra).
+
+## Flujo principal de eventos
+1. En el **Listado de Clientes**, el administrador presiona el botón **Suspender** de la fila del cliente.
+2. El sistema muestra un **modal de confirmación**, exhibiendo el nombre del cliente afectado.
+3. El administrador confirma la operación presionando **Suspender** en el modal.
+4. El sistema procesa la solicitud (POST a `/clientes/eliminar/{id}`) y actualiza el estado del cliente a **SUSPENDIDO**.
+5. El sistema cierra el modal, recarga el listado y muestra una notificación de éxito.
+6. Se termina el caso de uso.
+
+## Flujos alternativos
+*   **Cancelar en el modal:**
+    * No se realiza ninguna modificación.
+*   **Cliente ya suspendido:**
+    * El botón **Suspender** no se muestra en la tabla para ese registro.
+
+## Poscondiciones
+* El cliente queda en estado **SUSPENDIDO**.
+* El cliente puede reactivarse posteriormente desde **Editar Cliente** cambiando su estado a **ACTIVO**.
+
 ---
 
 # Backlog de iteraciones
