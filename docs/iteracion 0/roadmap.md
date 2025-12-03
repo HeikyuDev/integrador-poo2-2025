@@ -51,7 +51,7 @@ El presente *roadmap* toma como base el ya establecido documento de especificaci
 
 ## Fase 2: Funciones avanzadas, Refactoring y Testeo
 
-**Objetivo:** Incorporar funcionalidades extra más avanzadas, como la Facturación Masiva, visualización de registros de pago, entre otras. Junto al refactoring de las funciones implementadas y finalmente el testeo del sistema, previo al empaquetamiento.
+**Objetivo:** Incorporar funcionalidades extra más avanzadas, como la visualización de registros de pagos parciales, la suspensión de cuentas, anulación de facturas, entre otras. Junto al refactoring de los módulos implementados en la iteración anterior, acompañado del testing con JUnit.
 
 ### 1. Suspender cuenta
 - **Como** administrador 
